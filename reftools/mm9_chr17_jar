@@ -1,0 +1,51 @@
+#!/bin/bash
+
+##
+# mm9_chr17_jar
+#
+#  Authors: Ben Langmead & Michael C. Schatz
+#     Date: 10/9/2009
+#
+# Driver script for building a reference jar for mm9 chromosome 17.
+
+SUFFIX=$1
+shift
+INDEX=mm9_chr17$SUFFIX
+BASE=ftp://hgdownload.cse.ucsc.edu/goldenPath/mm9/chromosomes
+
+mkdir -p .${INDEX}
+mkdir -p .${INDEX}/sequences
+
+BUILD_INPUTS=
+
+j=0
+for i in 17 ; do
+	wget $BASE/chr$i.fa.gz -O .${INDEX}/sequences/zchr$j.fa.gz
+	gunzip .${INDEX}/sequences/zchr$j.fa.gz
+	sed -e "s/^>.*/>$j/" .${INDEX}/sequences/zchr$j.fa > .${INDEX}/sequences/chr$j.fa
+	rm -f .${INDEX}/sequences/zchr$j.fa
+	[ ! -f .${INDEX}/sequences/chr$j.fa ] && echo "Didn't get .${INDEX}/sequences/chr$j.fa" && exit 1
+	if [ -z "$BUILD_INPUTS" ] ; then
+		BUILD_INPUTS=".${INDEX}/sequences/chr$j.fa"
+	else
+		BUILD_INPUTS="$BUILD_INPUTS,.${INDEX}/sequences/chr$j.fa"
+	fi
+	j=`expr $j + 1`
+done
+
+mkdir -p .${INDEX}/index
+bowtie-build $* $BUILD_INPUTS .${INDEX}/index/index
+
+sh db2ssnp_${INDEX}
+mv ${INDEX}snps .${INDEX}/snps
+mv .${INDEX} ${INDEX}
+echo "Output in ${INDEX}"
+pushd ${INDEX}
+mv snps/cmap.txt .
+touch cmap.txt
+echo "Running jar cf ${INDEX}.jar sequences snps index cmap.txt"
+jar cf ${INDEX}.jar sequences snps index cmap.txt
+#jar cf ${INDEX}.idx.jar index cmap.txt
+#jar cf ${INDEX}.snp.jar sequences snps cmap.txt
+#jar cf ${INDEX}.cmap.jar cmap.txt
+popd

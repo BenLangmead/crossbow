@@ -1,0 +1,213 @@
+#!/usr/bin/perl -w
+
+##
+# Author: Ben Langmead
+#   Date: March 28, 2010
+#
+# Initiate a Hadoop streaming Crossbow job.  Must be on the Hadoop master node.
+#
+
+use strict;
+use warnings;
+use Getopt::Long qw(:config pass_through);
+use FindBin qw($Bin);
+use lib $Bin;
+use CrossbowIface;
+use Cwd 'abs_path';
+
+my $APP = "Crossbow";
+my $app = lc $APP;
+my $SCRIPT = "cb_hadoop";
+my $VERSION = `cat $Bin/VERSION`; $VERSION =~ s/\s//g;
+
+my $usage = qq{
+$SCRIPT: Run $APP v$VERSION as a Hadoop job
+
+Usage: perl $SCRIPT --input <url> --output <url> \
+                    [--reference <url> | --just-preprocess ] [options]
+
+Options (defaults in []):
+
+ Job params:
+
+  --dry-run              Produce and print path to a script for running the
+                         Hadoop job, but don't run it.
+  --input <url>          HDFS or S3 URL for input.  URL is typically a
+                         directory containing preprocessed reads.  If
+                         --preprocess or --just-preprocess are enabled, URL is
+                         a manifest file.  If --resume-align is enabled, URL is
+                         a directory containing $APP alignments.
+  --output <url>         Final output (can be HDFS, S3)
+  --intermediate <url>   Intermediate output (can be HDFS, S3).  Use an S3 URL
+                         if you'd like keep to keep intermediate results after
+                         cluster is deallocated. [hdfs:///crossbow]
+  --partition-len <int>  Partition length in bases [1 million]
+  --bowtie <path>        Path to bowtie binary on slaves [search
+                         \$MYRNA_BOWTIE_HOME, \$MYRNA_HOME/bin, \$PATH locally]
+  --soapsnp <path>       Path to soapsnp binary on slaves [search
+                         \$MYRNA_SOAPSNP_HOME, \$MYRNA_HOME/bin, \$PATH locally]
+
+ $APP params (affect results):
+
+  --reference <url>      Reference jar (can be HDFS, S3)
+  --just-align           Don't do SNP calling; --output will contain alignments
+  --resume-align         --input URL is a directory of output from the Crossbow
+                         alignment step (obtained e.g. using --intermediate);
+                         pipeline resumes at the SNP calling step
+  --resume-snps          --input URL is a directory of output from the Crossbow
+                         SNP calling step (obtained e.g. using --intermediate);
+                         pipeline resumes at post-SNP-calling sort step
+  --bowtie-args "<args>" Arguments for Bowtie [-M 1] (Note: --partition --mm -t
+                         --hadoopout --startverbose are always set by Crossbow)
+  --ss-args "<args>"     Arguments for SOAPsnp [-2 -u -n -q] (Note: -i -d -o -s
+                         -z -L -T are always set by Crossbow)
+  --ss-hap-args "<args>" Additional SOAPsnp arguments when reference is haploid
+                         [-r 0.0001] (Note: -m is always set by Crossbow)
+  --ss-dip-args "<args>" Additional SOAPsnp arguments when reference is diploid
+                         [-r 0.00005 -e 0.0001]
+  --haploids "<chrs>"    Comma-separated names of references to be considered
+                         haploid.  Others are considered diploid. [None]
+  --all-haploids         Consider all chromosomes to be haploid when calling
+                         SNPs. [All diploid]
+  --quality <type>       Encoding for sequence quality values; one of: phred33,
+                         phred64, solexa64 [phred33]
+  --discard-reads <frac> Randomly discard specified fraction of input reads.
+                         [off]
+  --truncate <int>       Truncate reads longer than <int> bases to <int> bases
+                         by trimming from the 3' end.
+  --truncate-discard <int> Same as --truncate except that reads shorter than
+                         <int> bases are discarded.
+
+  Preprocessing params (not necessary if --input points to preprocessed reads):
+
+  --preprocess           --input URL is a manifest file describing a set of
+                         unpreprocessed, FASTQ read files; preprocess them
+                         before running $APP [off]
+  --just-preprocess      Like --preprocess but $APP isn't run; --output
+                         contains preprocessed reads [off]
+  --pre-output <url>     If --preprocess is on, put preprocessed output here
+                         instead of in the intermediate directory [off].  Has
+                         no effect if --just-preprocess is specified (--output
+                         is used instead).  Useful if future jobs use same
+                         input.
+  --pre-compress <type>  Compression type; one of: gzip, none [gzip]
+  --pre-stop <int>       Stop preprocessing after <int> reads/mates [no limit]
+  --pre-filemax <int>    Split preprocessed output such that there are no more
+                         than <int> reads/mates per preprocessed read file;
+                         0 = no limit. [500,000]
+
+  Other params:
+
+  --test                 Try to locate all necessary software; print a helpful
+                         message showing what was found and quit [off]
+  --tempdir <path>       Put temporary scripts in <path>
+                         [/tmp/$APP/invoke.scripts]
+                         (umask 0077 used to protect credentials)
+
+};
+
+sub dieusage($$$) {
+	my ($text, $usage, $lev) = @_;
+	print STDERR "$usage\nError:\n";
+	print STDERR "$text\n\n";
+	exit $lev;
+}
+
+# Try to avoid forcing the user to use the equals sign in cases where
+# they're specifying a set of arguments, as in --bowtie-args "-n 3 -l 35"
+for(my $i = 0; $i < scalar(@ARGV)-1; $i++) {
+	if($ARGV[$i] =~ /^-.*-args$/) {
+		$ARGV[$i] = "$ARGV[$i]=\"".$ARGV[$i+1]."\"";
+		splice @ARGV, $i+1, 1;
+	}
+}
+
+my $input = "";
+my $output = "";
+my $intermediate = "";
+my $bowtie = "";
+my $ref = "";
+my $soapsnp = "";
+my $samtools = "";
+my $verbose = 0;
+my $test = 0;
+
+GetOptions (
+	"input:s"        => \$input,
+	"output:s"       => \$output,
+	"intermediate:s" => \$intermediate,
+	"reference:s"    => \$ref,
+	"soapsnp:s"      => \$soapsnp,
+	"bowtie:s"       => \$bowtie,
+	"samtools:s"     => \$samtools,
+	"test"           => \$test,
+	"verbose"        => \$verbose
+);
+
+##
+# Take a path and make it absolute.  If it has a protocol, assume it's
+# already absolute.
+#
+sub absPath($$$) {
+	my ($path, $check, $name) = @_;
+	return $path if $path =~ /^s3n?:\//i;
+	return $path if $path =~ /^hdfs:\//i;
+	return $path if $path =~ /^file:\//i;
+	$path =~ s/^~/$ENV{HOME}/;
+	die "Error: $name path doesn't exist: $path" unless (!$check || -f $path || -d $path);
+	return abs_path($path);
+}
+
+if($verbose) {
+	print STDERR "Relative paths:\n";
+	print STDERR "  input: $input\n";
+	print STDERR "  output: $output\n";
+	print STDERR "  intermediate: $intermediate\n";
+	print STDERR "  reference: $ref\n";
+	print STDERR "  soapsnp: $soapsnp\n";
+	print STDERR "  bowtie: $bowtie\n";
+	print STDERR "  samtools: $samtools\n";
+}
+
+$input        = absPath($input, 1, "--input") if $input ne "";
+$output       = absPath($output, 0, "--output") if $output ne "";
+$intermediate = absPath($intermediate, 0, "--intermediate") if $intermediate ne "";
+$ref          = absPath($ref, 1, "--ref") if $ref ne "";
+$soapsnp      = absPath($soapsnp, 1, "--soapsnp") if $soapsnp ne "";
+$bowtie       = absPath($bowtie, 1, "--bowtie") if $bowtie ne "";
+$samtools     = absPath($samtools, 1, "--samtools") if $samtools ne "";
+
+if($verbose) {
+	print STDERR "Absolute paths:\n";
+	print STDERR "  input: $input\n";
+	print STDERR "  output: $output\n";
+	print STDERR "  intermediate: $intermediate\n";
+	print STDERR "  reference: $ref\n";
+	print STDERR "  soapsnp: $soapsnp\n";
+	print STDERR "  bowtie: $bowtie\n";
+	print STDERR "  samtools: $samtools\n";
+}
+
+if(!$test) {
+	$input ne ""  || dieusage("Must specify --input",  $usage, 1);
+	$output ne "" || dieusage("Must specify --output", $usage, 1);
+}
+
+my @args = ();
+
+push @args, "--hadoop-job";
+push @args, ("--input", $input) if $input ne "";
+push @args, ("--output", $output) if $output ne "";
+push @args, ("--intermediate", $intermediate) if $intermediate ne "";
+push @args, ("--reference", $ref) if $ref ne "";
+push @args, ("--soapsnp", $soapsnp) if $soapsnp ne "";
+push @args, ("--bowtie", $bowtie) if $bowtie ne "";
+push @args, ("--samtools", $samtools) if $samtools ne "";
+push @args, "--verbose" if $verbose;
+push @args, "--test" if $test;
+
+$ref ne "" || $test || die "Must specify --reference\n";
+
+push @args, @ARGV;
+
+CrossbowIface::crossbow(\@args, $SCRIPT, $usage, undef, undef, undef, undef);

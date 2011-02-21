@@ -1,0 +1,79 @@
+#!/bin/bash
+
+##
+# hg19_jar
+#
+#  Authors: Ben Langmead & Michael C. Schatz
+#     Date: 10/9/2009
+#
+# Driver script for building a reference jar for the hg19 human genome
+# assembly.
+
+SUFFIX=$1
+shift
+INDEX=hg19$SUFFIX
+BASE=ftp://hgdownload.cse.ucsc.edu/goldenPath/hg19/chromosomes
+
+mkdir -p .${INDEX}
+mkdir -p .${INDEX}/sequences
+
+BUILD_INPUTS=
+
+cat <<EOF > cmap.txt
+chr1	0
+chr2	1
+chr3	2
+chr4	3
+chr5	4
+chr6	5
+chr7	6
+chr8	7
+chr9	8
+chr10	9
+chr11	10
+chr12	11
+chr13	12
+chr14	13
+chr15	14
+chr16	15
+chr17	16
+chr18	17
+chr19	18
+chr20	19
+chr21	20
+chr22	21
+chrX	22
+chrY	23
+chrM	24
+EOF
+
+j=0
+for i in 1 2 3 4 5 6 7 8 9 10 11 12 13 14 15 16 17 18 19 20 21 22 X Y M ; do
+	if [ ! -f .${INDEX}/sequences/chr$j.fa ] ; then
+		wget $BASE/chr$i.fa.gz -O .${INDEX}/sequences/zchr$j.fa.gz
+		gunzip .${INDEX}/sequences/zchr$j.fa.gz
+		sed -e "s/^>.*/>$j/" .${INDEX}/sequences/zchr$j.fa > .${INDEX}/sequences/chr$j.fa
+		rm -f .${INDEX}/sequences/zchr$j.fa
+		[ ! -f .${INDEX}/sequences/chr$j.fa ] && echo "Didn't get .${INDEX}/sequences/chr$j.fa" && exit 1
+	fi
+	if [ -z "$BUILD_INPUTS" ] ; then
+		BUILD_INPUTS=".${INDEX}/sequences/chr$j.fa"
+	else
+		BUILD_INPUTS="$BUILD_INPUTS,.${INDEX}/sequences/chr$j.fa"
+	fi
+	j=`expr $j + 1`
+done
+
+mkdir -p .${INDEX}/index
+bowtie-build $* $BUILD_INPUTS .${INDEX}/index/index
+
+sh db2ssnp_${INDEX}
+mv ${INDEX}snps .${INDEX}/snps
+mv .${INDEX} ${INDEX}
+echo "Output in ${INDEX}"
+cd ${INDEX}
+cp ../cmap.txt .
+touch cmap.txt
+echo "Running jar cf ${INDEX}.jar sequences snps index cmap.txt"
+jar cf ${INDEX}.jar sequences snps index cmap.txt
+cd ..

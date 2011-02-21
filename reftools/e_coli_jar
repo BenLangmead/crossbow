@@ -1,0 +1,74 @@
+#!/bin/bash
+
+##
+# e_coli_jar
+#
+#  Author: Ben Langmead
+#    Date: 4/2/2010
+#
+# Driver script for building a reference jar for the E. coli genome.
+
+SUFFIX=$1
+shift
+OUT_DIR=.
+[ -n "$1" ] && OUT_DIR=$1
+
+BOWTIE_BUILD=bowtie-build
+if [ ! `which bowtie-build 2>/dev/null` --version ] ; then
+	if [ ! $BOWTIE_HOME/bowtie-build --version ] ; then
+		echo "Error: Could not find bowtie-build in PATH or BOWTIE_HOME"
+		exit 1
+	else
+		BOWTIE_BUILD=$BOWTIE_HOME/bowtie-build
+	fi
+fi
+
+echo "Using output directory $OUT_DIR"
+mkdir -p $OUT_DIR
+
+INDEX=e_coli$SUFFIX
+BASE=ftp://ftp.ncbi.nih.gov/genomes/Bacteria/Escherichia_coli_O157H7
+FA=NC_002695.fna
+
+tmp=${TMPDIR-/tmp}
+tmp=$tmp/e_coli_jar.$RANDOM.$RANDOM.$$
+(umask 077 && mkdir $tmp) || {
+	echo "Could not create temporary directory! Exiting." 1>&2 
+	exit 1
+}
+WD=$tmp/.$INDEX
+echo "Using temporary directory $WD"
+mkdir -p $WD
+mkdir -p $WD/sequences
+
+BUILD_INPUTS=$WD/sequences/chr0.fa
+
+cat <<EOF > $WD/cmap.txt
+complete_genome	0
+EOF
+
+if [ ! -f $WD/sequences/Escherichia_coli_O157H7.fa ] ; then
+	wget $BASE/$FA -O  $WD/Escherichia_coli_O157H7.fa
+	sed -e "s/^>.*/>0/"  $WD/Escherichia_coli_O157H7.fa >  $WD/sequences/chr0.fa
+	rm -f  $WD/Escherichia_coli_O157H7.fa
+	[ ! -f  $WD/sequences/chr0.fa ] && echo "Didn't get $WD/sequences/chr0.fa" && exit 1
+fi
+
+mkdir -p $WD/index
+pushd $WD/index
+$BOWTIE_BUILD $* $BUILD_INPUTS index
+popd
+
+mkdir -p $WD/snps
+mv $WD $OUT_DIR/$INDEX
+[ ! -d $OUT_DIR/$INDEX ] && echo "Did not successfully move output to $OUT_DIR/$INDEX" && exit 1
+echo "Output in $OUT_DIR/$INDEX"
+mkdir -p $OUT_DIR/$INDEX
+pushd $OUT_DIR/$INDEX
+[ ! -f cmap.txt ] && echo "Did not successfully install cmap.txt in output dir $OUT_DIR/$INDEX" && exit 1
+echo "Running jar cf $INDEX.jar sequences snps index cmap.txt"
+jar cf ${INDEX}.jar sequences snps index cmap.txt
+#jar cf ${INDEX}.idx.jar index cmap.txt
+#jar cf ${INDEX}.snp.jar sequences snps cmap.txt
+#jar cf ${INDEX}.cmap.jar cmap.txt
+popd

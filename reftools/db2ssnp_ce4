@@ -1,0 +1,30 @@
+#!/bin/sh
+
+##
+# db2ssnp_ce4
+#
+#  Authors: Ben Langmead & Michael C. Schatz
+#     Date: 10/9/2009
+#
+# Invoke db2ssnp with appropriate arguments for each C. elegans
+# chromosome.
+
+cat <<EOF > .cmap.$$
+I	0
+II	1
+III	2
+IV	3
+V	4
+X	5
+EOF
+
+SNP_BASE=ftp://ftp.ncbi.nih.gov/snp/organisms/nematode_6239/ASN1_flat
+
+mkdir -p .ce4snps
+j=0
+for i in I II III IV V X ; do
+	perl db2ssnp -asm=reference -cmap=.cmap.$$ -snps=$SNP_BASE/ds_flat_ch$i.flat.gz > .ce4snps/chr$j.snps
+	j=`expr $j + 1`
+done
+mv .ce4snps ce4snps
+echo "Output in ce4snps"

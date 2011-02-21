@@ -1,0 +1,156 @@
+<h2>Major revision: Version 1.0.4 - July 22, 2010</h2>
+<ul>
+ <li>Crossbow has been largely rewritten as an <a href="http://aws.amazon.com/elasticmapreduce/">Amazon Elastic MapReduce</a>
+     (EMR) application, as opposed to an Elastic Compute Cloud (EC2)
+     application.  EMR runs on top of EC2 and is a more appropriate way
+     to run Crossbow for several reasons, including:
+     <ul>
+      <li>
+       The <a href="https://console.aws.amazon.com/elasticmapreduce/home">AWS Console's Elastic MapReduce tab</a>, together with EMR's
+       Debug Job Flow feature, provide a much friendlier interface for
+       monitoring and manipulating jobs.
+      <li>
+       The elaborate scripts for automating cluster setup, teardown,
+       proxy connection, etc., that were in old versions of Crossbow
+       are all gone.  They are either no longer relevant, or else are
+       handled automatically by EMR.
+     </ul>
+ <li>A <a href="ui.html">web-based GUI</a> for composing and submitting EMR jobs has been
+     added.  Most helpfully, the web GUI has features for
+     sanity-checking inputs; e.g. whether the user's credentials as
+     entered are valid, whether the input URL exists, etc.
+ <li>Crossbow is now fully "tri-mode", with separate cloud, <a href="http://hadoop.apache.org/">Hadoop</a>, and
+     single-computer operating modes.  All three modes share a great
+     deal of common infrastructure, making all three modes easier to
+     maintain going forward.
+     <ul>
+      <li>
+       Crossbow's <a href="http://hadoop.apache.org/">Hadoop</a> mode is now much improved, having an interface
+       very similar to cloud and single-computer modes.
+      <li>
+       A new single-computer operating mode has been added that (a)
+       uses many processors/cores to shorten computation time, and (b)
+       does not require the user to have a cloud account or a Hadoop
+       installation.  It also doesn't require Java; just appropriate
+       versions of <a href="http://bowtie-bio.sf.net">Bowtie</a>, SOAPsnp (some of which are included), Perl,
+       and other tools.  Its interface is very similar to cloud and
+       <a href="http://hadoop.apache.org/">Hadoop</a> modes.
+     </ul>
+ <li>The <a href="manual.shtml">manual</a> is entirely rewritten.  It now contains information
+     about running in all three modes (cloud, Hadoop, single-computer),
+     and gives multiple examples for how to run in each mode.
+ <li>Fixed a bug whereby allele frequency columns in the provided
+     reference jars had T and G columns switched.
+ <li>SOAPsnp reduce step now outputs more counter and status
+     information.
+ <li>SOAPsnp reduce step outputs an additional column per SNP
+     indicating paired-end coverage.
+ <li>Compatible with <a href="http://bowtie-bio.sf.net">Bowtie</a> versions 0.12.0 and above.  Bowtie 0.12.5
+     now included.
+ <li>Compatible with <a href="http://hadoop.apache.org/">Hadoop</a> 0.18 or 0.20; both were tested.
+ <li>Many other new options and features.  See <a href="manual.shtml">manual</a>.
+</ul>
+
+<h2>Crossbow 0.2.0 and Crossbow for Elastic MapReduce - Coming soon</h2>
+<ul>
+ <li>Crossbow has been rewritten to allow it to run as an
+     <a href="http://aws.amazon.com/elasticmapreduce/">Amazon Elastic MapReduce</a>
+     application.   EMR is a much easier and slicker
+     way of running MapReduce programs on EC2.  It will also be easier
+     for us to maintain.
+ <li>Fixed a bug whereby allele frequency columns in the provided
+     reference jars had T and G columns switched.
+ <li>SOAPsnp reduce step now outputs more counter and status
+     information.
+ <li>SOAPsnp reduce step outputs an additional column per SNP
+     indicating paired-end coverage.
+ <li>Compatible with <a href="http://bowtie-bio.sf.net">Bowtie</a>
+     versions 0.12.0 and above.
+</ul>
+
+<h2>Bowtie 0.12.0 - 12/23/09</h2>
+<ul>
+ <li>Note that <a href="http://bowtie-bio.sf.net">Bowtie version 0.12.0</a> is not compatible with Crossbow.  A Crossbow update is coming soon.
+</ul>
+
+<h2>Crossbow paper out - 11/20/09</h2>
+<ul>
+ <li>
+   The provisional version of the <a href="http://genomebiology.com/2009/10/11/R134">Crossbow paper</a>
+   appeared today in <a href="http://genomebiology.com/">Genome Biology</a>.
+</ul>
+
+<h2>0.1.3 release - 10/21/09</h2>
+<ul>
+ <li>
+   <tt>cb-local</tt> now gives the user clear feedback when worker nodes fail
+   to confirm the MD5 signature of the reference jar.  If this
+   failure occurs several times per node across all nodes, the
+   supplied MD5 is probably incorrect.
+ <li>
+   An extra Reduce step was added to the end of the Crossbow job to
+   bin and sort SNPs before downloaded to the user's computer.  This
+   step also renames output files by chromosome and deletes empty
+   output files.
+ <li>Added another example that uses recently-published mouse
+   chromosome 17 data (<a href="http://genomebiology.com/2009/10/10/R112">sequenced by Sudbery <i>et al</i></a>).  The TUTORIAL
+   file now points to this new example.
+ <li>More and clearer messages in the output from <tt>cb-local</tt>.
+</ul>
+
+<h2>Crossbow piece on Cloudera Blog - 10/15/09</h2>
+<ul>
+ <li><a href="http://www.cbcb.umd.edu/~mschatz/">Mike Schatz</a>,
+  Crossbow co-author, has a great
+  <a href="http://www.cloudera.com/blog/2009/10/15/analyzing-human-genomes-with-hadoop/">guest post</a> on Cloudera's
+  "Hadoop & Big Data" blog about Crossbow.
+</ul>
+
+<h2>0.1.2 release - 10/13/09</h2>
+<ul>
+   <li>Many fixes for the scripts that automate the reference-jar
+     building process.
+   <li>Added two utility scripts, <tt>dist_mfa</tt> and <tt>sanity_check</tt>, to the
+     <tt>reftools</tt> subdirectory.  See their documentation for details.
+   <li>Added scripts for building a reference jar for C. elegans using
+     UCSC's <a href="http://hgdownload.cse.ucsc.edu/downloads.html#c_elegans">ce6</a> (<a href="http://www.wormbase.org/">WormBase</a>'s WS190) assembly and information from <a href="http://www.ncbi.nlm.nih.gov/Taxonomy/Browser/wwwtax.cgi?mode=Info&id=6239">dbSNP</a>.
+     This small genome is used in the new <tt>TUTORIAL</tt>.
+   <li>New <tt>TUTORIAL</tt> steps the user through preprocessing reads from the
+     <a href="http://www.ncbi.nlm.nih.gov/Traces/sra/sra.cgi?cmd=show&f=main&m=main&s=main">NCBI Short Read Archive</a>, creating a reference jar from a UCSC
+     assembly (<a href="http://hgdownload.cse.ucsc.edu/downloads.html#c_elegans">ce6</a> in this case) and a set of SNP descriptions from
+     <a href="http://www.ncbi.nlm.nih.gov/projects/SNP/">dbSNP</a>, then running Crossbow and examining the resulting SNPs.
+   <li>Extended the preprocess-and-copy infrastructure to allow output
+     from a single input file to be split over many output files.  This
+     is critical for achieving good load balance across a breadth of
+     datasets.
+</ul>
+
+<h2>0.1.1 release - 10/9/09</h2>
+<ul>
+  <li>Added scripts that automate the reference-jar building process for
+     UCSC genomes <a href="http://hgdownload.cse.ucsc.edu/downloads.html#human">hg18</a> and <a href="http://hgdownload.cse.ucsc.edu/downloads.html#mouse">mm9</a>.  These scripts can be adapted to other
+     species.  See the new "Using Automatic Scripts" subsection of the
+     "Building a Reference Jar" section of the <tt>MANUAL</tt> for details.
+  <li>License agreement files are now organized better.  All licenses
+applying to all software included in Crossbow are in <tt>LICENSE</tt>*
+files in the Crossbow root directory.
+  <li>Minor updates to <tt>MANUAL</tt>
+</ul>
+
+    
+    
+<h2>0.1.0 release - 10/3/09</h2>
+ The first public release of Crossbow is now available for download.
+     This release includes:
+     <ul>
+ <li>A detailed manual (<tt>MANUAL</tt> in the expanded archive)
+     that includes step-by-step instructions for how to get
+     started with <a href="http://aws.amazon.com/">Amazon Web
+     Services</a> and Crossbow.
+ <li>Scripts for copying and preprocessing short-read FASTQ files
+     into Amazon's <a href="http://aws.amazon.com/s3/">S3 storage service</a>, including an easy-to-use
+     interactive script (<tt>cb-copy-interactive</tt>)</li>
+ <li>Scripts for running Crossbow either locally or on Amazon's <a href="http://aws.amazon.com/ec2/">EC2
+     utility computing service</a>, including an easy-to-use
+     interactive script (<tt>cb-interactive</tt>)
+     <ul>

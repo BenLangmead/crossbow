@@ -1,0 +1,9 @@
+
+release: SOAPsnp 1.01
+30-3-2009
+1. fix bugs
+
+release: SOAPsnp 1.00
+10-11-2008
+1. release the first stable verion of  SOAPsnp
+2. include 2 C library  <cstdlib> and <cstring> for gcc-4.3

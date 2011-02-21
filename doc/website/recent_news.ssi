@@ -1,0 +1,157 @@
+<h2>Version 1.1.1 - February 7, 2011</h2>
+<ul>
+  <li>
+     Added support for the
+     <a href="http://www.ncbi.nlm.nih.gov/books/NBK47540/"><tt>.sra</tt></a> file format, used by the
+     <a href="http://www.ncbi.nlm.nih.gov/books/NBK47533/">Sequence Read Archive</a>.  These files can now be
+     specified in the manifest.  Crossbow uses the <tt>fastq-convert</tt>
+     tool from the
+     <a href="http://trace.ncbi.nlm.nih.gov/Traces/sra/sra.cgi?cmd=show&amp;f=software&amp;m=software&amp;s=software">SRA Toolkit</a> to convert
+     <a href="http://www.ncbi.nlm.nih.gov/books/NBK47540/"><tt>.sra</tt></a>
+     files to FASTQ files in the preprocess stage.
+  <li>
+     The examples that included defunct SRA FASTQ files were updated to
+     point to new
+     <a href="http://www.ncbi.nlm.nih.gov/books/NBK47540/"><tt>.sra</tt></a>
+     files instead.
+</ul>
+
+<h2>Version 1.1.0 - October 12, 2010</h2>
+<ul>
+  <li>
+     Added
+     <a href="manual.shtml#cb-discard-ref-bins"><tt>--discard-ref-bin</tt></a>
+     and
+     <a href="manual.shtml#cb-discard-all"><tt>--discard-all</tt></a>
+     options, which can be
+     helpful to reduce Crossbow running time when a run's chief purpose
+     is to test whether it runs all the way through.
+  <li>
+     Fixed a bug in <tt>soapsnp</tt> that caused a segmentation fault in the
+     last partition of a chromosome when chromosome length is a
+     multiple of 64.
+  <li>
+     Revamped the reference jar scripts (in <tt>$CROSSBOW_HOME/reftools</tt>).
+     The new scripts use <a href="http://www.ensembl.org">Ensembl</a> rather than
+     <a href="http://genome.ucsc.edu/">UCSC</a> &
+     <a href="http://www.ncbi.nlm.nih.gov/projects/SNP">dbSNP</a>.  The old
+     scripts (<tt>db2ssnp*</tt> and <tt>*_jar</tt>) are still there, but are likely to be
+     deprecated soon.
+  <li>
+     Fixed a few bugs in the <tt>hg19_jar</tt> and <tt>db2ssnp_hg19</tt> scripts.
+  <li>
+     Removed the <tt>hg18_jar</tt> script, which was broken by a reorganization
+     of the <a href="http://www.ncbi.nlm.nih.gov/projects/SNP">dbSNP</a> site.
+  <li>
+     Uses <a href="http://bowtie-bio.sf.net">Bowtie</a> 0.12.7 instead of 0.12.5.
+  <li>
+     Switched Mouse17 example's manifest files back to use <tt>.gz</tt>
+     extension instead of <tt>.bz2</tt>.
+</ul>
+
+<h2>Version 1.0.9 - September 13, 2010</h2>
+<ul>
+  <li>
+     Fixed example manifests that point to Short Read Archive files to
+     use <tt>.bz2</tt> instead of <tt>.gz</tt> extensions.
+</ul>
+
+<h2>Version 1.0.8 - September 4, 2010</h2>
+<ul>
+  <li>
+     Set the memory cap on the sort task to be inversely proportional
+     to <tt>--cpus</tt>, to avoid memory footprint blowup on computers with more
+     processors.
+  <li>Fixed a final issue that affected how Crossbow handles quality
+     value conversion.
+  <li>Fixed issue whereby <tt>bzip2</tt>'ed data would be handled incorrectly by
+     the preprocessor.
+  <li>Fixed counter in Preprocess step that would erroneously refer to
+     unpaired reads as paired.  Also "Read data fetched to EC2" has
+     been changed to "Read data fetched".
+  <li>In EMR mode, updated where user credentials are found; Amazon
+     changed their path sometime around 8/30/2010.
+  <li>In EMR mode, updated the manner in which the bootstrap action is
+     specified; the old way was disabled by Amazon sometime around
+     8/30/2010.
+  <li>Fixed issue whereby <tt>ReduceWrap.pl</tt> would crash in cases with a
+     large number of bins (>10 million) .
+  <li>NOTE: The Short Read Archive (SRA) seems to be in the midst of a
+     reorganization that includes files that were previously gzipped
+     being replaced with versions zipped with bzip2.  The files will
+     sometimes disappear for a while.  If you are having problems with
+     an example where input reads come from the SRA, try renaming files
+     in the manifest file as appropriate.  If that doesn't work, please
+     contact us.
+</ul>
+
+<h2>Version 1.0.7 - August 27, 2010</h2>
+<ul>
+ <li>
+     Fixed issue whereby the order of the arguments to <tt>bowtie</tt> would
+     result in a crash when <tt>POSIXLY_CORRECT</tt> was set.
+ <li>
+     Fixed <a href="manual.shtml#cb-local-keep-all"><tt>--keep-all</tt></a> option, which was causing a crash.
+ <li>
+     Fixed a lingering quality bug whereby qualities were converted
+     immediately to phred33 but phred64 or solexa64 flags would be
+     spuriously passed to Bowtie.
+</ul>
+
+<h2>Version 1.0.6 - August 26, 2010</h2>
+<ul>
+ <li>
+     Single-computer mode now copies the output that it writes to the
+     console to a file <tt>cb.local.(pid).out</tt>.  Please include the
+     contents of this file when reporting issues.
+ <li>
+     Sorting in single-computer mode is now more portable; switched
+     from command-line sort to pure-Perl <a href="http://search.cpan.org/~cnandor/File-Sort-1.01/Sort.pm">File::Sort</a>.
+ <li>
+     Fixed bug whereby the quality setting would be propagated to
+     Bowtie but not to SOAPsnp, causing SOAPsnp to operate with
+     incorrect (over-optimistic) quality values when Phred+64 or
+     Solexa+64 modes were used.
+ <li>
+     More helpful output from <tt>MapWrap.pl</tt> and <tt>ReduceWrap.pl</tt> to make it
+     easier to debug issues in single-computer-mode runs.
+ <li>
+     Fixed issue where web form would incorrectly convert + signs in
+     AWS secret key to spaces, causing some good credentials to fail
+     verification.
+ <li>
+     Fixed issue in preprocessor that mishandles copies when user's AWS
+     secret key contains slash characters.
+</ul>
+
+<h2>Version 1.0.5 - August 16, 2010</h2>
+<ul>
+ <li>
+     Fixed issue that prevented <tt>CROSSBOW_EMR_HOME</tt> environment variable
+     from working.
+ <li>
+     Fixed issue whereby <tt>Align.pl</tt> script fails to report a count for
+     the number of reads with alignments sampled due to Bowtie's <tt>-M</tt>
+     option.
+ <li>
+     Fixed issue whereby scripts in the <tt>$CROSSBOW_HOME/reftools</tt>
+     directory had <tt>#!/bin/sh</tt> headers but were actually <tt>bash</tt> scripts.
+ <li>
+     Fixed issue that made it difficult to specify a space-separated
+     list of arguments to the <tt>--bowtie-args</tt> and other <tt>--*-args</tt>
+     parameters.
+ <li>
+     Fixed issue whereby most documentation referred to arguments with
+     a single-dash prefix, whereas users with the <tt>POSIXLY_CORRECT</tt>
+     environment variable set must use a double-dash prefix.
+     Documentation and code have been updated to always use double-dash
+     prefixes.
+</ul>
+
+<h2>Myrna paper out - 8/11/10</h2>
+<ul>
+ <li>
+   The provisional version of the <a href="http://genomebiology.com/2010/11/8/R83/abstract">Myrna paper</a>
+   appeared today in <a href="http://genomebiology.com/">Genome Biology</a>.  See the <a href="http://bowtie-bio.sourceforge.net/myrna">Myrna site</a>
+   for details about the software.
+</ul>

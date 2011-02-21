@@ -1,0 +1,3728 @@
+<h1>Table of Contents</h1>
+<p>&nbsp;Version <b>1.1.1</b></p>
+<!-- paste everything from div id="toc" on here -->
+<div id="TOC"
+><ul
+  ><li
+    ><a href="#what-is-crossbow"
+      >What is Crossbow?</a
+      ></li
+    ><li
+    ><a href="#a-word-of-caution"
+      >A word of caution</a
+      ></li
+    ><li
+    ><a href="#crossbow-modes-and-prerequisites"
+      >Crossbow modes and prerequisites</a
+      ></li
+    ><li
+    ><a href="#preparing-to-run-on-amazon-elastic-mapreduce"
+      >Preparing to run on Amazon Elastic MapReduce</a
+      ><ul
+      ><li
+	><a href="#installing-amazons-elastic-mapreduce-tool"
+	  >Installing Amazon's <code
+	    >elastic-mapreduce</code
+	    > tool</a
+	  ></li
+	><li
+	><a href="#s3-tools"
+	  >S3 tools</a
+	  ></li
+	></ul
+      ></li
+    ><li
+    ><a href="#installing-crossbow"
+      >Installing Crossbow</a
+      ><ul
+      ><li
+	><a href="#the-sra-toolkit"
+	  >The SRA toolkit</a
+	  ></li
+	></ul
+      ></li
+    ><li
+    ><a href="#running-crossbow"
+      >Running Crossbow</a
+      ></li
+    ><li
+    ><a href="#running-crossbow-on-emr-via-the-emr-web-interface"
+      >Running Crossbow on EMR via the EMR web interface</a
+      ><ul
+      ><li
+	><a href="#prerequisites"
+	  >Prerequisites</a
+	  ></li
+	><li
+	><a href="#to-run"
+	  >To run</a
+	  ></li
+	></ul
+      ></li
+    ><li
+    ><a href="#running-crossbow-on-emr-via-the-command-line"
+      >Running Crossbow on EMR via the command line</a
+      ><ul
+      ><li
+	><a href="#prerequisites-1"
+	  >Prerequisites</a
+	  ></li
+	><li
+	><a href="#to-run-1"
+	  >To run</a
+	  ></li
+	><li
+	><a href="#emr-specific-options"
+	  >EMR-specific options</a
+	  ></li
+	></ul
+      ></li
+    ><li
+    ><a href="#running-crossbow-on-a-hadoop-cluster-via-the-command-line"
+      >Running Crossbow on a Hadoop cluster via the command line</a
+      ><ul
+      ><li
+	><a href="#prerequisites-2"
+	  >Prerequisites</a
+	  ></li
+	><li
+	><a href="#to-run-2"
+	  >To run</a
+	  ></li
+	><li
+	><a href="#hadoop-specific-options"
+	  >Hadoop-specific options</a
+	  ></li
+	></ul
+      ></li
+    ><li
+    ><a href="#running-crossbow-on-a-single-computer-via-the-command-line"
+      >Running Crossbow on a single computer via the command line</a
+      ><ul
+      ><li
+	><a href="#prerequisites-3"
+	  >Prerequisites</a
+	  ></li
+	><li
+	><a href="#to-run-3"
+	  >To run</a
+	  ></li
+	><li
+	><a href="#local-run-specific-options"
+	  >Local-run-specific options</a
+	  ></li
+	></ul
+      ></li
+    ><li
+    ><a href="#general-crossbow-options"
+      >General Crossbow options</a
+      ></li
+    ><li
+    ><a href="#crossbow-examples"
+      >Crossbow examples</a
+      ><ul
+      ><li
+	><a href="#e.-coli-small"
+	  >E. coli (small)</a
+	  ><ul
+	  ><li
+	    ><a href="#emr"
+	      >EMR</a
+	      ><ul
+	      ><li
+		><a href="#via-web-interface"
+		  >Via web interface</a
+		  ></li
+		><li
+		><a href="#via-command-line"
+		  >Via command line</a
+		  ></li
+		></ul
+	      ></li
+	    ><li
+	    ><a href="#hadoop"
+	      >Hadoop</a
+	      ></li
+	    ><li
+	    ><a href="#single-computer"
+	      >Single computer</a
+	      ></li
+	    ></ul
+	  ></li
+	><li
+	><a href="#mouse-chromosome-17-large"
+	  >Mouse chromosome 17 (large)</a
+	  ><ul
+	  ><li
+	    ><a href="#emr-1"
+	      >EMR</a
+	      ><ul
+	      ><li
+		><a href="#via-web-interface-1"
+		  >Via web interface</a
+		  ></li
+		><li
+		><a href="#via-command-line-1"
+		  >Via command line</a
+		  ></li
+		></ul
+	      ></li
+	    ><li
+	    ><a href="#hadoop-1"
+	      >Hadoop</a
+	      ></li
+	    ><li
+	    ><a href="#single-computer-1"
+	      >Single computer</a
+	      ></li
+	    ></ul
+	  ></li
+	></ul
+      ></li
+    ><li
+    ><a href="#manifest-files"
+      >Manifest files</a
+      ></li
+    ><li
+    ><a href="#reference-jars"
+      >Reference jars</a
+      ><ul
+      ><li
+	><a href="#building-a-reference-jar-using-automatic-scripts"
+	  >Building a reference jar using automatic scripts</a
+	  ></li
+	></ul
+      ></li
+    ><li
+    ><a href="#monitoring-debugging-and-logging"
+      >Monitoring, debugging and logging</a
+      ><ul
+      ><li
+	><a href="#single-computer-2"
+	  >Single computer</a
+	  ></li
+	><li
+	><a href="#hadoop-2"
+	  >Hadoop</a
+	  ></li
+	><li
+	><a href="#emr-2"
+	  >EMR</a
+	  ></li
+	><li
+	><a href="#aws-management-console"
+	  >AWS Management Console</a
+	  ></li
+	></ul
+      ></li
+    ><li
+    ><a href="#crossbow-output"
+      >Crossbow Output</a
+      ></li
+    ><li
+    ><a href="#other-reading"
+      >Other reading</a
+      ></li
+    ><li
+    ><a href="#acknowledgements"
+      >Acknowledgements</a
+      ></li
+    ></ul
+  ></div
+>
+<h1 id="what-is-crossbow"
+><a href="#TOC"
+  >What is Crossbow?</a
+  ></h1
+><p
+><a href="http://bowtie-bio.sf.net/crossbow"
+  >Crossbow</a
+  > is a scalable, portable, and automatic Cloud Computing tool for finding SNPs from short read data. Crossbow employs <a href="http://bowtie-bio.sf.net"
+  >Bowtie</a
+  > and a modified version of <a href="http://soap.genomics.org.cn/soapsnp.html"
+  >SOAPsnp</a
+  > to perform the short read alignment and SNP calling respectively. Crossbow is designed to be easy to run (a) in &quot;the cloud&quot; (in this case, Amazon's <a href="http://aws.amazon.com/elasticmapreduce"
+  >Elastic MapReduce</a
+  > service), (b) on any <a href="http://hadoop.apache.org/"
+  >Hadoop</a
+  > cluster, or (c) on any single computer, without <a href="http://hadoop.apache.org/"
+  >Hadoop</a
+  >. Crossbow exploits the availability of multiple computers and processors where possible.</p
+><h1 id="a-word-of-caution"
+><a href="#TOC"
+  >A word of caution</a
+  ></h1
+><p
+>Renting resources from <a href="http://aws.amazon.com"
+  >Amazon Web Services</a
+  > (AKA <a href="http://aws.amazon.com/" title="Amazon Web Services"
+  >AWS</a
+  >), costs money, regardless of whether your experiment ultimately succeeds or fails. In some cases, Crossbow or its documentation may be partially to blame for a failed experiment. While we are happy to accept bug reports, we do not accept responsibility for financial damage caused by these errors. Crossbow is provided &quot;as is&quot; with no warranty. See <code
+  >LICENSE</code
+  > file.</p
+><h1 id="crossbow-modes-and-prerequisites"
+><a href="#TOC"
+  >Crossbow modes and prerequisites</a
+  ></h1
+><p
+>Crossbow can be run in four different ways.</p
+><ol style="list-style-type: decimal;"
+><li
+  ><strong
+    >Via the <a href="http://bowtie-bio.sf.net/crossbow/ui.html"
+      >Crossbow web interface</a
+      ></strong
+    ></li
+  ></ol
+><p
+>In this case, the <a href="http://bowtie-bio.sf.net/crossbow"
+  >Crossbow</a
+  > code and the user interface are installed on EC2 web servers. Also, the computers running the Crossbow computation are rented from Amazon, and the user must have <a href="http://aws.amazon.com/ec2"
+  >EC2</a
+  >, <a href="http://aws.amazon.com/elasticmapreduce"
+  >EMR</a
+  >, <a href="http://aws.amazon.com/s3/"
+  >S3</a
+  > and <a href="http://aws.amazon.com/simpledb/"
+  >SimpleDB</a
+  > accounts and must pay the <a href="http://aws.amazon.com/ec2/#pricing"
+  >going rate</a
+  > for the resources used. The user does not need any special software besides a web browser and, in most cases, an <a href="#s3-tools"
+  >S3 tool</a
+  >.</p
+><ol start="2" style="list-style-type: decimal;"
+><li
+  ><strong
+    >On Amazon <a href="http://aws.amazon.com/elasticmapreduce"
+      >Elastic MapReduce</a
+      > via the command-line</strong
+    ></li
+  ></ol
+><p
+>In this case, the Crossbow code is hosted by Amazon and the computers running the Crossbow computation are rented from Amazon. However, the user must install and run (a) the Crossbow scripts, which require <a href="http://www.perl.org/get.html"
+  >Perl</a
+  > 5.6 or later, (b) Amazon's <a href="http://aws.amazon.com/developertools/2264?_encoding=UTF8&amp;jiveRedirect=1"
+  ><code
+    >elastic-mapreduce</code
+    ></a
+  > script, which requires Ruby 1.8 or later, and (c) an <a href="#s3-tools"
+  >S3 tool</a
+  >. The user must have <a href="http://aws.amazon.com/ec2"
+  >EC2</a
+  >, <a href="http://aws.amazon.com/elasticmapreduce"
+  >EMR</a
+  >, <a href="http://aws.amazon.com/s3/"
+  >S3</a
+  > and <a href="http://aws.amazon.com/simpledb/"
+  >SimpleDB</a
+  > accounts and must pay the <a href="http://aws.amazon.com/ec2/#pricing"
+  >going rate</a
+  > for the resources used.</p
+><ol start="3" style="list-style-type: decimal;"
+><li
+  ><strong
+    >On a <a href="http://hadoop.apache.org/"
+      >Hadoop</a
+      > cluster via the command-line</strong
+    ></li
+  ></ol
+><p
+>In this case, the Crossbow code is hosted on your <a href="http://hadoop.apache.org/"
+  >Hadoop</a
+  > cluster, as are supporting tools: <a href="http://bowtie-bio.sf.net"
+  >Bowtie</a
+  > and <a href="http://soap.genomics.org.cn/soapsnp.html"
+  >SOAPsnp</a
+  >. Supporting tools must be installed on all cluster nodes, but the Crossbow scripts need only be installed on the master. Crossbow has been tested with <a href="http://hadoop.apache.org/"
+  >Hadoop</a
+  > version 0.18.3, but should also be compatible with more recent versions. Crossbow scripts require <a href="http://www.perl.org/get.html"
+  >Perl</a
+  > 5.6 or later.</p
+><ol start="4" style="list-style-type: decimal;"
+><li
+  ><strong
+    >On any computer via the command-line</strong
+    ></li
+  ></ol
+><p
+>In this case, the Crossbow code and all supporting tools (<a href="http://bowtie-bio.sf.net"
+  >Bowtie</a
+  > and <a href="http://soap.genomics.org.cn/soapsnp.html"
+  >SOAPsnp</a
+  >) must be installed on the computer running Crossbow. Crossbow scripts require <a href="http://www.perl.org/get.html"
+  >Perl</a
+  > 5.6 or later. The user specifies the maximum number of CPUs that Crossbow should use at a time. This mode does <em
+  >not</em
+  > require <a href="http://java.sun.com/"
+  >Java</a
+  > or <a href="http://hadoop.apache.org/"
+  >Hadoop</a
+  >.</p
+><h1 id="preparing-to-run-on-amazon-elastic-mapreduce"
+><a href="#TOC"
+  >Preparing to run on Amazon Elastic MapReduce</a
+  ></h1
+><p
+>Before running Crossbow on <a href="http://aws.amazon.com/elasticmapreduce"
+  >EMR</a
+  >, you must have an <a href="http://aws.amazon.com/" title="Amazon Web Services"
+  >AWS</a
+  > account with the appropriate features enabled. You may also need to <a href="#installing-amazons-elastic-mapreduce-tool"
+  >install Amazon's <code
+    >elastic-mapreduce</code
+    > tool</a
+  >. In addition, you may want to install an <a href="#s3-tools"
+  >S3 tool</a
+  >, though most users can simply use <a href="https://console.aws.amazon.com/s3/home"
+  >Amazon's web interface for S3</a
+  >, which requires no installation.</p
+><p
+>If you plan to run Crossbow exclusively on a single computer or on a <a href="http://hadoop.apache.org/"
+  >Hadoop</a
+  > cluster, you can skip this section.</p
+><ol style="list-style-type: decimal;"
+><li
+  ><p
+    >Create an AWS account by navigating to the <a href="http://aws.amazon.com/" title="Amazon Web Services"
+      >AWS page</a
+      >. Click &quot;Sign Up Now&quot; in the upper right-hand corner and follow the instructions. You will be asked to accept the <a href="http://aws.amazon.com/agreement/"
+      >AWS Customer Agreement</a
+      >.</p
+    ></li
+  ><li
+  ><p
+    >Sign up for <a href="http://aws.amazon.com/ec2"
+      >EC2</a
+      > and <a href="http://aws.amazon.com/s3/"
+      >S3</a
+      >. Navigate to the <a href="http://aws.amazon.com/ec2"
+      >Amazon EC2</a
+      > page, click on &quot;Sign Up For Amazon EC2&quot; and follow the instructions. This step requires you to enter credit card information. Once this is complete, your AWS account will be permitted to use <a href="http://aws.amazon.com/ec2"
+      >EC2</a
+      > and <a href="http://aws.amazon.com/s3/"
+      >S3</a
+      >, which are required.</p
+    ></li
+  ><li
+  ><p
+    >Sign up for <a href="http://aws.amazon.com/elasticmapreduce"
+      >EMR</a
+      >. Navigate to the <a href="http://aws.amazon.com/elasticmapreduce"
+      >Elastic MapReduce</a
+      > page, click on &quot;Sign up for Elastic MapReduce&quot; and follow the instructions. Once this is complete, your AWS account will be permitted to use <a href="http://aws.amazon.com/elasticmapreduce"
+      >EMR</a
+      >, which is required.</p
+    ></li
+  ><li
+  ><p
+    >Sign up for <a href="http://aws.amazon.com/simpledb/"
+      >SimpleDB</a
+      >. With <a href="http://aws.amazon.com/simpledb/"
+      >SimpleDB</a
+      > enabled, you have the option of using the <a href="https://console.aws.amazon.com"
+      >AWS Console</a
+      >'s <a href="http://docs.amazonwebservices.com/ElasticMapReduce/latest/DeveloperGuide/DebuggingJobFlows.html"
+      >Job Flow Debugging</a
+      > feature. This is a convenient way to monitor your job's progress and diagnose errors.</p
+    ></li
+  ><li
+  ><p
+    ><em
+      >Optional</em
+      >: Request an increase to your instance limit. By default, Amazon allows you to allocate EC2 clusters with up to 20 instances (virtual computers). To be permitted to work with more instances, fill in the form on the <a href="http://aws.amazon.com/contact-us/ec2-request/"
+      >Request to Increase</a
+      > page. You may have to speak to an Amazon representative and/or wait several business days before your request is granted.</p
+    ></li
+  ></ol
+><p
+>To see a list of AWS services you've already signed up for, see your <a href="http://aws-portal.amazon.com/gp/aws/developer/account/index.html?ie=UTF8&amp;action=activity-summary"
+  >Account Activity</a
+  > page. If &quot;Amazon Elastic Compute Cloud&quot;, &quot;Amazon Simple Storage Service&quot;, &quot;Amazon Elastic MapReduce&quot; and &quot;Amazon SimpleDB&quot; all appear there, you are ready to proceed.</p
+><p
+>Be sure to make a note of the various numbers and names associated with your accounts, especially your Access Key ID, Secret Access Key, and your EC2 key pair name. You will have to refer to these and other account details in the future.</p
+><h2 id="installing-amazons-elastic-mapreduce-tool"
+><a href="#TOC"
+  >Installing Amazon's <code
+    >elastic-mapreduce</code
+    > tool</a
+  ></h2
+><p
+>Read this section if you plan to run Crossbow on <a href="http://aws.amazon.com/elasticmapreduce"
+  >Elastic MapReduce</a
+  > via the command-line tool. Skip this section if you are not using <a href="http://aws.amazon.com/elasticmapreduce"
+  >EMR</a
+  > or if you plan to run exclusively via the <a href="http://bowtie-bio.sf.net/crossbow/ui.html"
+  >Crossbow web interface</a
+  >.</p
+><p
+>To install Amazon's <code
+  >elastic-mapreduce</code
+  > tool, follow the instructions in Amazon Elastic MapReduce developer's guide for <a href="http://aws.amazon.com/developertools/2264?_encoding=UTF8&amp;jiveRedirect=1"
+  >How to Download and Install Ruby and the Command Line Interface</a
+  >. That document describes:</p
+><ol style="list-style-type: decimal;"
+><li
+  ><p
+    >Installing an appropriate version of <a href="http://www.ruby-lang.org/"
+      >Ruby</a
+      >, if necessary.</p
+    ></li
+  ><li
+  ><p
+    >Setting up an EC2 keypair, if necessary.</p
+    ></li
+  ><li
+  ><p
+    >Setting up a credentials file, which is used by the <code
+      >elastic-mapreduce</code
+      > tool for authentication.</p
+    ></li
+  ></ol
+><p
+>For convenience, we suggest you name the credentials file <code
+  >credentials.json</code
+  > and place it in the same directory with the <code
+  >elastic-mapreduce</code
+  > script. Otherwise you will have to specify the credential file path with the <a href="#cb-emr-credentials"
+  ><code
+    >--credentials</code
+    ></a
+  > option each time you run <code
+  >cb_emr</code
+  >.</p
+><p
+>We strongly recommend using a version of the <code
+  >elastic-mapreduce</code
+  > Ruby script released on or after June 2, 2010. This is when the script switched to using Hadoop 0.20 by default, which is the preferred way of running Crossbow.</p
+><p
+>We also recommend that you add the directory containing the <code
+  >elastic-mapreduce</code
+  > tool to your <code
+  >PATH</code
+  >. This allows Crossbow to locate it automatically. Alternately, you can specify the path to the <code
+  >elastic-mapreduce</code
+  > tool via the <a href="#cb-emr-script"
+  ><code
+    >--emr-script</code
+    ></a
+  > option when running <code
+  >cb_emr</code
+  >.</p
+><h2 id="s3-tools"
+><a href="#TOC"
+  >S3 tools</a
+  ></h2
+><p
+>Running on <a href="http://aws.amazon.com/elasticmapreduce"
+  >EMR</a
+  > requires exchanging files via the cloud-based <a href="http://aws.amazon.com/s3/"
+  >S3</a
+  > filesystem. <a href="http://aws.amazon.com/s3/"
+  >S3</a
+  > is organized as a collection of <a href="http://docs.amazonwebservices.com/AmazonS3/latest/gsg/"
+  >S3 buckets</a
+  > in a global namespace. <a href="http://aws.amazon.com/s3/#pricing"
+  >S3 charges</a
+  > are incurred when transferring data to and from <a href="http://aws.amazon.com/s3/"
+  >S3</a
+  > (but transfers between <a href="http://aws.amazon.com/ec2"
+  >EC2</a
+  > and <a href="http://aws.amazon.com/s3/"
+  >S3</a
+  > are free), and a per-GB-per-month charge applies when data is stored in <a href="http://aws.amazon.com/s3/"
+  >S3</a
+  > over time.</p
+><p
+>To transfer files to and from <a href="http://aws.amazon.com/s3/"
+  >S3</a
+  >, use an S3 tool. Amazon's <a href="https://console.aws.amazon.com"
+  >AWS Console</a
+  > has an <a href="https://console.aws.amazon.com/s3/home"
+  >S3 tab</a
+  > that provides a friendly web-based interface to <a href="http://aws.amazon.com/s3/"
+  >S3</a
+  >, and doesn't require any software installation. <a href="http://s3tools.org/s3cmd"
+  >s3cmd</a
+  > is a very good command-line tool that requires <a href="http://www.python.org/download/"
+  >Python</a
+  > 2.4 or later. <a href="http://www.s3fox.net/"
+  >S3Fox Organizer</a
+  > is another GUI tool that works as a <a href="http://www.mozilla.com/firefox/"
+  >Firefox</a
+  > extension. Other tools include <a href="http://cyberduck.ch/"
+  >Cyberduck</a
+  > (for Mac OS 10.5 or later) and <a href="http://www.bucketexplorer.com/"
+  >Bucket Explorer</a
+  > (for Mac, Windows or Linux, but commercial software).</p
+><h1 id="installing-crossbow"
+><a href="#TOC"
+  >Installing Crossbow</a
+  ></h1
+><p
+>Crossbow consists of a set of <a href="http://www.perl.org/get.html"
+  >Perl</a
+  > and shell scripts, plus supporting tools: <a href="http://bowtie-bio.sf.net"
+  >Bowtie</a
+  > and <a href="http://soap.genomics.org.cn/soapsnp.html"
+  >SOAPsnp</a
+  > . If you plan to run Crossbow via the <a href="http://bowtie-bio.sf.net/crossbow/ui.html"
+  >Crossbow web interface</a
+  > exclusively, there is nothing to install. Otherwise:</p
+><ol style="list-style-type: decimal;"
+><li
+  ><p
+    >Download the desired version of Crossbow from the <a href="http://bowtie-bio.sf.net/crossbow"
+      >sourceforge site</a
+      ></p
+    ></li
+  ><li
+  ><p
+    ><a href="http://en.wikipedia.org/wiki/ZIP_(file_format)"
+      >Extract the zip archive</a
+      ></p
+    ></li
+  ><li
+  ><p
+    >Set the <code
+      >CROSSBOW_HOME</code
+      > environment variable to point to the extracted directory (containing <code
+      >cb_emr</code
+      >)</p
+    ></li
+  ><li
+  ><p
+    ><em
+      >If you plan to run on a local computer or <a href="http://hadoop.apache.org/"
+	>Hadoop</a
+	> cluster</em
+      >:</p
+    ><p
+    >If using Linux or Mac OS 10.5 or later, you likely don't have to install <a href="http://bowtie-bio.sf.net"
+      >Bowtie</a
+      > or <a href="http://soap.genomics.org.cn/soapsnp.html"
+      >SOAPsnp</a
+      >, as Crossbow comes with compatible versions of both pre-installed. Test this by running:</p
+    ><pre
+    ><code
+      >$CROSSBOW_HOME/cb_local --test
+</code
+      ></pre
+    ><p
+    >If the install test passes, installation is complete.</p
+    ><p
+    >If the install test indicates <a href="http://bowtie-bio.sf.net"
+      >Bowtie</a
+      > is not installed, obtain or build a <code
+      >bowtie</code
+      > binary v0.12.5 or higher and install it by setting the <code
+      >CROSSBOW_BOWTIE_HOME</code
+      > environment variable to <code
+      >bowtie</code
+      >'s enclosing directory. Alternately, add the enclosing directory to your <code
+      >PATH</code
+      > or specify the full path to <code
+      >bowtie</code
+      > via the <code
+      >--bowtie</code
+      > option when running Crossbow scripts.</p
+    ><p
+    >If the install test indicates that <a href="http://soap.genomics.org.cn/soapsnp.html"
+      >SOAPsnp</a
+      > is not installed, build the <code
+      >soapsnp</code
+      > binary using the sources and makefile in <code
+      >CROSSBOW_HOME/soapsnp</code
+      >. You must have compiler tools such as GNU <code
+      >make</code
+      > and <code
+      >g++</code
+      > installed for this to work. If you are using a Mac, you may need to install the <a href="http://developer.apple.com/technologies/tools/"
+      >Apple developer tools</a
+      >. To build the <code
+      >soapsnp</code
+      > binary, run:</p
+    ><pre
+    ><code
+      >make -C $CROSSBOW_HOME/soapsnp
+</code
+      ></pre
+    ><p
+    >Now install <code
+      >soapsnp</code
+      > by setting the <code
+      >CROSSBOW_SOAPSNP_HOME</code
+      > environment variable to <code
+      >soapsnp</code
+      >'s enclosing directory. Alternately, add the enclosing directory to your <code
+      >PATH</code
+      > or specify the full path to <code
+      >soapsnp</code
+      > via the <code
+      >--soapsnp</code
+      > option when running Crossbow scripts.</p
+    ></li
+  ><li
+  ><p
+    ><em
+      >If you plan to run on a <a href="http://hadoop.apache.org/"
+	>Hadoop</a
+	> cluster</em
+      >, you may need to manually copy the <code
+      >bowtie</code
+      > and <code
+      >soapsnp</code
+      > files to the same path on each of your <a href="http://hadoop.apache.org/"
+      >Hadoop</a
+      > cluster nodes. You can avoid this step by installing <code
+      >bowtie</code
+      > and <code
+      >soapsnp</code
+      > on a filesystem shared by all <a href="http://hadoop.apache.org/"
+      >Hadoop</a
+      > nodes (e.g. an <a href="http://en.wikipedia.org/wiki/Network_File_System_(protocol)"
+      >NFS share</a
+      >). You can also skip this step if <a href="http://hadoop.apache.org/"
+      >Hadoop</a
+      > is installed in <a href="http://hadoop.apache.org/common/docs/current/quickstart.html#PseudoDistributed"
+      >pseudo distributed</a
+      > mode, meaning that the cluster really consists of one node whose CPUs are treated as distinct slaves.</p
+    ></li
+  ></ol
+><h2 id="the-sra-toolkit"
+><a href="#TOC"
+  >The SRA toolkit</a
+  ></h2
+><p
+>The <a href="http://www.ncbi.nlm.nih.gov/books/NBK47533/"
+  >Sequence Read Archive</a
+  > (SRA) is a resource at the <a href="http://www.ncbi.nlm.nih.gov/"
+  >National Center for Biotechnology Information</a
+  > (NCBI) for storing sequence data from modern sequencing instruments. Sequence data underlying many studies, including very large studies, can often be downloaded from this archive.</p
+><p
+>The SRA uses a special file format to store archived read data. These files end in extensions <a href="http://www.ncbi.nlm.nih.gov/books/NBK47540/"
+  ><code
+    >.sra</code
+    ></a
+  >, and they can be specified as inputs to Crossbow's preprocessing step in exactly the same way as <a href="http://en.wikipedia.org/wiki/FASTQ_format"
+  >FASTQ</a
+  > files.</p
+><p
+>However, if you plan to use <a href="http://www.ncbi.nlm.nih.gov/books/NBK47540/"
+  ><code
+    >.sra</code
+    ></a
+  > files as input to Crossbow in either <a href="http://hadoop.apache.org/"
+  >Hadoop</a
+  > mode or in single-computer mode, you must first install the <a href="http://trace.ncbi.nlm.nih.gov/Traces/sra/sra.cgi?cmd=show&amp;f=software&amp;m=software&amp;s=software"
+  >SRA toolkit</a
+  >'s <code
+  >fastq-dump</code
+  > tool appropriately. See the <a href="http://trace.ncbi.nlm.nih.gov/Traces/sra/sra.cgi?cmd=show&amp;f=software&amp;m=software&amp;s=software"
+  >SRA toolkit</a
+  > page for details about how to download and install.</p
+><p
+>When searching for the <code
+  >fastq-dump</code
+  > tool at runtime, Crossbow searches the following places in order:</p
+><ol style="list-style-type: decimal;"
+><li
+  >The directory specified in the <a href="#cb-local-sra-toolkit"
+    ><code
+      >--sra-toolkit</code
+      ></a
+    > option</li
+  ><li
+  >The directory specified in the <code
+    >$CROSSBOW_SRATOOLKIT_HOME</code
+    > environment variable.</li
+  ><li
+  >In the system <code
+    >PATH</code
+    ></li
+  ></ol
+><h1 id="running-crossbow"
+><a href="#TOC"
+  >Running Crossbow</a
+  ></h1
+><p
+>The commands for invoking Crossbow from the command line are:</p
+><p
+><code
+  >$CROSSBOW_HOME/cb_emr</code
+  > (or just <code
+  >cb_emr</code
+  > if <code
+  >$CROSSBOW_HOME</code
+  > is in the <code
+  >PATH</code
+  >) for running on <a href="http://aws.amazon.com/elasticmapreduce"
+  >EMR</a
+  >. See <a href="#running-crossbow-on-emr-via-the-command-line"
+  >Running Crossbow on EMR via the command line</a
+  > for details.</p
+><p
+><code
+  >$CROSSBOW_HOME/cb_hadoop</code
+  > (or just <code
+  >cb_hadoop</code
+  > if <code
+  >$CROSSBOW_HOME</code
+  > is in the <code
+  >PATH</code
+  >) for running on <a href="http://hadoop.apache.org/"
+  >Hadoop</a
+  >. See <a href="#running-crossbow-on-a-hadoop-cluster-via-the-command-line"
+  >Running Crossbow on a Hadoop cluster via the command line</a
+  > for details.</p
+><p
+><code
+  >$CROSSBOW_HOME/cb_local</code
+  > (or just <code
+  >cb_local</code
+  > if <code
+  >$CROSSBOW_HOME</code
+  > is in the <code
+  >PATH</code
+  >) for running locally on a single computer. See <a href="#running-crossbow-on-a-single-computer-via-the-command-line"
+  >Running Crossbow on a single computer via the command line</a
+  > for details.</p
+><h1 id="running-crossbow-on-emr-via-the-emr-web-interface"
+><a href="#TOC"
+  >Running Crossbow on EMR via the EMR web interface</a
+  ></h1
+><h2 id="prerequisites"
+><a href="#TOC"
+  >Prerequisites</a
+  ></h2
+><ol style="list-style-type: decimal;"
+><li
+  >Web browser</li
+  ><li
+  ><a href="http://aws.amazon.com/ec2"
+    >EC2</a
+    >, <a href="http://aws.amazon.com/s3/"
+    >S3</a
+    >, <a href="http://aws.amazon.com/elasticmapreduce"
+    >EMR</a
+    >, and <a href="http://aws.amazon.com/simpledb/"
+    >SimpleDB</a
+    > accounts. To check which ones you've already enabled, visit your <a href="http://aws-portal.amazon.com/gp/aws/developer/account/index.html?ie=UTF8&amp;action=activity-summary"
+    >Account Activity</a
+    > page.</li
+  ><li
+  >A tool for browsing and exchanging files with <a href="http://aws.amazon.com/s3/"
+    >S3</a
+    ><ol style="list-style-type: lower-alpha;"
+    ><li
+      >The <a href="https://console.aws.amazon.com"
+	>AWS Console</a
+	>'s <a href="https://console.aws.amazon.com/s3/home"
+	>S3 tab</a
+	> is a good web-based tool that does not require software installation</li
+      ><li
+      >A good command line tool is <a href="http://s3tools.org/s3cmd"
+	>s3cmd</a
+	></li
+      ><li
+      >A good GUI tool is <a href="http://www.s3fox.net/"
+	>S3Fox Organizer</a
+	>, which is a Firefox Plugin</li
+      ><li
+      >Others include <a href="http://cyberduck.ch/"
+	>Cyberduck</a
+	>, <a href="http://www.bucketexplorer.com/"
+	>Bucket Explorer</a
+	></li
+      ></ol
+    ></li
+  ><li
+  >Basic knowledge regarding:<ol style="list-style-type: lower-alpha;"
+    ><li
+      ><a href="http://aws.amazon.com/s3/"
+	>What S3 is</a
+	>, <a href="http://docs.amazonwebservices.com/AmazonS3/latest/gsg/"
+	>what an S3 bucket is</a
+	>, how to create one, how to upload a file to an S3 bucket from your computer (see your S3 tool's documentation).</li
+      ><li
+      >How much AWS resources <a href="http://aws.amazon.com/ec2/#pricing"
+	>will cost you</a
+	></li
+      ></ol
+    ></li
+  ></ol
+><h2 id="to-run"
+><a href="#TOC"
+  >To run</a
+  ></h2
+><ol style="list-style-type: decimal;"
+><li
+  ><p
+    ><em
+      >If the input reads have not yet been preprocessed by Crossbow</em
+      > (i.e. input is <a href="http://en.wikipedia.org/wiki/FASTQ_format"
+      >FASTQ</a
+      > or <a href="http://www.ncbi.nlm.nih.gov/books/NBK47540/"
+      ><code
+	>.sra</code
+	></a
+      >), then first (a) prepare a <a href="#manifest-files"
+      >manifest file</a
+      > with URLs pointing to the read files, and (b) upload it to an <a href="http://aws.amazon.com/s3/"
+      >S3</a
+      > bucket that you own. See your <a href="http://aws.amazon.com/s3/"
+      >S3</a
+      > tool's documentation for how to create a bucket and upload a file to it. The URL for the <a href="#manifest-files"
+      >manifest file</a
+      > will be the input URL for your <a href="http://aws.amazon.com/elasticmapreduce"
+      >EMR</a
+      > job.</p
+    ><p
+    ><em
+      >If the input reads have already been preprocessed by Crossbow</em
+      >, make a note of of the <a href="http://aws.amazon.com/s3/"
+      >S3</a
+      > URL where they're located. This will be the input URL for your <a href="http://aws.amazon.com/elasticmapreduce"
+      >EMR</a
+      > job.</p
+    ></li
+  ><li
+  ><p
+    ><em
+      >If you are using a pre-built reference jar</em
+      >, make a note of its <a href="http://aws.amazon.com/s3/"
+      >S3</a
+      > URL. This will be the reference URL for your <a href="http://aws.amazon.com/elasticmapreduce"
+      >EMR</a
+      > job. See the <a href="http://bowtie-bio.sf.net/crossbow"
+      >Crossbow website</a
+      > for a list of pre-built reference jars and their URLs.</p
+    ><p
+    ><em
+      >If you are not using a pre-built reference jar</em
+      >, you may need to <a href="#reference-jars"
+      >build the reference jars</a
+      > and/or upload them to an <a href="http://aws.amazon.com/s3/"
+      >S3</a
+      > bucket you own. See your <a href="#s3-tools"
+      >S3 tool</a
+      >'s documentation for how to create a bucket and upload to it. The URL for the main reference jar will be the reference URL for your <a href="http://aws.amazon.com/elasticmapreduce"
+      >EMR</a
+      > job.</p
+    ></li
+  ><li
+  ><p
+    >In a web browser, go to the <a href="http://bowtie-bio.sf.net/crossbow/ui.html"
+      >Crossbow web interface</a
+      >.</p
+    ></li
+  ><li
+  ><p
+    >Fill in the form according to your job's parameters. We recommend filling in and validating the &quot;AWS ID&quot; and &quot;AWS Secret Key&quot; fields first. Also, when entering S3 URLs (e.g. &quot;Input URL&quot; and &quot;Output URL&quot;), we recommend that users validate the entered URLs by clicking the link below it. This avoids failed jobs due to simple URL issues (e.g. non-existence of the &quot;Input URL&quot;). For examples of how to fill in this form, see the <a href="#cb-example-e-coli-emr"
+      >E. coli EMR</a
+      > and <a href="#cb-example-mouse17-emr"
+      >Mouse chromosome 17 EMR</a
+      > examples.</p
+    ></li
+  ></ol
+><h1 id="running-crossbow-on-emr-via-the-command-line"
+><a href="#TOC"
+  >Running Crossbow on EMR via the command line</a
+  ></h1
+><h2 id="prerequisites-1"
+><a href="#TOC"
+  >Prerequisites</a
+  ></h2
+><ol style="list-style-type: decimal;"
+><li
+  ><a href="http://aws.amazon.com/ec2"
+    >EC2</a
+    >, <a href="http://aws.amazon.com/s3/"
+    >S3</a
+    >, <a href="http://aws.amazon.com/elasticmapreduce"
+    >EMR</a
+    >, and <a href="http://aws.amazon.com/simpledb/"
+    >SimpleDB</a
+    > accounts. To check which ones you've already enabled, visit your <a href="http://aws-portal.amazon.com/gp/aws/developer/account/index.html?ie=UTF8&amp;action=activity-summary"
+    >Account Activity</a
+    > page.</li
+  ><li
+  >A tool for browsing and exchanging files with <a href="http://aws.amazon.com/s3/"
+    >S3</a
+    ><ol style="list-style-type: lower-alpha;"
+    ><li
+      >The <a href="https://console.aws.amazon.com"
+	>AWS Console</a
+	>'s <a href="https://console.aws.amazon.com/s3/home"
+	>S3 tab</a
+	> is a good web-based tool that does not require software installation</li
+      ><li
+      >A good command line tool is <a href="http://s3tools.org/s3cmd"
+	>s3cmd</a
+	></li
+      ><li
+      >A good GUI tool is <a href="http://www.s3fox.net/"
+	>S3Fox Organizer</a
+	>, which is a Firefox Plugin</li
+      ><li
+      >Others include <a href="http://cyberduck.ch/"
+	>Cyberduck</a
+	>, <a href="http://www.bucketexplorer.com/"
+	>Bucket Explorer</a
+	></li
+      ></ol
+    ></li
+  ><li
+  >Basic knowledge regarding:<ol style="list-style-type: lower-alpha;"
+    ><li
+      ><a href="http://aws.amazon.com/s3/"
+	>What S3 is</a
+	>, <a href="http://docs.amazonwebservices.com/AmazonS3/latest/gsg/"
+	>what an S3 bucket is</a
+	>, how to create one, how to upload a file to an S3 bucket from your computer (see your S3 tool's documentation).</li
+      ><li
+      >How much AWS resources <a href="http://aws.amazon.com/ec2/#pricing"
+	>will cost you</a
+	></li
+      ></ol
+    ></li
+  ></ol
+><h2 id="to-run-1"
+><a href="#TOC"
+  >To run</a
+  ></h2
+><ol style="list-style-type: decimal;"
+><li
+  ><p
+    ><em
+      >If the input reads have not yet been preprocessed by Crossbow</em
+      > (i.e. input is <a href="http://en.wikipedia.org/wiki/FASTQ_format"
+      >FASTQ</a
+      > or <a href="http://www.ncbi.nlm.nih.gov/books/NBK47540/"
+      ><code
+	>.sra</code
+	></a
+      >), then first (a) prepare a <a href="#manifest-files"
+      >manifest file</a
+      > with URLs pointing to the read files, and (b) upload it to an <a href="http://aws.amazon.com/s3/"
+      >S3</a
+      > bucket that you own. See your <a href="http://aws.amazon.com/s3/"
+      >S3</a
+      > tool's documentation for how to create a bucket and upload a file to it. The URL for the <a href="#manifest-files"
+      >manifest file</a
+      > will be the input URL for your <a href="http://aws.amazon.com/elasticmapreduce"
+      >EMR</a
+      > job.</p
+    ><p
+    ><em
+      >If the input reads have already been preprocessed by Crossbow</em
+      >, make a note of of the <a href="http://aws.amazon.com/s3/"
+      >S3</a
+      > URL where they're located. This will be the input URL for your <a href="http://aws.amazon.com/elasticmapreduce"
+      >EMR</a
+      > job.</p
+    ></li
+  ><li
+  ><p
+    ><em
+      >If you are using a pre-built reference jar</em
+      >, make a note of its <a href="http://aws.amazon.com/s3/"
+      >S3</a
+      > URL. This will be the reference URL for your <a href="http://aws.amazon.com/elasticmapreduce"
+      >EMR</a
+      > job. See the <a href="http://bowtie-bio.sf.net/crossbow"
+      >Crossbow website</a
+      > for a list of pre-built reference jars and their URLs.</p
+    ><p
+    ><em
+      >If you are not using a pre-built reference jar</em
+      >, you may need to <a href="#reference-jars"
+      >build the reference jars</a
+      > and/or upload them to an <a href="http://aws.amazon.com/s3/"
+      >S3</a
+      > bucket you own. See your <a href="#s3-tools"
+      >S3 tool</a
+      >'s documentation for how to create a bucket and upload to it. The URL for the main reference jar will be the reference URL for your <a href="http://aws.amazon.com/elasticmapreduce"
+      >EMR</a
+      > job.</p
+    ></li
+  ><li
+  ><p
+    >Run <code
+      >$CROSSBOW_HOME/cb_emr</code
+      > with the desired options. Options that are unique to <a href="http://aws.amazon.com/elasticmapreduce"
+      >EMR</a
+      > jobs are described in the following section. Options that apply to all running modes are described in the <a href="#general-crossbow-options"
+      >General Crossbow options</a
+      > section. For examples of how to run <code
+      >$CROSSBOW_HOME/cb_emr</code
+      > see the <a href="#cb-example-e-coli-emr"
+      >E. coli EMR</a
+      > and <a href="#cb-example-mouse17-emr"
+      >Mouse chromosome 17 EMR</a
+      > examples.</p
+    ></li
+  ></ol
+><h2 id="emr-specific-options"
+><a href="#TOC"
+  >EMR-specific options</a
+  ></h2
+><table>
+
+<tr><td id="cb-emr-reference">
+
+
+<pre
+><code
+  >--reference &lt;URL&gt;
+</code
+  ></pre
+></td><td>
+<p
+><a href="http://aws.amazon.com/s3/"
+  >S3</a
+  > URL where the reference jar is located. URLs for pre-built reference jars for some commonly studied species (including human and mouse) are available from the <a href="http://bowtie-bio.sf.net/crossbow"
+  >Crossbow web site</a
+  >. Note that a <a href="http://bowtie-bio.sf.net/myrna"
+  >Myrna</a
+  > reference jar is not the same as a <a href="http://bowtie-bio.sf.net/crossbow"
+  >Crossbow</a
+  > reference jar. If your desired genome and/or SNP annotations are not available in pre-built form, you will have to make your own reference jar and upload it to one of your own S3 buckets (see <a href="#reference-jars"
+  >Reference jars</a
+  >). This option must be specified.</p
+><tr><td id="cb-emr-input">
+
+
+<pre
+><code
+  >--input &lt;URL&gt;
+</code
+  ></pre
+></td><td>
+<p
+><a href="http://aws.amazon.com/s3/"
+  >S3</a
+  > URL where the input is located. If <a href="#cb-preprocess"
+  ><code
+    >--preprocess</code
+    ></a
+  > or <a href="#cb-just-preprocess"
+  ><code
+    >--just-preprocess</code
+    ></a
+  > are specified, <code
+  >&lt;URL&gt;</code
+  > sould point to a <a href="#manifest-files"
+  >manifest file</a
+  >. Otherwise, <code
+  >&lt;URL&gt;</code
+  > should point to a directory containing preprocessed reads. This option must be specified.</p
+></td></tr><tr><td id="cb-emr-output">
+
+
+<pre
+><code
+  >--output &lt;URL&gt;
+</code
+  ></pre
+></td><td>
+<p
+><a href="http://aws.amazon.com/s3/"
+  >S3</a
+  > URL where the output is to be deposited. If <a href="#cb-just-preprocess"
+  ><code
+    >--just-preprocess</code
+    ></a
+  > is specified, the output consists of the preprocessed reads. Otherwise, the output consists of the SNP calls calculated by <a href="http://soap.genomics.org.cn/soapsnp.html"
+  >SOAPsnp</a
+  > for each chromosome in the <a href="#cb-output"
+  >Crossbow output format</a
+  >, organized as one file per chromosome. This option must be specified.</p
+></td></tr><tr><td id="cb-emr-intermediate">
+
+
+<pre
+><code
+  >--intermediate &lt;URL&gt;
+</code
+  ></pre
+></td><td>
+<p
+><a href="http://aws.amazon.com/s3/"
+  >S3</a
+  > URL where all intermediate results should be be deposited. This can be useful if you later want to resume the computation from partway through the pipeline (e.g. after alignment but before SNP calling). By default, intermediate results are stored in <a href="http://hadoop.apache.org/common/docs/current/hdfs_design.html"
+  >HDFS</a
+  > and disappear once the cluster is terminated.</p
+></td></tr><tr><td id="cb-emr-preprocess-output">
+
+
+<pre
+><code
+  >--preprocess-output &lt;URL&gt;
+</code
+  ></pre
+></td><td>
+<p
+><a href="http://aws.amazon.com/s3/"
+  >S3</a
+  > URL where the preprocessed reads should be stored. This can be useful if you later want to run Crossbow on the same input reads without having to re-run the preprocessing step (i.e. leaving <a href="#cb-preprocess"
+  ><code
+    >--preprocess</code
+    ></a
+  > unspecified).</p
+></td></tr><tr><td id="cb-emr-credentials">
+
+
+<pre
+><code
+  >--credentials &lt;id&gt;
+</code
+  ></pre
+></td><td>
+<p
+>Local path to the credentials file set up by the user when the <a href="http://aws.amazon.com/developertools/2264?_encoding=UTF8&amp;jiveRedirect=1"
+  ><code
+    >elastic-mapreduce</code
+    ></a
+  > script was installed (see <a href="#installing-amazons-elastic-mapreduce-tool"
+  >Installing Amazon's <code
+    >elastic-mapreduce</code
+    > tool</a
+  >). Default: use <code
+  >elastic-mapreduce</code
+  >'s default (i.e. the <code
+  >credentials.json</code
+  > file in the same directory as the <code
+  >elastic-mapreduce</code
+  > script). If <code
+  >--credentials</code
+  > is not specified and the default <code
+  >credentials.json</code
+  > file doesn't exist, <code
+  >elastic-mapreduce</code
+  > will abort with an error message.</p
+></td></tr><tr><td id="cb-emr-script">
+
+
+<pre
+><code
+  >--emr-script &lt;path&gt;
+</code
+  ></pre
+></td><td>
+<p
+>Local path to the <code
+  >elastic-mapreduce</code
+  > script. By default, Crossbow looks first in the <code
+  >$CROSSBOW_EMR_HOME</code
+  > directory, then in the <code
+  >PATH</code
+  >.</p
+></td></tr><tr><td id="cb-emr-name">
+
+
+<pre
+><code
+  >--name &lt;string&gt;
+</code
+  ></pre
+></td><td>
+<p
+>Specify the name by which the job will be identified in the <a href="https://console.aws.amazon.com"
+  >AWS Console</a
+  >.</p
+></td></tr><tr><td id="cb-emr-stay-alive">
+
+
+<pre
+><code
+  >--stay-alive
+</code
+  ></pre
+></td><td>
+<p
+>By default, <a href="http://aws.amazon.com/elasticmapreduce"
+  >EMR</a
+  > will terminate the cluster as soon as (a) one of the stages fails, or (b) the job complete successfully. Specify this option to force <a href="http://aws.amazon.com/elasticmapreduce"
+  >EMR</a
+  > to keep the cluster alive in either case.</p
+></td></tr><tr><td id="cb-emr-instances">
+
+
+<pre
+><code
+  >--instances &lt;int&gt;
+</code
+  ></pre
+></td><td>
+<p
+>Specify the number of instances (i.e. virtual computers, also called nodes) to be allocated to your cluster. If set to 1, the 1 instance will funcion as both <a href="http://hadoop.apache.org/"
+  >Hadoop</a
+  > master and slave node. If set greater than 1, one instance will function as a <a href="http://hadoop.apache.org/"
+  >Hadoop</a
+  > master and the rest will function as <a href="http://hadoop.apache.org/"
+  >Hadoop</a
+  > slaves. In general, the greater the value of <code
+  >&lt;int&gt;</code
+  >, the faster the Crossbow computation will complete. Consider the desired speed as well as the <a href="http://aws.amazon.com/ec2/#pricing"
+  >going rate</a
+  > when choosing a value for <code
+  >&lt;int&gt;</code
+  >. Default: 1.</p
+></td></tr><tr><td id="cb-emr-instance-type">
+
+
+<pre
+><code
+  >--instance-type &lt;type&gt;
+</code
+  ></pre
+></td><td>
+<p
+>Specify the type of <a href="http://aws.amazon.com/ec2"
+  >EC2</a
+  > instance to use for the computation. See Amazon's <a href="http://aws.amazon.com/ec2/instance-types/"
+  >list of available instance types</a
+  > and be sure to specify the &quot;API name&quot; of the desired type (e.g. <code
+  >m1.small</code
+  > or <code
+  >c1.xlarge</code
+  >). <strong
+  >The default of <code
+    >c1.xlarge</code
+    > is strongly recommended</strong
+  > because it has an appropriate mix of computing power and memory for a large breadth of problems. Choosing an instance type with less than 5GB of physical RAM can cause problems when the reference is as large (e.g. a mammalian genome). Stick to the default unless you're pretty sure the specified instance type can handle your problem size.</p
+></td></tr><tr><td id="cb-emr-args">
+
+
+<pre
+><code
+  >--emr-args &quot;&lt;args&gt;&quot;
+</code
+  ></pre
+></td><td>
+<p
+>Pass the specified extra arguments to the <code
+  >elastic-mapreduce</code
+  > script. See documentation for the <code
+  >elastic-mapreduce</code
+  > script for details.</p
+></td></tr><tr><td id="cb-logs">
+
+
+<pre
+><code
+  >--logs &lt;URL&gt;
+</code
+  ></pre
+></td><td>
+<p
+>Causes <a href="http://aws.amazon.com/elasticmapreduce"
+  >EMR</a
+  > to copy the log files to <code
+  >&lt;URL&gt;</code
+  >. Default: <a href="http://aws.amazon.com/elasticmapreduce"
+  >EMR</a
+  > writes logs to the <code
+  >logs</code
+  > subdirectory of the <a href="#cb-local-output"
+  ><code
+    >--output</code
+    ></a
+  > URL. See also <a href="#cb-no-logs"
+  ><code
+    >--no-logs</code
+    ></a
+  >.</p
+></td></tr><tr><td id="cb-no-logs">
+
+
+<pre
+><code
+  >--no-logs
+</code
+  ></pre
+></td><td>
+<p
+>By default, Crossbow causes <a href="http://aws.amazon.com/elasticmapreduce"
+  >EMR</a
+  > to copy all cluster log files to the <code
+  >log</code
+  > subdirectory of the <a href="#cb-local-output"
+  ><code
+    >--output</code
+    ></a
+  > URL (or another destination, if <a href="#cb-logs"
+  ><code
+    >--logs</code
+    ></a
+  > is specified). Specifying this option disables all copying of logs.</p
+></td></tr><tr><td id="cb-no-emr-debug">
+
+
+<pre
+><code
+  >--no-emr-debug
+</code
+  ></pre
+></td><td>
+<p
+>Disables <a href="http://docs.amazonwebservices.com/ElasticMapReduce/latest/DeveloperGuide/DebuggingJobFlows.html"
+  >Job Flow Debugging</a
+  >. If this is <em
+  >not</em
+  > specified, you must have a <a href="http://aws.amazon.com/simpledb/"
+  >SimpleDB</a
+  > account for <a href="http://docs.amazonwebservices.com/ElasticMapReduce/latest/DeveloperGuide/DebuggingJobFlows.html"
+  >Job Flow Debugging</a
+  > to work. You will be subject to additional <a href="http://aws.amazon.com/simpledb/#pricing"
+  >SimpleDB-related charges</a
+  > if this option is enabled, but those fees are typically small or zero (depending on your account's <a href="http://aws.amazon.com/simpledb/#pricing"
+  >SimpleDB tier</a
+  >).</p
+></td></tr>
+</table>
+<h1 id="running-crossbow-on-a-hadoop-cluster-via-the-command-line"
+><a href="#TOC"
+  >Running Crossbow on a Hadoop cluster via the command line</a
+  ></h1
+><h2 id="prerequisites-2"
+><a href="#TOC"
+  >Prerequisites</a
+  ></h2
+><ol style="list-style-type: decimal;"
+><li
+  ><p
+    >Working installation of <a href="http://hadoop.apache.org/"
+      >Hadoop</a
+      > v0.18.3. Versions more recent than v0.18.3 may also work, but haven't been tested.</p
+    ></li
+  ><li
+  ><p
+    >A <code
+      >bowtie</code
+      > v0.12.5 executable must exist at the same path on all cluster nodes (including the master). That path must be specified via the <a href="#cb-hadoop-bowtie"
+      ><code
+	>--bowtie</code
+	></a
+      > option OR located in the directory specified in the <code
+      >CROSSBOW_BOWTIE_HOME</code
+      > environment variable, OR in a subdirectory of <code
+      >$CROSSBOW_HOME/bin</code
+      > OR in the <code
+      >PATH</code
+      > (Crossbow looks in that order). <code
+      >$CROSSBOW_HOME/bin</code
+      > comes with pre-built Bowtie binaries for Linux and Mac OS X 10.5 or later. An executable from that directory is used automatically unless the platform is not Mac or Linux or unless overridden by <a href="#cb-hadoop-bowtie"
+      ><code
+	>--bowtie</code
+	></a
+      > or by defining <code
+      >CROSSBOW_BOWTIE_HOME</code
+      >.</p
+    ></li
+  ><li
+  ><p
+    >A Crossbow-customized version of <code
+      >soapsnp</code
+      > v1.02 must be installed at the same path on all cluster nodes (including the master). That path must be specified via the <a href="#cb-hadoop-soapsnp"
+      ><code
+	>--soapsnp</code
+	></a
+      > option OR located in the directory specified in the <code
+      >CROSSBOW_SOAPSNP_HOME</code
+      > environment variable, OR in a subdirectory of <code
+      >$CROSSBOW_HOME/bin</code
+      > OR in the <code
+      >PATH</code
+      > (Crossbow searches in that order). <code
+      >$CROSSBOW_HOME/bin</code
+      > comes with pre-built SOAPsnp binaries for Linux and Mac OS X 10.5 or later. An executable from that directory is used automatically unless the platform is not Mac or Linux or unless overridden by <a href="#cb-hadoop-soapsnp"
+      ><code
+	>--soapsnp</code
+	></a
+      > or by defining <code
+      >CROSSBOW_SOAPSNP_HOME</code
+      >.</p
+    ></li
+  ><li
+  ><p
+    >Sufficient memory must be available on all <a href="http://hadoop.apache.org/"
+      >Hadoop</a
+      > slave nodes to hold the Bowtie index for the desired organism in addition to any other loads placed on those nodes by <a href="http://hadoop.apache.org/"
+      >Hadoop</a
+      > or other programs. For mammalian genomes such as the human genome, this typically means that slave nodes must have at least 5-6 GB of RAM.</p
+    ></li
+  ></ol
+><h2 id="to-run-2"
+><a href="#TOC"
+  >To run</a
+  ></h2
+><p
+>Run <code
+  >$CROSSBOW_HOME/cb_hadoop</code
+  > with the desired options. Options that are unique to <a href="http://hadoop.apache.org/"
+  >Hadoop</a
+  > jobs are described in the following subsection. Options that apply to all running modes are described in the <a href="#general-crossbow-options"
+  >General Crossbow options</a
+  > subsection. To see example invocations of <code
+  >$CROSSBOW_HOME/cb_hadoop</code
+  > see the <a href="#cb-example-e-coli-hadoop"
+  >E. coli Hadoop</a
+  > and <a href="#cb-example-mouse17-hadoop"
+  >Mouse chromosome 17 Hadoop</a
+  > examples.</p
+><h2 id="hadoop-specific-options"
+><a href="#TOC"
+  >Hadoop-specific options</a
+  ></h2
+><table>
+
+<tr><td id="cb-hadoop-reference">
+
+
+<pre
+><code
+  >--reference &lt;URL&gt;
+</code
+  ></pre
+></td><td>
+<p
+><a href="http://hadoop.apache.org/common/docs/current/hdfs_design.html"
+  >HDFS</a
+  > URL where the reference jar is located. Pre-built reference jars for some commonly studied species (including human and mouse) are available from the <a href="http://bowtie-bio.sf.net/crossbow"
+  >Crossbow web site</a
+  >; these can be downloaded and installed in HDFS using <code
+  >hadoop dfs</code
+  > commands. If your desired genome and/or SNP annotations are not available in pre-built form, you will have to make your own reference jars, install them in HDFS, and specify their HDFS path here. This option must be specified.</p
+><tr><td id="cb-hadoop-input">
+
+
+<pre
+><code
+  >--input &lt;URL&gt;
+</code
+  ></pre
+></td><td>
+<p
+><a href="http://hadoop.apache.org/common/docs/current/hdfs_design.html"
+  >HDFS</a
+  > URL where the input is located. If <a href="#cb-preprocess"
+  ><code
+    >--preprocess</code
+    ></a
+  > or <a href="#cb-just-preprocess"
+  ><code
+    >--just-preprocess</code
+    ></a
+  > are specified, <code
+  >&lt;URL&gt;</code
+  > sould point to a manifest file. Otherwise, <code
+  >&lt;URL&gt;</code
+  > should point to a directory containing preprocessed reads. This option must be specified.</p
+></td></tr><tr><td id="cb-hadoop-output">
+
+
+<pre
+><code
+  >--output &lt;URL&gt;
+</code
+  ></pre
+></td><td>
+<p
+><a href="http://hadoop.apache.org/common/docs/current/hdfs_design.html"
+  >HDFS</a
+  > URL where the output is to be deposited. If <a href="#cb-just-preprocess"
+  ><code
+    >--just-preprocess</code
+    ></a
+  > is specified, the output consists of the preprocessed reads. Otherwise, the output consists of the SNP calls calculated by SOAPsnp for each chromosome, organized as one file per chromosome. This option must be specified.</p
+></td></tr><tr><td id="cb-hadoop-intermediate">
+
+
+<pre
+><code
+  >--intermediate &lt;URL&gt;
+</code
+  ></pre
+></td><td>
+<p
+><a href="http://hadoop.apache.org/common/docs/current/hdfs_design.html"
+  >HDFS</a
+  > URL where all intermediate results should be be deposited. Default: <code
+  >hdfs:///crossbow/intermediate/&lt;PID&gt;</code
+  >.</p
+></td></tr><tr><td id="cb-hadoop-preprocess-output">
+
+
+<pre
+><code
+  >--preprocess-output &lt;URL&gt;
+</code
+  ></pre
+></td><td>
+<p
+><a href="http://hadoop.apache.org/common/docs/current/hdfs_design.html"
+  >HDFS</a
+  > URL where the preprocessed reads should be stored. This can be useful if you later want to run Crossbow on the same input reads without having to re-run the preprocessing step (i.e. leaving <a href="#cb-preprocess"
+  ><code
+    >--preprocess</code
+    ></a
+  > unspecified).</p
+></td></tr><tr><td id="cb-hadoop-bowtie">
+
+
+<pre
+><code
+  >--bowtie &lt;path&gt;
+</code
+  ></pre
+></td><td>
+<p
+>Local path to the <a href="http://bowtie-bio.sf.net"
+  >Bowtie</a
+  > binary Crossbow should use. <code
+  >bowtie</code
+  > must be installed in this same directory on all <a href="http://hadoop.apache.org/"
+  >Hadoop</a
+  > worker nodes. By default, Crossbow searches the <code
+  >PATH</code
+  > and in the directory pointed to by the <code
+  >CROSSBOW_HOME</code
+  > environment variable.</p
+></td></tr><tr><td id="cb-hadoop-sra-toolkit">
+
+
+<pre
+><code
+  >--sra-toolkit &lt;path&gt;
+</code
+  ></pre
+></td><td>
+<p
+>Path to the directory containing the programs in the <a href="http://trace.ncbi.nlm.nih.gov/Traces/sra/sra.cgi?cmd=show&amp;f=software&amp;m=software&amp;s=software"
+  >SRA toolkit</a
+  >, including <code
+  >fastq-dump</code
+  >. This overrides all other ways that Crossbow searches for <code
+  >fastq-dump</code
+  >, including the <code
+  >CROSSBOW_SRATOOLKIT_HOME</code
+  > environment variable, the subdirectories of the <code
+  >$CROSSBOW_HOME/bin</code
+  > directory, and the <code
+  >PATH</code
+  >.</p
+></td></tr><tr><td id="cb-hadoop-soapsnp">
+
+
+<pre
+><code
+  >--soapsnp &lt;path&gt;
+</code
+  ></pre
+></td><td>
+<p
+>Local path to the SOAPsnp executable to use when running the Call SNPs step. <code
+  >soapsnp</code
+  > must be installed in this same directory on all <a href="http://hadoop.apache.org/"
+  >Hadoop</a
+  > worker nodes This overrides all other ways that Crossbow searches for <code
+  >soapsnp</code
+  >, including the <code
+  >CROSSBOW_SOAPSNP_HOME</code
+  > environment variable, the subdirectories of the <code
+  >$CROSSBOW_HOME/bin</code
+  > directory, and the <code
+  >PATH</code
+  >.</p
+></td></tr>
+</table>
+<h1 id="running-crossbow-on-a-single-computer-via-the-command-line"
+><a href="#TOC"
+  >Running Crossbow on a single computer via the command line</a
+  ></h1
+><h2 id="prerequisites-3"
+><a href="#TOC"
+  >Prerequisites</a
+  ></h2
+><ol style="list-style-type: decimal;"
+><li
+  ><p
+    >A <code
+      >bowtie</code
+      > v0.12.5 executable must exist on the local computer. The path to <code
+      >bowtie</code
+      > must be specified via the <a href="#cb-local-bowtie"
+      ><code
+	>--bowtie</code
+	></a
+      > option OR be located in the directory specified in the <code
+      >$CROSSBOW_BOWTIE_HOME</code
+      > environment variable, OR in a subdirectory of <code
+      >$CROSSBOW_HOME/bin</code
+      > OR in the <code
+      >PATH</code
+      > (search proceeds in that order). <code
+      >$CROSSBOW_HOME/bin</code
+      > comes with pre-built Bowtie binaries for Linux and Mac OS X 10.5 or later, so most Mac and Linux users do not need to install either tool.</p
+    ></li
+  ><li
+  ><p
+    >A Crossbow-customized version of <code
+      >soapsnp</code
+      > v1.02 must exist. The path to <code
+      >soapsnp</code
+      > must be specified via the <a href="#cb-local-soapsnp"
+      ><code
+	>--soapsnp</code
+	></a
+      > option OR be in the directory specified in the <code
+      >$CROSSBOW_SOAPSNP_HOME</code
+      > environment variable, OR in a subdirectory of <code
+      >$CROSSBOW_HOME/bin</code
+      > OR in the <code
+      >PATH</code
+      > (Crossbow searches in that order). <code
+      >$CROSSBOW_HOME/bin</code
+      > comes with pre-built SOAPsnp binaries for Linux and Mac OS X 10.5 or later. An executable from that directory is used automatically unless the platform is not Mac or Linux or unless overridden by <a href="#cb-local-soapsnp"
+      ><code
+	>--soapsnp</code
+	></a
+      > or <code
+      >$CROSSBOW_SOAPSNP_HOME</code
+      >.</p
+    ></li
+  ><li
+  ><p
+    >Sufficient memory must be available on the local computer to hold one copy of the Bowtie index for the desired organism <em
+      >in addition</em
+      > to all other running workloads. For mammalian genomes such as the human genome, this typically means that the local computer must have at least 5-6 GB of RAM.</p
+    ></li
+  ></ol
+><h2 id="to-run-3"
+><a href="#TOC"
+  >To run</a
+  ></h2
+><p
+>Run <code
+  >$CROSSBOW_HOME/cb_local</code
+  > with the desired options. Options unique to local jobs are described in the following subsection. Options that apply to all running modes are described in the <a href="#general-crossbow-options"
+  >General Crossbow options</a
+  > subsection. To see example invocations of <code
+  >$CROSSBOW_HOME/cb_local</code
+  > see the <a href="#cb-example-e-coli-local"
+  >E. coli local</a
+  > and <a href="#cb-example-mouse17-local"
+  >Mouse chromosome 17 local</a
+  > examples.</p
+><h2 id="local-run-specific-options"
+><a href="#TOC"
+  >Local-run-specific options</a
+  ></h2
+><table>
+
+<tr><td id="cb-local-reference">
+
+
+<pre
+><code
+  >--reference &lt;path&gt;
+</code
+  ></pre
+></td><td>
+<p
+>Local path where expanded reference jar is located. Specified path should have a <code
+  >index</code
+  > subdirectory with a set of Bowtie index files, a <code
+  >sequences</code
+  > subdirectory with a set of FASTA files, a <code
+  >snps</code
+  > subdirectory with 0 or more per-chromosome SNP description files, and a <code
+  >cmap.txt</code
+  > file. Pre-built reference jars for some commonly studied species (including human and mouse) are available from the <a href="http://bowtie-bio.sf.net/crossbow"
+  >Crossbow web site</a
+  >; these can be downloaded and expanded into a directory with the appropriate structure using an <a href="http://en.wikipedia.org/wiki/Unzip"
+  ><code
+    >unzip</code
+    ></a
+  > utility. If your desired genome and/or SNP annotations are not available in pre-built form, you will have to make your own reference jars and specify the appropriate path. This option must be specified.</p
+><tr><td id="cb-local-input">
+
+
+<pre
+><code
+  >--input &lt;path&gt;
+</code
+  ></pre
+></td><td>
+<p
+>Local path where the input is located. If <a href="#cb-preprocess"
+  ><code
+    >--preprocess</code
+    ></a
+  > or <a href="#cb-just-preprocess"
+  ><code
+    >--just-preprocess</code
+    ></a
+  > are specified, this sould point to a <a href="#manifest-files"
+  >manifest file</a
+  >. Otherwise, this should point to a directory containing preprocessed reads. This option must be specified.</p
+></td></tr><tr><td id="cb-local-output">
+
+
+<pre
+><code
+  >--output &lt;path&gt;
+</code
+  ></pre
+></td><td>
+<p
+>Local path where the output is to be deposited. If <a href="#cb-just-preprocess"
+  ><code
+    >--just-preprocess</code
+    ></a
+  > is specified, the output consists of the preprocessed reads. Otherwise, the output consists of the SNP calls calculated by SOAPsnp for each chromosome, organized as one file per chromosome. This option must be specified.</p
+></td></tr><tr><td id="cb-local-intermediate">
+
+
+<pre
+><code
+  >--intermediate &lt;path&gt;
+</code
+  ></pre
+></td><td>
+<p
+>Local path where all intermediate results should be kept temporarily (or permanently, if <a href="#cb-local-keep-intermediates"
+  ><code
+    >--keep-intermediates</code
+    ></a
+  > or <a href="#cb-local-keep-all"
+  ><code
+    >--keep-all</code
+    ></a
+  > are specified). Default: <code
+  >/tmp/crossbow/intermediate/&lt;PID&gt;</code
+  >.</p
+></td></tr><tr><td id="cb-local-preprocess-output">
+
+
+<pre
+><code
+  >--preprocess-output &lt;path&gt;
+</code
+  ></pre
+></td><td>
+<p
+>Local path where the preprocessed reads should be stored. This can be useful if you later want to run Crossbow on the same input reads without having to re-run the preprocessing step (i.e. leaving <a href="#cb-preprocess"
+  ><code
+    >--preprocess</code
+    ></a
+  > unspecified).</p
+></td></tr><tr><td id="cb-local-keep-intermediates">
+
+
+<pre
+><code
+  >--keep-intermediates
+</code
+  ></pre
+></td><td>
+<p
+>Keep intermediate directories and files, i.e. the output from all stages prior to the final stage. By default these files are deleted as soon as possible.</p
+></td></tr><tr><td id="cb-local-keep-all">
+
+
+<pre
+><code
+  >--keep-all
+</code
+  ></pre
+></td><td>
+<p
+>Keep all temporary files generated during the process of binning and sorting data records and moving them from stage to stage, as well as all intermediate results. By default these files are deleted as soon as possible.</p
+></td></tr><tr><td id="cb-local-cpus">
+
+
+<pre
+><code
+  >--cpus &lt;int&gt;
+</code
+  ></pre
+></td><td>
+<p
+>The maximum number of processors to use at any given time during the job. Crossbow will try to make maximal use of the processors allocated. Default: 1.</p
+></td></tr><tr><td id="cb-local-max-sort-records">
+
+
+<pre
+><code
+  >--max-sort-records &lt;int&gt;
+</code
+  ></pre
+></td><td>
+<p
+>Maximum number of records to be dispatched to the sort routine at one time when sorting bins before each reduce step. For each child process, this number is effectively divided by the number of CPUs used (<a href="#cb-local-cpus"
+  ><code
+    >--cpus</code
+    ></a
+  >). The default is 200000.</p
+></td></tr><tr><td id="cb-local-max-sort-files">
+
+
+<pre
+><code
+  >--max-sort-files &lt;int&gt;
+</code
+  ></pre
+></td><td>
+<p
+>Maximum number of files that can be opened at once by the sort routine when sorting bins before each reduce step. For each child process, this number is effectively divided by the number of CPUs used (<a href="#cb-local-cpus"
+  ><code
+    >--cpus</code
+    ></a
+  >). The default is 40.</p
+></td></tr><tr><td id="cb-local-bowtie">
+
+
+<pre
+><code
+  >--bowtie &lt;path&gt;
+</code
+  ></pre
+></td><td>
+<p
+>Path to the Bowtie executable to use when running the Align step. This overrides all other ways that Crossbow searches for <code
+  >bowtie</code
+  >, including the <code
+  >CROSSBOW_BOWTIE_HOME</code
+  > environment variable, the subdirectories of the <code
+  >$CROSSBOW_HOME/bin</code
+  > directory, and the <code
+  >PATH</code
+  >.</p
+></td></tr><tr><td id="cb-local-sra-toolkit">
+
+
+<pre
+><code
+  >--sra-toolkit &lt;path&gt;
+</code
+  ></pre
+></td><td>
+<p
+>Path to the directory containing the programs in the <a href="http://trace.ncbi.nlm.nih.gov/Traces/sra/sra.cgi?cmd=show&amp;f=software&amp;m=software&amp;s=software"
+  >SRA toolkit</a
+  >, including <code
+  >fastq-dump</code
+  >. This overrides all other ways that Crossbow searches for <code
+  >fastq-dump</code
+  >, including the <code
+  >CROSSBOW_SRATOOLKIT_HOME</code
+  > environment variable, the subdirectories of the <code
+  >$CROSSBOW_HOME/bin</code
+  > directory, and the <code
+  >PATH</code
+  >.</p
+></td></tr><tr><td id="cb-local-soapsnp">
+
+
+<pre
+><code
+  >--soapsnp &lt;path&gt;
+</code
+  ></pre
+></td><td>
+<p
+>Path to the SOAPsnp executable to use when running the Call SNPs step. This overrides all other ways that Crossbow searches for <code
+  >soapsnp</code
+  >, including the <code
+  >CROSSBOW_SOAPSNP_HOME</code
+  > environment variable, the subdirectories of the <code
+  >$CROSSBOW_HOME/bin</code
+  > directory, and the <code
+  >PATH</code
+  >.</p
+></td></tr>
+
+</table>
+<h1 id="general-crossbow-options"
+><a href="#TOC"
+  >General Crossbow options</a
+  ></h1
+><p
+>The following options can be specified regardless of what mode (<a href="http://aws.amazon.com/elasticmapreduce"
+  >EMR</a
+  >, <a href="http://hadoop.apache.org/"
+  >Hadoop</a
+  > or local) Crossbow is run in.</p
+><table>
+
+<tr><td id="cb-quality">
+
+
+<pre
+><code
+  >--quality { phred33 | phred64 | solexa64 }
+</code
+  ></pre
+></td><td>
+<p
+>Treat all input reads as having the specified quality encoding. <code
+  >phred33</code
+  > denotes the <a href="http://en.wikipedia.org/wiki/FASTQ_format#Encoding"
+  >Phred+33</a
+  > or &quot;Sanger&quot; format whereby ASCII values 33-126 are used to encode qualities on the <a href="http://en.wikipedia.org/wiki/Phred_quality_score"
+  >Phred scale</a
+  >. <code
+  >phred64</code
+  > denotes the <a href="http://en.wikipedia.org/wiki/FASTQ_format#Encoding"
+  >Phred+64</a
+  > or &quot;Illumina 1.3+&quot; format whereby ASCII values 64-126 are used to encode qualities on the <a href="http://en.wikipedia.org/wiki/Phred_quality_score"
+  >Phred scale</a
+  >. <code
+  >solexa64</code
+  > denotes the <a href="http://en.wikipedia.org/wiki/FASTQ_format#Encoding"
+  >Solexa+64</a
+  > or &quot;Solexa/Illumina 1.0&quot; format whereby ASCII values 59-126 are used to encode qualities on a <a href="http://en.wikipedia.org/wiki/FASTQ_format#Variations"
+  >log-odds scale</a
+  > that includes values as low as -5. Default: <code
+  >phred33</code
+  >.</p
+></td></tr><tr><td id="cb-preprocess">
+
+
+<pre
+><code
+  >--preprocess
+</code
+  ></pre
+></td><td>
+<p
+>The input path or URL refers to a <a href="#manifest-files"
+  >manifest file</a
+  > rather than a directory of preprocessed reads. The first step in the Crossbow computation will be to preprocess the reads listed in the <a href="#manifest-files"
+  >manifest file</a
+  > and store the preprocessed reads in the intermediate directory or in the <code
+  >--preprocess-output</code
+  > directory if it's specified. Default: off.</p
+></td></tr><tr><td id="cb-just-preprocess">
+
+
+<pre
+><code
+  >--just-preprocess
+</code
+  ></pre
+></td><td>
+<p
+>The input path or URL refers to a <a href="#manifest-files"
+  >manifest file</a
+  > rather than a directory of preprocessed reads. Crossbow will preprocess the reads listed in the <a href="#manifest-files"
+  >manifest file</a
+  > and store the preprocessed reads in the <code
+  >--output</code
+  > directory and quit. Default: off.</p
+></td></tr><tr><td id="cb-bowtie-args">
+
+
+<pre
+><code
+  >--bowtie-args &quot;&lt;args&gt;&quot;
+</code
+  ></pre
+></td><td>
+<p
+>Pass the specified arguments to <a href="http://bowtie-bio.sf.net"
+  >Bowtie</a
+  > for the Align stage. Default: <a href="http://bowtie-bio.sf.net/manual.shtml#bowtie-options-M"
+  ><code
+    >-M 1</code
+    ></a
+  >. See the <a href="http://bowtie-bio.sf.net/manual.shtml"
+  >Bowtie manual</a
+  > for details on what options are available.</p
+></td></tr><tr><td id="cb-discard-reads">
+
+
+<pre
+><code
+  >--discard-reads &lt;fraction&gt;
+</code
+  ></pre
+></td><td>
+<p
+>Randomly discard a fraction of the input reads. E.g. specify <code
+  >0.5</code
+  > to discard 50%. This applies to all input reads regardless of type (paired vs. unpaired) or length. This can be useful for debugging. Default: 0.0.</p
+></td></tr><tr><td id="cb-discard-ref-bins">
+
+
+<pre
+><code
+  >--discard-ref-bins &lt;fraction&gt;
+</code
+  ></pre
+></td><td>
+<p
+>Randomly discard a fraction of the reference bins prior to SNP calling. E.g. specify <code
+  >0.5</code
+  > to discard 50% of the reference bins. This can be useful for debugging. Default: 0.0.</p
+></td></tr><tr><td id="cb-discard-all">
+
+
+<pre
+><code
+  >--discard-all &lt;fraction&gt;
+</code
+  ></pre
+></td><td>
+<p
+>Equivalent to setting <a href="#cb-discard-reads"
+  ><code
+    >--discard-reads</code
+    ></a
+  > and <a href="#cb-discard-ref-bins"
+  ><code
+    >--discard-ref-bins</code
+    ></a
+  > to <code
+  >&lt;fraction&gt;</code
+  >. Default: 0.0.</p
+></td></tr><tr><td id="cb-soapsnp-args">
+
+
+<pre
+><code
+  >--soapsnp-args &quot;&lt;args&gt;&quot;
+</code
+  ></pre
+></td><td>
+<p
+>Pass the specified arguments to <a href="http://soap.genomics.org.cn/soapsnp.html"
+  >SOAPsnp</a
+  > in the SNP calling stage. These options are passed to SOAPsnp regardless of whether the reference sequence under consideration is diploid or haploid. Default: <code
+  >-2 -u -n -q</code
+  >. See the <a href="http://soap.genomics.org.cn/soapsnp.html"
+  >SOAPsnp manual</a
+  > for details on what options are available.</p
+></td></tr><tr><td id="cb-soapsnp-hap-args">
+
+
+<pre
+><code
+  >--soapsnp-hap-args &quot;&lt;args&gt;&quot;
+</code
+  ></pre
+></td><td>
+<p
+>Pass the specified arguments to <a href="http://soap.genomics.org.cn/soapsnp.html"
+  >SOAPsnp</a
+  > in the SNP calling stage. when the reference sequence under consideration is haploid. Default: <code
+  >-r 0.0001</code
+  >. See the <a href="http://soap.genomics.org.cn/soapsnp.html"
+  >SOAPsnp manual</a
+  > for details on what options are available.</p
+></td></tr><tr><td id="cb-soapsnp-dip-args">
+
+
+<pre
+><code
+  >--soapsnp-dip-args &quot;&lt;args&gt;&quot;
+</code
+  ></pre
+></td><td>
+<p
+>Pass the specified arguments to <a href="http://soap.genomics.org.cn/soapsnp.html"
+  >SOAPsnp</a
+  > in the SNP calling stage. when the reference sequence under consideration is diploid. Default: <code
+  >-r 0.00005 -e 0.0001</code
+  >. See the <a href="http://soap.genomics.org.cn/soapsnp.html"
+  >SOAPsnp manual</a
+  > for details on what options are available.</p
+></td></tr><tr><td id="cb-haploids">
+
+
+<pre
+><code
+  >--haploids &lt;chromosome-list&gt;
+</code
+  ></pre
+></td><td>
+<p
+>The specified comma-separated list of chromosome names are to be treated as haploid by SOAPsnp. The rest are treated as diploid. Default: all chromosomes are treated as diploid.</p
+></td></tr><tr><td id="cb-all-haploids">
+
+
+<pre
+><code
+  >--all-haploids
+</code
+  ></pre
+></td><td>
+<p
+>If specified, all chromosomes are treated as haploid by SOAPsnp.</p
+></td></tr><tr><td id="cb-partition-len">
+
+
+<pre
+><code
+  >--partition-len &lt;int&gt;
+</code
+  ></pre
+></td><td>
+<p
+>The bin size to use when binning alignments into partitions prior to SNP calling. If load imbalance occurrs in the SNP calling step (some tasks taking far longer than others), try decreasing this. Default: 1,000,000.</p
+><blockquote
+></tr><tr><td id="cb-dry-run">
+</blockquote
+><pre
+><code
+  >--dry-run
+</code
+  ></pre
+></td><td>
+<p
+>Just generate a script containing the commands needed to launch the job, but don't run it. The script's location will be printed so that you may run it later.</p
+></td></tr>
+
+</td></tr><tr><td id="cb-test">
+
+
+<pre
+><code
+  >--test
+</code
+  ></pre
+></td><td>
+<p
+>Instead of running Crossbow, just search for the supporting tools (<a href="http://bowtie-bio.sf.net"
+  >Bowtie</a
+  > and <a href="http://soap.genomics.org.cn/soapsnp.html"
+  >SOAPsnp</a
+  >) and report whether and how they were found. If running in Cloud Mode, this just tests whether the <code
+  >elastic-mapreduce</code
+  > script is locatable and runnable. Use this option to debug your local Crossbow installation.</p
+></td></tr><tr><td id="cb-tempdir">
+
+
+<pre
+><code
+  >--tempdir `&lt;path&gt;`
+</code
+  ></pre
+></td><td>
+<p
+>Local directory where temporary files (e.g. dynamically generated scripts) should be deposited. Default: <code
+  >/tmp/Crossbow/invoke.scripts</code
+  >.</p
+></td></tr>
+</table>
+<h1 id="crossbow-examples"
+><a href="#TOC"
+  >Crossbow examples</a
+  ></h1
+><p
+>The following subsections guide you step-by-step through examples included with the Crossbow package. Because reads (and sometimes reference jars) must be obtained over the Internet, running these examples requires an active Internet connection.</p
+><h2 id="e.-coli-small"
+><a href="#TOC"
+  >E. coli (small)</a
+  ></h2
+><p
+>Data for this example is taken from the study by <a href="http://www.pnas.org/content/early/2009/11/19/0906681106.abstract"
+  >Parkhomchuk et al</a
+  >.</p
+><h3 id="emr"
+><a href="#TOC"
+  >EMR</a
+  ></h3
+><div id="cb-example-e-coli-emr" />
+<h4 id="via-web-interface"
+><a href="#TOC"
+  >Via web interface</a
+  ></h4
+><p
+>Identify an <a href="http://aws.amazon.com/s3/"
+  >S3</a
+  > bucket to hold the job's input and output. You may need to create an <a href="http://docs.amazonwebservices.com/AmazonS3/latest/index.html?UsingBucket.html"
+  >S3 bucket</a
+  > for this purpose. See your <a href="#s3-tools"
+  >S3 tool</a
+  >'s documentation.</p
+><p
+>Use an <a href="#s3-tools"
+  >S3 tool</a
+  > to upload <code
+  >$CROSSBOW_HOME/example/e_coli/small.manifest</code
+  > to the <code
+  >example/e_coli</code
+  > subdirectory in your bucket. You can do so with this <a href="http://s3tools.org/s3cmd"
+  >s3cmd</a
+  > command:</p
+><pre
+><code
+  >s3cmd put $CROSSBOW_HOME/example/e_coli/small.manifest s3://&lt;YOUR-BUCKET&gt;/example/e_coli/
+</code
+  ></pre
+><p
+>Direct your web browser to the <a href="http://bowtie-bio.sf.net/crossbow/ui.html"
+  >Crossbow web interface</a
+  > and fill in the form as below (substituting for <code
+  >&lt;YOUR-BUCKET&gt;</code
+  >):</p
+><div><img src="images/AWS_cb_e_coli_fillin.png" alt="" /><p><i>Crossbow web form filled in for the small E. coli example.</i></p>
+</div>
+<ol style="list-style-type: decimal;"
+><li
+  >For <strong
+    >AWS ID</strong
+    >, enter your AWS Access Key ID</li
+  ><li
+  >For <strong
+    >AWS Secret Key</strong
+    >, enter your AWS Secret Access Key</li
+  ><li
+  ><em
+    >Optional</em
+    >: For <strong
+    >AWS Keypair name</strong
+    >, enter the name of your AWS keypair. This is only necessary if you would like to be able to <a href="http://en.wikipedia.org/wiki/Secure_Shell"
+    >ssh</a
+    > into the <a href="http://aws.amazon.com/elasticmapreduce"
+    >EMR</a
+    > cluster while it runs.</li
+  ><li
+  ><em
+    >Optional</em
+    >: Check that the AWS ID and Secret Key entered are valid by clicking the &quot;Check credentials...&quot; link</li
+  ><li
+  >For <strong
+    >Job name</strong
+    >, enter <code
+    >Crossbow-Ecoli</code
+    ></li
+  ><li
+  >Make sure that <strong
+    >Job type</strong
+    > is set to &quot;Crossbow&quot;</li
+  ><li
+  >For <strong
+    >Input URL</strong
+    >, enter <code
+    >s3n://&lt;YOUR-BUCKET&gt;/example/e_coli/small.manifest</code
+    >, substituting for <code
+    >&lt;YOUR-BUCKET&gt;</code
+    ></li
+  ><li
+  ><em
+    >Optional</em
+    >: Check that the Input URL exists by clicking the &quot;Check that input URL exists...&quot; link</li
+  ><li
+  >For <strong
+    >Output URL</strong
+    >, enter <code
+    >s3n://&lt;YOUR-BUCKET&gt;/example/e_coli/output_small</code
+    >, substituting for <code
+    >&lt;YOUR-BUCKET&gt;</code
+    ></li
+  ><li
+  ><em
+    >Optional</em
+    >: Check that the Output URL does not exist by clicking the &quot;Check that output URL doesn't exist...&quot; link</li
+  ><li
+  >For <strong
+    >Input type</strong
+    >, select &quot;Manifest file&quot;</li
+  ><li
+  >For <strong
+    >Genome/Annotation</strong
+    >, select &quot;E. coli&quot; from the drop-down menu</li
+  ><li
+  >For <strong
+    >Chromosome ploidy</strong
+    >, select &quot;All are haploid&quot;</li
+  ><li
+  >Click Submit</li
+  ></ol
+><p
+>This job typically takes about 30 minutes on 1 <code
+  >c1.xlarge</code
+  > <a href="http://aws.amazon.com/ec2"
+  >EC2</a
+  > node. See <a href="#monitoring-your-emr-jobs"
+  >Monitoring your EMR jobs</a
+  > for information on how to track job progress. To download the results, use an <a href="#s3-tools"
+  >S3 tool</a
+  > to retrieve the contents of the <code
+  >s3n://&lt;YOUR-BUCKET&gt;/example/e_coli/output_small</code
+  > directory.</p
+><h4 id="via-command-line"
+><a href="#TOC"
+  >Via command line</a
+  ></h4
+><p
+>Test your Crossbow installation by running:</p
+><pre
+><code
+  >$CROSSBOW_HOME/cb_emr --test
+</code
+  ></pre
+><p
+>This will warn you if any supporting tools (<code
+  >elastic-mapreduce</code
+  > in this case) cannot be located or run.</p
+><p
+>Identify an <a href="http://aws.amazon.com/s3/"
+  >S3</a
+  > bucket to hold the job's input and output. You may need to create an <a href="http://docs.amazonwebservices.com/AmazonS3/latest/index.html?UsingBucket.html"
+  >S3 bucket</a
+  > for this purpose. See your <a href="#s3-tools"
+  >S3 tool</a
+  >'s documentation.</p
+><p
+>Use your <a href="#s3-tools"
+  >S3 tool</a
+  > to upload <code
+  >$CROSSBOW_HOME/example/e_coli/small.manifest</code
+  > to the <code
+  >example/e_coli</code
+  > subdirectory in your bucket. You can do so with this <a href="http://s3tools.org/s3cmd"
+  >s3cmd</a
+  > command:</p
+><pre
+><code
+  >s3cmd put $CROSSBOW_HOME/example/e_coli/small.manifest s3://&lt;YOUR-BUCKET&gt;/example/e_coli/
+</code
+  ></pre
+><p
+>Start the <a href="http://aws.amazon.com/elasticmapreduce"
+  >EMR</a
+  > job with the following command (substituting for <code
+  >&lt;YOUR-BUCKET&gt;</code
+  >):</p
+><pre
+><code
+  >$CROSSBOW_HOME/cb_emr \
+    --name &quot;Crossbow-Ecoli&quot; \
+    --preprocess \
+    --input=s3n://&lt;YOUR-BUCKET&gt;/example/e_coli/small.manifest \
+    --output=s3n://&lt;YOUR-BUCKET&gt;/example/e_coli/output_small \
+    --reference=s3n://crossbow-refs/e_coli.jar \
+    --all-haploids
+</code
+  ></pre
+><p
+>The <code
+  >--reference</code
+  > option instructs Crossbow to use a pre-built reference jar at URL <code
+  >s3n://crossbow-refs/e_coli.jar</code
+  >. The <a href="#cb-preprocess"
+  ><code
+    >--preprocess</code
+    ></a
+  > option instructs Crossbow to treat the input as a <a href="#manifest-files"
+  >manifest file</a
+  >, rather than a directory of already-preprocessed reads. As the first stage of the pipeline, Crossbow downloads files specified in the manifest file and preprocesses them into Crossbow's read format. <a href="#cb-local-output"
+  ><code
+    >--output</code
+    ></a
+  > specifies where the final output is placed.</p
+><p
+>This job typically takes about 30 minutes on 1 <code
+  >c1.xlarge</code
+  > <a href="http://aws.amazon.com/ec2"
+  >EC2</a
+  > node. See <a href="#monitoring-your-emr-jobs"
+  >Monitoring your EMR jobs</a
+  > for information on how to track job progress. To download the results, use an <a href="#s3-tools"
+  >S3 tool</a
+  > to retrieve the contents of the <code
+  >s3n://&lt;YOUR-BUCKET&gt;/example/e_coli/output_small</code
+  > directory.</p
+><h3 id="hadoop"
+><a href="#TOC"
+  >Hadoop</a
+  ></h3
+><div id="cb-example-e-coli-hadoop" />
+<p
+>Log into the <a href="http://hadoop.apache.org/"
+  >Hadoop</a
+  > master node and test your Crossbow installation by running:</p
+><pre
+><code
+  >$CROSSBOW_HOME/cb_hadoop --test
+</code
+  ></pre
+><p
+>This will tell you if any of the supporting tools or packages are missing on the master. <em
+  >You must also ensure</em
+  > that the same tools are installed in the same paths on all slave nodes, and are runnable by the slaves.</p
+><p
+>From the master, download the file named <code
+  >e_coli.jar</code
+  > from the following URL:</p
+><pre
+><code
+  >http://crossbow-refs.s3.amazonaws.com/e_coli.jar
+</code
+  ></pre
+><p
+>E.g. with this command:</p
+><pre
+><code
+  >wget http://crossbow-refs.s3.amazonaws.com/e_coli.jar
+</code
+  ></pre
+><p
+>Equivalently, you can use an <a href="#s3-tools"
+  >S3 tool</a
+  > to download the same file from this URL:</p
+><pre
+><code
+  >s3n://crossbow-refs/e_coli.jar
+</code
+  ></pre
+><p
+>E.g. with this <a href="http://s3tools.org/s3cmd"
+  >s3cmd</a
+  > command:</p
+><pre
+><code
+  >s3cmd get s3://crossbow-refs/e_coli.jar
+</code
+  ></pre
+><p
+>Install <code
+  >e_coli.jar</code
+  > in <a href="http://hadoop.apache.org/common/docs/current/hdfs_design.html"
+  >HDFS</a
+  > (the <a href="http://hadoop.apache.org/"
+  >Hadoop</a
+  > distributed filesystem) with the following commands. If the <code
+  >hadoop</code
+  > script is not in your <code
+  >PATH</code
+  >, either add it to your <code
+  >PATH</code
+  > (recommended) or specify the full path to the <code
+  >hadoop</code
+  > script in the following commands.</p
+><pre
+><code
+  >hadoop dfs -mkdir /crossbow-refs
+hadoop dfs -put e_coli.jar /crossbow-refs/e_coli.jar
+</code
+  ></pre
+><p
+>The first creates a directory in <a href="http://hadoop.apache.org/common/docs/current/hdfs_design.html"
+  >HDFS</a
+  > (you will see a warning message if the directory already exists) and the second copies the local jar files into that directory. In this example, we deposit the jars in the <code
+  >/crossbow-refs</code
+  > directory, but any <a href="http://hadoop.apache.org/common/docs/current/hdfs_design.html"
+  >HDFS</a
+  > directory is fine.</p
+><p
+>Remove the local <code
+  >e_coli.jar</code
+  > file to save space. E.g.:</p
+><pre
+><code
+  >rm -f e_coli.jar
+</code
+  ></pre
+><p
+>Next install the <a href="#manifest-files"
+  >manifest file</a
+  > in <a href="http://hadoop.apache.org/common/docs/current/hdfs_design.html"
+  >HDFS</a
+  >:</p
+><pre
+><code
+  >hadoop dfs -mkdir /crossbow/example/e_coli
+hadoop dfs -put $CROSSBOW_HOME/example/e_coli/small.manifest /crossbow/example/e_coli/small.manifest
+</code
+  ></pre
+><p
+>Now start the job by running:</p
+><pre
+><code
+  >$CROSSBOW_HOME/cb_hadoop \
+    --preprocess \
+    --input=hdfs:///crossbow/example/e_coli/small.manifest \
+    --output=hdfs:///crossbow/example/e_coli/output_small \
+    --reference=hdfs:///crossbow-refs/e_coli.jar \
+    --all-haploids
+</code
+  ></pre
+><p
+>The <a href="#cb-preprocess"
+  ><code
+    >--preprocess</code
+    ></a
+  > option instructs Crossbow to treat the input as a <a href="#manifest-files"
+  >manifest file</a
+  >. As the first stage of the pipeline, Crossbow will download the files specified on each line of the manifest file and preprocess them into Crossbow's read format. The <a href="#cb-local-reference"
+  ><code
+    >--reference</code
+    ></a
+  > option specifies the location of the reference jar contents. The <a href="#cb-local-output"
+  ><code
+    >--output</code
+    ></a
+  > option specifies where the final output is placed.</p
+><h3 id="single-computer"
+><a href="#TOC"
+  >Single computer</a
+  ></h3
+><div id="cb-example-e-coli-local" />
+<p
+>Test your Crossbow installation by running:</p
+><pre
+><code
+  >$CROSSBOW_HOME/cb_local --test
+</code
+  ></pre
+><p
+>This will warn you if any supporting tools (<code
+  >bowtie</code
+  > and <code
+  >soapsnp</code
+  > in this case) cannot be located or run.</p
+><p
+>If you don't already have a <code
+  >CROSSBOW_REFS</code
+  > directory, choose one; it will be the default path Crossbow searches for reference jars. Permanently set the <code
+  >CROSSBOW_REFS</code
+  > environment variable to the selected directory.</p
+><p
+>Create a subdirectory called <code
+  >$CROSSBOW_REFS/e_coli</code
+  >:</p
+><pre
+><code
+  >mkdir $CROSSBOW_REFS/e_coli
+</code
+  ></pre
+><p
+>Download <code
+  >e_coli.jar</code
+  > from the following URL to the new <code
+  >e_coli</code
+  > directory:</p
+><pre
+><code
+  >http://crossbow-refs.s3.amazonaws.com/e_coli.jar
+</code
+  ></pre
+><p
+>E.g. with this command:</p
+><pre
+><code
+  >wget -O $CROSSBOW_REFS/e_coli/e_coli.jar http://crossbow-refs.s3.amazonaws.com/e_coli.jar
+</code
+  ></pre
+><p
+>Equivalently, you can use an <a href="#s3-tools"
+  >S3 tool</a
+  > to download the same file from this URL:</p
+><pre
+><code
+  >s3n://crossbow-refs/e_coli.jar
+</code
+  ></pre
+><p
+>E.g. with this <a href="http://s3tools.org/s3cmd"
+  >s3cmd</a
+  > command:</p
+><pre
+><code
+  >s3cmd get s3://crossbow-refs/e_coli.jar $CROSSBOW_REFS/e_coli/e_coli.jar
+</code
+  ></pre
+><p
+>Change to the new <code
+  >e_coli</code
+  > directory and expand <code
+  >e_coli.jar</code
+  > using an <code
+  >unzip</code
+  > or <code
+  >jar</code
+  > utility:</p
+><pre
+><code
+  >cd $CROSSBOW_REFS/e_coli &amp;&amp; unzip e_coli.jar
+</code
+  ></pre
+><p
+>Now you may remove <code
+  >e_coli.jar</code
+  > to save space:</p
+><pre
+><code
+  >rm -f $CROSSBOW_REFS/e_coli/e_coli.jar
+</code
+  ></pre
+><p
+>Now run Crossbow. Change to the <code
+  >$CROSSBOW_HOME/example/e_coli</code
+  > directory and start the job via the <code
+  >cb_local</code
+  > script:</p
+><pre
+><code
+  >cd $CROSSBOW_HOME/example/e_coli
+$CROSSBOW_HOME/cb_local \
+    --input=small.manifest \
+    --preprocess \
+    --reference=$CROSSBOW_REFS/e_coli \
+    --output=output_small \
+    --all-haploids \
+    --cpus=&lt;CPUS&gt;
+</code
+  ></pre
+><p
+>Substitute the number of CPUs you'd like to use for <code
+  >&lt;CPUS&gt;</code
+  >.</p
+><p
+>The <a href="#cb-preprocess"
+  ><code
+    >--preprocess</code
+    ></a
+  > option instructs Crossbow to treat the input as a <a href="#manifest-files"
+  >manifest file</a
+  >. As the first stage of the pipeline, Crossbow will download the files specified on each line of the manifest file and &quot;preprocess&quot; them into a format understood by Crossbow. The <a href="#cb-local-reference"
+  ><code
+    >--reference</code
+    ></a
+  > option specifies the location of the reference jar contents. The <a href="#cb-local-output"
+  ><code
+    >--output</code
+    ></a
+  > option specifies where the final output is placed. The <a href="#cb-local-cpus"
+  ><code
+    >--cpus</code
+    ></a
+  > option enables Crossbow to use up to the specified number of CPUs at any given time.</p
+><h2 id="mouse-chromosome-17-large"
+><a href="#TOC"
+  >Mouse chromosome 17 (large)</a
+  ></h2
+><p
+>Data for this example is taken from the study by <a href="http://genomebiology.com/2009/10/10/R112"
+  >Sudbury, Stalker et al</a
+  >.</p
+><h3 id="emr-1"
+><a href="#TOC"
+  >EMR</a
+  ></h3
+><div id="cb-example-mouse17-emr" />
+<h4 id="via-web-interface-1"
+><a href="#TOC"
+  >Via web interface</a
+  ></h4
+><p
+>First we build a reference jar for a human assembly and annotations using scripts included with Crossbow. The script searches for a <code
+  >bowtie-build</code
+  > executable with the same rules Crossbow uses to search for <code
+  >bowtie</code
+  >. See <a href="#installing-crossbow"
+  >Installing Crossbow</a
+  > for details. Because one of the steps executed by the script builds an index of the human genome, it should be run on a computer with plenty of memory (at least 4 gigabytes, preferably 6 or more).</p
+><pre
+><code
+  >cd $CROSSBOW_HOME/reftools
+./mm9_chr17_jar
+</code
+  ></pre
+><p
+>The <code
+  >mm9_chr17_jar</code
+  > script will automatically:</p
+><ol style="list-style-type: decimal;"
+><li
+  >Download the FASTA sequence for mouse (build <a href="http://hgdownload.cse.ucsc.edu/downloads.html#mouse"
+    >mm9</a
+    >) chromome 17 from <a href="http://hgdownload.cse.ucsc.edu/downloads.html"
+    >UCSC</a
+    >.</li
+  ><li
+  >Build an index from that FASTA sequence.</li
+  ><li
+  >Download the known SNPs and SNP frequencies for mouse chromosome 17 from <a href="http://www.ncbi.nlm.nih.gov/projects/SNP/"
+    >dbSNP</a
+    >.</li
+  ><li
+  >Arrange this information in the directory structure expected by Crossbow.</li
+  ><li
+  >Package the information in a <a href="http://en.wikipedia.org/wiki/JAR_(file_format)"
+    >jar file</a
+    > named <code
+    >mm9_chr17.jar</code
+    >.</li
+  ></ol
+><p
+>Next, use an <a href="#s3-tools"
+  >S3 tool</a
+  > to upload the <code
+  >mm9_chr17.jar</code
+  > file to the <code
+  >crossbow-refs</code
+  > subdirectory in your bucket. E.g. with this <a href="http://s3tools.org/s3cmd"
+  >s3cmd</a
+  > command (substituting for <code
+  >&lt;YOUR-BUCKET&gt;</code
+  >):</p
+><pre
+><code
+  >s3cmd put $CROSSBOW_HOME/reftools/mm9_chr17/mm9_chr17.jar s3://&lt;YOUR-BUCKET&gt;/crossbow-refs/
+</code
+  ></pre
+><p
+>You may wish to remove the locally-generated reference jar files to save space. E.g.:</p
+><pre
+><code
+  >rm -rf $CROSSBOW_HOME/reftools/mm9_chr17
+</code
+  ></pre
+><p
+>Use an <a href="#s3-tools"
+  >S3 tool</a
+  > to upload <code
+  >$CROSSBOW_HOME/example/mouse17/full.manifest</code
+  > to the <code
+  >example/mouse17</code
+  > subdirectory in your bucket. E.g. with this <a href="http://s3tools.org/s3cmd"
+  >s3cmd</a
+  > command:</p
+><pre
+><code
+  >s3cmd put $CROSSBOW_HOME/example/mouse17/full.manifest s3://&lt;YOUR-BUCKET&gt;/example/mouse17/
+</code
+  ></pre
+><p
+>Direct your web browser to the <a href="http://bowtie-bio.sf.net/crossbow/ui.html"
+  >Crossbow web interface</a
+  > and fill in the form as below (substituting for <code
+  >&lt;YOUR-BUCKET&gt;</code
+  >):</p
+><div><img src="images/AWS_cb_mouse17_fillin.png" alt="" /><p><i>Crossbow web form filled in for the large Mouse Chromosome 17 example.</i></p>
+</div>
+<ol style="list-style-type: decimal;"
+><li
+  >For <strong
+    >AWS ID</strong
+    >, enter your AWS Access Key ID</li
+  ><li
+  >For <strong
+    >AWS Secret Key</strong
+    >, enter your AWS Secret Access Key</li
+  ><li
+  ><em
+    >Optional</em
+    >: For <strong
+    >AWS Keypair name</strong
+    >, enter the name of your AWS keypair. This is only necessary if you would like to be able to <a href="http://en.wikipedia.org/wiki/Secure_Shell"
+    >ssh</a
+    > into the <a href="http://aws.amazon.com/elasticmapreduce"
+    >EMR</a
+    > cluster while it runs.</li
+  ><li
+  ><em
+    >Optional</em
+    >: Check that the AWS ID and Secret Key entered are valid by clicking the &quot;Check credentials...&quot; link</li
+  ><li
+  >For <strong
+    >Job name</strong
+    >, enter <code
+    >Crossbow-Mouse17</code
+    ></li
+  ><li
+  >Make sure that <strong
+    >Job type</strong
+    > is set to &quot;Crossbow&quot;</li
+  ><li
+  >For <strong
+    >Input URL</strong
+    >, enter <code
+    >s3n://&lt;YOUR-BUCKET&gt;/example/mouse17/full.manifest</code
+    >, substituting for <code
+    >&lt;YOUR-BUCKET&gt;</code
+    ></li
+  ><li
+  ><em
+    >Optional</em
+    >: Check that the Input URL exists by clicking the &quot;Check that input URL exists...&quot; link</li
+  ><li
+  >For <strong
+    >Output URL</strong
+    >, enter <code
+    >s3n://&lt;YOUR-BUCKET&gt;/example/mouse17/output_full</code
+    >, substituting for <code
+    >&lt;YOUR-BUCKET&gt;</code
+    ></li
+  ><li
+  ><em
+    >Optional</em
+    >: Check that the Output URL does not exist by clicking the &quot;Check that output URL doesn't exist...&quot; link</li
+  ><li
+  >For <strong
+    >Input type</strong
+    >, select &quot;Manifest file&quot;</li
+  ><li
+  >For <strong
+    >Genome/Annotation</strong
+    >, check the box labeled &quot;Specify reference jar URL:&quot; and enter <code
+    >s3n://&lt;YOUR-BUCKET&gt;/crossbow-refs/mm9_chr17.jar</code
+    > in the text box below</li
+  ><li
+  ><em
+    >Optional</em
+    >: Check that the reference jar URL exists by clicking the &quot;Check that reference jar URL exists...&quot; link</li
+  ><li
+  >For <strong
+    >Chromosome ploidy</strong
+    >, select &quot;All are diploid&quot;</li
+  ><li
+  >Click Submit</li
+  ></ol
+><p
+>This job typically takes about 45 minutes on 8 <code
+  >c1.xlarge</code
+  > <a href="http://aws.amazon.com/ec2"
+  >EC2</a
+  > instances. See <a href="#monitoring-your-emr-jobs"
+  >Monitoring your EMR jobs</a
+  > for information on how to track job progress. To download the results, use an <a href="#s3-tools"
+  >S3 tool</a
+  > to retrieve the contents of the <code
+  >s3n://&lt;YOUR-BUCKET&gt;/example/mouse17/output_full</code
+  > directory.</p
+><h4 id="via-command-line-1"
+><a href="#TOC"
+  >Via command line</a
+  ></h4
+><p
+>First we build a reference jar for a human assembly and annotations using scripts included with Crossbow. The script searches for a <code
+  >bowtie-build</code
+  > executable with the same rules Crossbow uses to search for <code
+  >bowtie</code
+  >. See <a href="#installing-crossbow"
+  >Installing Crossbow</a
+  > for details. Because one of the steps executed by the script builds an index of the human genome, it should be run on a computer with plenty of memory (at least 4 gigabytes, preferably 6 or more).</p
+><pre
+><code
+  >cd $CROSSBOW_HOME/reftools
+./mm9_chr17_jar
+</code
+  ></pre
+><p
+>The <code
+  >mm9_chr17_jar</code
+  > script will automatically:</p
+><ol style="list-style-type: decimal;"
+><li
+  >Download the FASTA sequence for mouse (build <a href="http://hgdownload.cse.ucsc.edu/downloads.html#mouse"
+    >mm9</a
+    >) chromome 17 from <a href="http://hgdownload.cse.ucsc.edu/downloads.html"
+    >UCSC</a
+    >.</li
+  ><li
+  >Build an index from that FASTA sequence.</li
+  ><li
+  >Download the known SNPs and SNP frequencies for mouse chromosome 17 from <a href="http://www.ncbi.nlm.nih.gov/projects/SNP/"
+    >dbSNP</a
+    >.</li
+  ><li
+  >Arrange this information in the directory structure expected by Crossbow.</li
+  ><li
+  >Package the information in a <a href="http://en.wikipedia.org/wiki/JAR_(file_format)"
+    >jar file</a
+    > named <code
+    >mm9_chr17.jar</code
+    >.</li
+  ></ol
+><p
+>Next, use an <a href="#s3-tools"
+  >S3 tool</a
+  > to upload the <code
+  >mm9_chr17.jar</code
+  > file to the <code
+  >crossbow-refs</code
+  > subdirectory in your bucket. E.g. with this <a href="http://s3tools.org/s3cmd"
+  >s3cmd</a
+  > command (substituting for <code
+  >&lt;YOUR-BUCKET&gt;</code
+  >):</p
+><pre
+><code
+  >s3cmd put $CROSSBOW_HOME/reftools/mm9_chr17/mm9_chr17.jar s3://&lt;YOUR-BUCKET&gt;/crossbow-refs/
+</code
+  ></pre
+><p
+>You may wish to remove the locally-generated reference jar files to save space. E.g.:</p
+><pre
+><code
+  >rm -rf $CROSSBOW_HOME/reftools/mm9_chr17
+</code
+  ></pre
+><p
+>Use an <a href="#s3-tools"
+  >S3 tool</a
+  > to upload <code
+  >$CROSSBOW_HOME/example/mouse17/full.manifest</code
+  > to the <code
+  >example/mouse17</code
+  > subdirectory in your bucket. E.g. with this <a href="http://s3tools.org/s3cmd"
+  >s3cmd</a
+  > command:</p
+><pre
+><code
+  >s3cmd put $CROSSBOW_HOME/example/mouse17/full.manifest s3://&lt;YOUR-BUCKET&gt;/example/mouse17/
+</code
+  ></pre
+><p
+>To start the <a href="http://aws.amazon.com/elasticmapreduce"
+  >EMR</a
+  > job, run the following command (substituting for <code
+  >&lt;YOUR-BUCKET&gt;</code
+  >):</p
+><pre
+><code
+  >$CROSSBOW_HOME/cb_emr \
+    --name &quot;Crossbow-Mouse17&quot; \
+    --preprocess \
+    --input=s3n://&lt;YOUR-BUCKET&gt;/example/mouse17/full.manifest \
+    --output=s3n://&lt;YOUR-BUCKET&gt;/example/mouse17/output_full \
+    --reference=s3n://&lt;YOUR-BUCKET&gt;/crossbow-refs/mm9_chr17.jar \
+    --instances 8
+</code
+  ></pre
+><p
+>This job typically takes about 45 minutes on 8 <code
+  >c1.xlarge</code
+  > <a href="http://aws.amazon.com/ec2"
+  >EC2</a
+  > instances. See <a href="#monitoring-your-emr-jobs"
+  >Monitoring your EMR jobs</a
+  > for information on how to track job progress. To download the results, use an <a href="#s3-tools"
+  >S3 tool</a
+  > to retrieve the contents of the <code
+  >s3n://&lt;YOUR-BUCKET&gt;/example/mouse17/output_full</code
+  > directory.</p
+><h3 id="hadoop-1"
+><a href="#TOC"
+  >Hadoop</a
+  ></h3
+><div id="cb-example-mouse17-hadoop" />
+<p
+>First we build a reference jar for a human assembly and annotations using scripts included with Crossbow. The script searches for a <code
+  >bowtie-build</code
+  > executable with the same rules Crossbow uses to search for <code
+  >bowtie</code
+  >. See <a href="#installing-crossbow"
+  >Installing Crossbow</a
+  > for details. Because one of the steps executed by the script builds an index of the human genome, it should be run on a computer with plenty of memory (at least 4 gigabytes, preferably 6 or more).</p
+><pre
+><code
+  >cd $CROSSBOW_HOME/reftools
+./mm9_chr17_jar
+</code
+  ></pre
+><p
+>The <code
+  >mm9_chr17_jar</code
+  > script will automatically:</p
+><ol style="list-style-type: decimal;"
+><li
+  >Download the FASTA sequence for mouse (build <a href="http://hgdownload.cse.ucsc.edu/downloads.html#mouse"
+    >mm9</a
+    >) chromome 17 from <a href="http://hgdownload.cse.ucsc.edu/downloads.html"
+    >UCSC</a
+    >.</li
+  ><li
+  >Build an index from that FASTA sequence.</li
+  ><li
+  >Download the known SNPs and SNP frequencies for mouse chromosome 17 from <a href="http://www.ncbi.nlm.nih.gov/projects/SNP/"
+    >dbSNP</a
+    >.</li
+  ><li
+  >Arrange this information in the directory structure expected by Crossbow.</li
+  ><li
+  >Package the information in a <a href="http://en.wikipedia.org/wiki/JAR_(file_format)"
+    >jar file</a
+    > named <code
+    >mm9_chr17.jar</code
+    >.</li
+  ></ol
+><p
+>Next, use the <code
+  >hadoop</code
+  > script to put the <code
+  >mm9_chr17.jar</code
+  > file in the <code
+  >crossbow-refs</code
+  > <a href="http://hadoop.apache.org/common/docs/current/hdfs_design.html"
+  >HDFS</a
+  > directory. Note tha tif <code
+  >hadoop</code
+  > is not in your <code
+  >PATH</code
+  >, you must specify <code
+  >hadoop</code
+  >'s full path instead:</p
+><pre
+><code
+  >hadoop dfs -mkdir /crossbow-refs
+hadoop dfs -put $CROSSBOW_HOME/reftools/mm9_chr17/mm9_chr17.jar /crossbow-refs/mm9_chr17.jar
+</code
+  ></pre
+><p
+>The first command will yield a warning if the directory already exists; ignore this. In this example, we deposit the jars in the <code
+  >/crossbow-refs</code
+  > directory, but any <a href="http://hadoop.apache.org/common/docs/current/hdfs_design.html"
+  >HDFS</a
+  > directory is fine.</p
+><p
+>You may wish to remove the locally-generated reference jar files to save space. E.g.:</p
+><pre
+><code
+  >rm -rf $CROSSBOW_HOME/reftools/mm9_chr17
+</code
+  ></pre
+><p
+>Now install the <a href="#manifest-files"
+  >manifest file</a
+  > in <a href="http://hadoop.apache.org/common/docs/current/hdfs_design.html"
+  >HDFS</a
+  >:</p
+><pre
+><code
+  >hadoop dfs -mkdir /crossbow/example/mouse17
+hadoop dfs -put $CROSSBOW_HOME/example/mouse17/full.manifest /crossbow/example/mouse17/full.manifest
+</code
+  ></pre
+><p
+>To start the <a href="http://hadoop.apache.org/"
+  >Hadoop</a
+  > job, run the following command (substituting for <code
+  >&lt;YOUR-BUCKET&gt;</code
+  >):</p
+><pre
+><code
+  >$CROSSBOW_HOME/cb_hadoop \
+    --preprocess \
+    --input=hdfs:///crossbow/example/mouse17/full.manifest \
+    --output=hdfs:///crossbow/example/mouse17/output_full \
+    --reference=hdfs:///crossbow-refs/mm9_chr17.jar
+</code
+  ></pre
+><h3 id="single-computer-1"
+><a href="#TOC"
+  >Single computer</a
+  ></h3
+><div id="cb-example-mouse17-local" />
+<p
+>First we build a reference jar for a human assembly and annotations using scripts included with Crossbow. The script searches for a <code
+  >bowtie-build</code
+  > executable with the same rules Crossbow uses to search for <code
+  >bowtie</code
+  >. See <a href="#installing-crossbow"
+  >Installing Crossbow</a
+  > for details. Because one of the steps executed by the script builds an index of the human genome, it should be run on a computer with plenty of memory (at least 4 gigabytes, preferably 6 or more).</p
+><p
+>Run the following commands:</p
+><pre
+><code
+  >cd $CROSSBOW_HOME/reftools
+./mm9_chr17_jar
+</code
+  ></pre
+><p
+>The <code
+  >mm9_chr17_jar</code
+  > script will automatically:</p
+><ol style="list-style-type: decimal;"
+><li
+  >Download the FASTA sequence for mouse (build <a href="http://hgdownload.cse.ucsc.edu/downloads.html#mouse"
+    >mm9</a
+    >) chromome 17 from <a href="http://hgdownload.cse.ucsc.edu/downloads.html"
+    >UCSC</a
+    >.</li
+  ><li
+  >Build an index from that FASTA sequence.</li
+  ><li
+  >Download the known SNPs and SNP frequencies for mouse chromosome 17 from <a href="http://www.ncbi.nlm.nih.gov/projects/SNP/"
+    >dbSNP</a
+    >.</li
+  ><li
+  >Arrange this information in the directory structure expected by Crossbow.</li
+  ><li
+  >Package the information in a <a href="http://en.wikipedia.org/wiki/JAR_(file_format)"
+    >jar file</a
+    > named <code
+    >mm9_chr17.jar</code
+    >.</li
+  ></ol
+><p
+>Move the directory containing the new reference jar into the <code
+  >$CROSSBOW_REFS</code
+  > directory:</p
+><pre
+><code
+  >mv $CROSSBOW_HOME/reftools/mm9_chr17 $CROSSBOW_REFS/
+</code
+  ></pre
+><p
+>Now change to the <code
+  >$CROSSBOW_HOME/example/mouse17</code
+  > directory and run Crossbow (substitute the number of CPUs you'd like to use for <code
+  >&lt;CPUS&gt;</code
+  >):</p
+><pre
+><code
+  >cd $CROSSBOW_HOME/example/mouse17
+$CROSSBOW_HOME/cb_local \
+    --input=$CROSSBOW_HOME/example/mouse17/full.manifest \
+    --preprocess \
+    --reference=$CROSSBOW_REFS/mm9_chr17 \
+    --output=output_full \
+    --cpus=&lt;CPUS&gt;
+</code
+  ></pre
+><h1 id="manifest-files"
+><a href="#TOC"
+  >Manifest files</a
+  ></h1
+><p
+>A manifest file describes a set of <a href="http://en.wikipedia.org/wiki/FASTQ_format"
+  >FASTQ</a
+  > or <a href="http://www.ncbi.nlm.nih.gov/books/NBK47540/"
+  ><code
+    >.sra</code
+    ></a
+  > formatted input files that might be located:</p
+><ol style="list-style-type: decimal;"
+><li
+  >On the local computer</li
+  ><li
+  >In <a href="http://hadoop.apache.org/common/docs/current/hdfs_design.html"
+    >HDFS</a
+    ></li
+  ><li
+  >In <a href="http://aws.amazon.com/s3/"
+    >S3</a
+    ></li
+  ><li
+  >On an FTP or web server</li
+  ></ol
+><p
+>A manifest file can contain any combination of URLs and local paths from these various types of sources.</p
+><p
+><a href="http://en.wikipedia.org/wiki/FASTQ_format"
+  >FASTQ</a
+  > files can be gzip or bzip2-compressed (i.e. with <code
+  >.gz</code
+  > or <code
+  >.bz2</code
+  > file extensions). If <a href="http://www.ncbi.nlm.nih.gov/books/NBK47540/"
+  ><code
+    >.sra</code
+    ></a
+  > files are specified in the manifest and Myrna is being run in single-computer or <a href="http://hadoop.apache.org/"
+  >Hadoop</a
+  > modes, then the <code
+  >fastq-dump</code
+  > tool must be installed and Myrna must be able to locate it. See the <a href="#cb-local-sra-toolkit"
+  ><code
+    >--sra-toolkit</code
+    ></a
+  > option and the <a href="#the-sra-toolkit"
+  >SRA Toolkit section of the manual</a
+  >.</p
+><p
+>Each line in the manifest file represents either one file, for unpaired input reads, or a pair of files, for paired input reads. For a set of unpaired input reads, the line is formatted:</p
+><pre
+><code
+  >URL(tab)Optional-MD5
+</code
+  ></pre
+><p
+>Specifying an MD5 for the input file is optional. If it is specified, Crossbow will attempt to check the integrity of the file after downloading by comparing the observed MD5 to the user-provided MD5. To disable this checking, specify <code
+  >0</code
+  > in this field.</p
+><p
+>For a set of paired input reads, the line is formatted:</p
+><pre
+><code
+  >URL-1(tab)Optional-MD5-1(tab)URL-2(tab)Optional-MD5-2
+</code
+  ></pre
+><p
+>Where <code
+  >URL-1</code
+  > and <code
+  >URL-2</code
+  > point to input files with all the #1 mates in <code
+  >URL-1</code
+  > and all the #2 mates in <code
+  >URL-2</code
+  >. The entries in the files must be arranged so that pairs &quot;line up&quot; in parallel. This is commonly the way public paired-end FASTQ datasets, such as those produced by the <a href="http://www.1000genomes.org/page.php"
+  >1000 Genomes Project</a
+  >, are formatted. Typically these file pairs end in suffixes <code
+  >_1.fastq.gz</code
+  > and <code
+  >_2.fastq.gz</code
+  >.</p
+><p
+>Manifest files may have comment lines, which must start with the hash (<code
+  >#</code
+  >) symbol, and blank lines. Such lines are ignored by Crossbow.</p
+><p
+>For examples of manifest files, see the files ending in <code
+  >.manifest</code
+  > in the <code
+  >$CROSSBOW_HOME/example/e_coli</code
+  > and <code
+  >$CROSSBOW_HOME/example/mouse17</code
+  > directories.</p
+><h1 id="reference-jars"
+><a href="#TOC"
+  >Reference jars</a
+  ></h1
+><p
+>All information about a reference sequence needed by Crossbow is encapsulated in a &quot;reference jar&quot; file. A reference jar includes a set of FASTA files encoding the reference sequences, a <a href="http://bowtie-bio.sf.net"
+  >Bowtie</a
+  > index of the reference sequence, and a set of files encoding information about known SNPs for the species.</p
+><p
+>A Crossbow reference jar is organized as:</p
+><ol style="list-style-type: decimal;"
+><li
+  >A <code
+    >sequences</code
+    > subdirectory containing one FASTA file per reference sequence.</li
+  ><li
+  >An <code
+    >index</code
+    > subdirectory containing the <a href="http://bowtie-bio.sf.net"
+    >Bowtie</a
+    > index files for the reference sequences.</li
+  ><li
+  >A <code
+    >snps</code
+    > subdirectory containing all of the SNP description files.</li
+  ></ol
+><p
+>The FASTA files in the <code
+  >sequences</code
+  > subdirectory must each be named <code
+  >chrX.fa</code
+  >, where <code
+  >X</code
+  > is the 0-based numeric id of the chromosome or sequence in the file. For example, for a human reference, chromosome 1's FASTA file could be named <code
+  >chr0.fa</code
+  >, chromosome 2 named <code
+  >chr1.fa</code
+  >, etc, all the way up to chromosomes 22, X and Y, named <code
+  >chr21.fa</code
+  >, <code
+  >chr22.fa</code
+  > and <code
+  >chr23.fa</code
+  >. Also, the names of the sequences within the FASTA files must match the number in the file name. I.e., the first line of the FASTA file <code
+  >chr0.fa</code
+  > must be <code
+  >&gt;0</code
+  >.</p
+><p
+>The index files in the <code
+  >index</code
+  > subdirectory must have the basename <code
+  >index</code
+  >. I.e., the index subdirectory must contain these files:</p
+><pre
+><code
+  >index.1.ebwt
+index.2.ebwt
+index.3.ebwt
+index.4.ebwt
+index.rev.1.ebwt
+index.rev.2.ebwt
+</code
+  ></pre
+><p
+>The index must be built using the <a href="http://bowtie-bio.sourceforge.net/manual.shtml#indx"
+  ><code
+    >bowtie-build</code
+    ></a
+  > tool distributed with <a href="http://bowtie-bio.sf.net"
+  >Bowtie</a
+  >. When <code
+  >bowtie-build</code
+  > is executed, the FASTA files specified on the command line must be listed in ascending order of numeric id. For instance, for a set of FASTA files encoding human chromosomes 1,2,...,22,X,Y as <code
+  >chr0.fa</code
+  >,<code
+  >chr1.fa</code
+  >,...,<code
+  >chr21.fa</code
+  >, <code
+  >chr22.fa</code
+  >,<code
+  >chr23.fa</code
+  >, the command for <code
+  >bowtie-build</code
+  > must list the FASTA files in that order:</p
+><pre
+><code
+  >bowtie-build chr0.fa,chr1.fa,...,chr23.fa index
+</code
+  ></pre
+><p
+>Be sure to use <code
+  >bowtie-build</code
+  > version 0.9.8 or newer.</p
+><p
+>The SNP description files in the <code
+  >snps</code
+  > subdirectory must also have names that match the corresponding FASTA files in the <code
+  >sequences</code
+  > subdirectory, but with extension <code
+  >.snps</code
+  >. E.g. if the sequence file for human Chromosome 1 is named <code
+  >chr0.fa</code
+  >, then the SNP description file for Chromosome 1 must be named <code
+  >chr0.snps</code
+  >. SNP description files may be omitted for some or all chromosomes.</p
+><p
+>The format of the SNP description files must match the format expected by <a href="http://soap.genomics.org.cn/soapsnp.html"
+  >SOAPsnp</a
+  >'s <code
+  >-s</code
+  > option. The format consists of 1 SNP per line, with the following tab-separated fields per SNP:</p
+><ol style="list-style-type: decimal;"
+><li
+  >Chromosome ID</li
+  ><li
+  >1-based offset into chromosome</li
+  ><li
+  >Whether SNP has allele frequency information (1 = yes, 0 = no)</li
+  ><li
+  >Whether SNP is validated by experiment (1 = yes, 0 = no)</li
+  ><li
+  >Whether SNP is actually an indel (1 = yes, 0 = no)</li
+  ><li
+  >Frequency of A allele, as a decimal number</li
+  ><li
+  >Frequency of C allele, as a decimal number</li
+  ><li
+  >Frequency of T allele, as a decimal number</li
+  ><li
+  >Frequency of G allele, as a decimal number</li
+  ><li
+  >SNP id (e.g. a <a href="http://www.ncbi.nlm.nih.gov/projects/SNP/"
+    >dbSNP</a
+    > id such as <code
+    >rs9976767</code
+    >)</li
+  ></ol
+><p
+>Once these three subdirectories have been created and populated, they can be combined into a single <a href="http://en.wikipedia.org/wiki/JAR_(file_format)"
+  >jar file</a
+  > with a command like this:</p
+><pre
+><code
+  >jar cf ref-XXX.jar sequences snps index
+</code
+  ></pre
+><p
+>To use <code
+  >ref-XXX.jar</code
+  > with Crossbow, you must copy it to a location where it can be downloaded over the internet via HTTP, FTP, or S3. Once it is placed in such a location, make a note if its URL.</p
+><h2 id="building-a-reference-jar-using-automatic-scripts"
+><a href="#TOC"
+  >Building a reference jar using automatic scripts</a
+  ></h2
+><p
+>The <code
+  >reftools</code
+  > subdirectory of the Crossbow package contains scripts that assist in building reference jars, including scripts that handle the entire process of building reference jars for <a href="http://hgdownload.cse.ucsc.edu/downloads.html#human"
+  >hg18</a
+  > (UCSC human genome build 18) and <a href="http://hgdownload.cse.ucsc.edu/downloads.html#mouse"
+  >mm9</a
+  > (UCSC mouse genome build 9). The <code
+  >db2ssnp</code
+  > script combines SNP and allele frequency information from <a href="http://www.ncbi.nlm.nih.gov/projects/SNP/"
+  >dbSNP</a
+  > to create a <code
+  >chrX.snps</code
+  > file for the <code
+  >snps</code
+  > subdirectory of the reference jar. The <code
+  >db2ssnp_*</code
+  > scripts drive the <code
+  >db2ssnp</code
+  > script for each chromosome in the <a href="http://hgdownload.cse.ucsc.edu/downloads.html#human"
+  >hg18</a
+  > and <a href="http://hgdownload.cse.ucsc.edu/downloads.html#mouse"
+  >mm9</a
+  > genomes. The <code
+  >*_jar</code
+  > scripts drive the entire reference-jar building process, including downloading reference FASTA files, building a Bowtie index, and using <code
+  >db2ssnp</code
+  > to generate the <code
+  >.snp</code
+  > files for <a href="http://hgdownload.cse.ucsc.edu/downloads.html#human"
+  >hg18</a
+  > and <a href="http://hgdownload.cse.ucsc.edu/downloads.html#mouse"
+  >mm9</a
+  >.</p
+><h1 id="monitoring-debugging-and-logging"
+><a href="#TOC"
+  >Monitoring, debugging and logging</a
+  ></h1
+><h2 id="single-computer-2"
+><a href="#TOC"
+  >Single computer</a
+  ></h2
+><p
+>Single-computer runs of Crossbow are relatively easy to monitor and debug. Progress messages are printed to the console as the job runs. When there is a fatal error, Crossbow usually indicates exactly which log file on the local filesystem contains the relevant error message. Additional debugging is possible when intermediate and temporary files are kept rather than discarded; see <a href="#cb-local-keep-intermediates"
+  ><code
+    >--keep-intermediates</code
+    ></a
+  > and <a href="#cb-local-keep-all"
+  ><code
+    >--keep-all</code
+    ></a
+  >. All output and logs are stored on the local filesystem; see <a href="#cb-local-intermediate"
+  ><code
+    >--intermediate</code
+    ></a
+  > and <a href="#cb-local-output"
+  ><code
+    >--output</code
+    ></a
+  > options.</p
+><h2 id="hadoop-2"
+><a href="#TOC"
+  >Hadoop</a
+  ></h2
+><p
+>The simplest way to monitor Crossbow <a href="http://hadoop.apache.org/"
+  >Hadoop</a
+  > jobs is via the Hadoop JobTracker. The JobTracker is a web server that provides a point-and-click interface for monitoring jobs and reading output and other log files generated by those jobs, including after they've finished.</p
+><p
+>When a job fails, you can often find the relevant error message by &quot;drilling down&quot; from the &quot;step&quot; level through the &quot;job&quot; level and &quot;task&quot; levels, and finally to the &quot;attempt&quot; level. To diagnose why an attempt failed, click through to the &quot;stderr&quot; (&quot;standard error&quot;) log and scan for the relevant error message.</p
+><p
+>See your version of Hadoop's documentation for details on how to use the web interface. Amazon has a brief document describing <a href="http://docs.amazonwebservices.com/ElasticMapReduce/latest/DeveloperGuide/index.html?UsingtheHadoopUserInterface.html"
+  >How to Use the Hadoop User Interface</a
+  >, though some of the instructions are specific to clusters rented from Amazon. <a href="http://oreilly.com/catalog/9780596521981"
+  >Hadoop, the Definitive Guide</a
+  > is also an excellent reference.</p
+><h2 id="emr-2"
+><a href="#TOC"
+  >EMR</a
+  ></h2
+><p
+>The recommended way to monitor EMR <a href="http://hadoop.apache.org/"
+  >Hadoop</a
+  > jobs is via the <a href="https://console.aws.amazon.com"
+  >AWS Console</a
+  >. The <a href="https://console.aws.amazon.com"
+  >AWS Console</a
+  > allows you to see:</p
+><ol style="list-style-type: decimal;"
+><li
+  >The status for job (e.g. &quot;COMPLETED&quot;, &quot;RUNNING&quot; or &quot;FAILED&quot;)</li
+  ><li
+  >The status for each step of each job</li
+  ><li
+  >How long a job has been running for and how many &quot;compute units&quot; have been utilized so far.</li
+  ><li
+  >The exact Hadoop commands used to initiate each job step.</li
+  ><li
+  >The button for <a href="http://docs.amazonwebservices.com/ElasticMapReduce/latest/DeveloperGuide/index.html?DebuggingJobFlows.html"
+    >Debugging Job Flows</a
+    ></li
+  ></ol
+><div><img src="images/AWS_console.png" alt="Screen shot of AWS console with interface elements labeled" /><p><i>Screen shot of <a href="https://console.aws.amazon.com"
+>AWS Console</a
+> interface with some relevant interface elements labeled</i></p>
+</div>
+<p
+>The <a href="https://console.aws.amazon.com"
+  >AWS Console</a
+  > also has a useful facility for <a href="http://docs.amazonwebservices.com/ElasticMapReduce/latest/DeveloperGuide/index.html?DebuggingJobFlows.html"
+  >Debugging Job Flows</a
+  >, which is accessible via the &quot;Debug&quot; button on the &quot;Elastic MapReduce&quot; tab of the Console (labeled &quot;5&quot;). You must (a) have a <a href="http://aws.amazon.com/simpledb/"
+  >SimpleDB</a
+  > account (b) not have specified <a href="#cb-no-emr-debug"
+  ><code
+    >--no-emr-debug</code
+    ></a
+  > in order to use all of the <a href="http://docs.amazonwebservices.com/ElasticMapReduce/latest/DeveloperGuide/index.html?DebuggingJobFlows.html"
+  >EMR Debug</a
+  > interface's features:</p
+><div><img src="images/AWS_console_debug.png" alt="Screen shot of AWS console debug interface" /><p><i>Screen shot of <a href="http://docs.amazonwebservices.com/ElasticMapReduce/latest/DeveloperGuide/index.html?DebuggingJobFlows.html"
+>EMR Debug</a
+> interface</i></p>
+</div>
+<p
+>The debug interface is similar to Hadoop's JobTracker interface. When a job fails, you can often find the relevant error message by &quot;drilling down&quot; from the &quot;job&quot; level, through the &quot;task&quot; level, and finally to the &quot;attempt&quot; level. To diagnose why an attempt failed, click through to the &quot;stderr&quot; (&quot;standard error&quot;) log and scan for the relevant error message.</p
+><p
+>For more information, see Amazon's document on <a href="http://docs.amazonwebservices.com/ElasticMapReduce/latest/DeveloperGuide/index.html?DebuggingJobFlows.html"
+  >Debugging Job Flows</a
+  >.</p
+><h2 id="aws-management-console"
+><a href="#TOC"
+  >AWS Management Console</a
+  ></h2
+><p
+>A simple way to monitor your EMR activity is via the <a href="https://console.aws.amazon.com"
+  >AWS Console</a
+  >. The <a href="https://console.aws.amazon.com"
+  >AWS Console</a
+  > summarizes current information regarding all your running <a href="http://aws.amazon.com/ec2"
+  >EC2</a
+  > nodes and <a href="http://aws.amazon.com/elasticmapreduce"
+  >EMR</a
+  > jobs. Each job is listed in the &quot;Amazon Elastic MapReduce&quot; tab of the console, whereas individual <a href="http://aws.amazon.com/ec2"
+  >EC2</a
+  > nodes are listed in the &quot;Amazon EC2&quot; tab.</p
+><div><img src="images/AWS_console_upper_left.png" alt="Screen shot of AWS console tabs" /><p><i>Screen shot of <a href="https://console.aws.amazon.com"
+>AWS console</a
+>; note tabs for &quot;Amazon Elastic MapReduce&quot; and &quot;Amazon EC2&quot;</i></p>
+</div>
+<h1 id="crossbow-output"
+><a href="#TOC"
+  >Crossbow Output</a
+  ></h1
+><p
+>Once a Crossbow job completes successfully, the output is deposited in a <code
+  >crossbow_results</code
+  > subdirectory of the specified <code
+  >--output</code
+  > directory or URL. Within the <code
+  >crossbow_results</code
+  > subdirectory, results are organized as one gzipped result file per chromosome. E.g. if your run was against the <a href="http://hgdownload.cse.ucsc.edu/downloads.html#human"
+  >hg18</a
+  > build of the human genome, the output files from your experiment will named:</p
+><pre
+><code
+  >&lt;output_url&gt;/crossbow_results/chr1.gz
+&lt;output_url&gt;/crossbow_results/chr2.gz
+&lt;output_url&gt;/crossbow_results/chr3.gz
+...
+&lt;output_url&gt;/crossbow_results/chr21.gz
+&lt;output_url&gt;/crossbow_results/chr22.gz
+&lt;output_url&gt;/crossbow_results/chrX.gz
+&lt;output_url&gt;/crossbow_results/chrY.gz
+&lt;output_url&gt;/crossbow_results/chrM.gz
+</code
+  ></pre
+><p
+>Each individual record is in the <a href="http://soap.genomics.org.cn/soapsnp.html"
+  >SOAPsnp</a
+  > output format. SOAPsnp's format consists of 1 SNP per line with several tab-separated fields per SNP. The fields are:</p
+><ol style="list-style-type: decimal;"
+><li
+  >Chromosome ID</li
+  ><li
+  >1-based offset into chromosome</li
+  ><li
+  >Reference genotype</li
+  ><li
+  >Subject genotype</li
+  ><li
+  >Quality score of subject genotype</li
+  ><li
+  >Best base</li
+  ><li
+  >Average quality score of best base</li
+  ><li
+  >Count of uniquely aligned reads corroborating the best base</li
+  ><li
+  >Count of all aligned reads corroborating the best base</li
+  ><li
+  >Second best base</li
+  ><li
+  >Average quality score of second best base</li
+  ><li
+  >Count of uniquely aligned reads corroborating second best base</li
+  ><li
+  >Count of all aligned reads corroborating second best base</li
+  ><li
+  >Overall sequencing depth at the site</li
+  ><li
+  >Sequencing depth of just the paired alignments at the site</li
+  ><li
+  >Rank sum test P-value</li
+  ><li
+  >Average copy number of nearby region</li
+  ><li
+  >Whether the site is a known SNP from the file specified with <code
+    >-s</code
+    ></li
+  ></ol
+><p
+>Note that field 15 was added in Crossbow and is not output by unmodified SOAPsnp.</p
+><p
+>For further details, see the <a href="http://soap.genomics.org.cn/soapsnp.html"
+  >SOAPsnp</a
+  > manual.</p
+><h1 id="other-reading"
+><a href="#TOC"
+  >Other reading</a
+  ></h1
+><p
+>The <a href="http://genomebiology.com/2009/10/11/R134"
+  >Crossbow paper</a
+  > discusses the broad design philosophy of both <a href="http://bowtie-bio.sf.net/crossbow"
+  >Crossbow</a
+  > and <a href="http://bowtie-bio.sf.net/myrna"
+  >Myrna</a
+  > and why cloud computing can be considered a useful trend for comparative genomics applications. The <a href="http://genomebiology.com/2009/10/3/R25"
+  >Bowtie paper</a
+  > discusses the alignment algorithm underlying <a href="http://bowtie-bio.sf.net"
+  >Bowtie</a
+  >.</p
+><p
+>For additional information regarding Amazon EC2, S3, EMR, and related services, see Amazon's <a href="http://aws.amazon.com/documentation/"
+  >AWS Documentation</a
+  >. Some helpful screencasts are posted on the <a href="https://console.aws.amazon.com"
+  >AWS Console</a
+  > home page.</p
+><p
+>For additional information regarding Hadoop, see the <a href="http://hadoop.apache.org/"
+  >Hadoop web site</a
+  > and <a href="http://www.cloudera.com/resource/getting_started_with_hadoop"
+  >Cloudera's Getting Started with Hadoop</a
+  > document. <a href="http://www.cloudera.com/developers/downloads/virtual-machine/"
+  >Cloudera's training virtual machine</a
+  > for <a href="http://www.vmware.com/"
+  >VMWare</a
+  > is an excellent way to get acquainted with Hadoop without having to install it on a production cluster.</p
+><h1 id="acknowledgements"
+><a href="#TOC"
+  >Acknowledgements</a
+  ></h1
+><p
+><a href="http://bowtie-bio.sf.net/crossbow"
+  >Crossbow</a
+  > software is by <a href="http://faculty.jhsph.edu/default.cfm?faculty_id=2209&amp;grouped=false&amp;searchText=&amp;department_id=3&amp;departmentName=Biostatistics"
+  >Ben Langmead</a
+  > and <a href="http://www.cbcb.umd.edu/~mschatz/"
+  >Michael C. Schatz</a
+  >.</p
+><p
+><a href="http://bowtie-bio.sf.net"
+  >Bowtie</a
+  > software is by <a href="http://faculty.jhsph.edu/default.cfm?faculty_id=2209&amp;grouped=false&amp;searchText=&amp;department_id=3&amp;departmentName=Biostatistics"
+  >Ben Langmead</a
+  > and <a href="http://www.cs.umd.edu/~cole/"
+  >Cole Trapnell</a
+  >.</p
+><p
+><a href="http://soap.genomics.org.cn/soapsnp.html"
+  >SOAPsnp</a
+  > is by Ruiqiang Li, Yingrui Li, Xiaodong Fang, Huanming Yang, Jian Wang, Karsten Kristiansen, and Jun Wang.</p
+>

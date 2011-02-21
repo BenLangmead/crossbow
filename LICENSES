@@ -1,0 +1,12 @@
+Crossbow and Bowtie are both licensed under the Artistic License.  You
+may not use the Crossbow and Bowtie files except in compliance with the
+license.  A copy of the Artistic license can be found in the
+"LICENSE_ARTISTIC" file included with Crossbow.
+
+SOAPsnp version 1.02 is licensed under the GNU Public License, version
+3.  You may not use the SOAPsnp files except in compliance with the
+license.  A copy of the GNU Public License, version 3 can be found in
+the "LICENSE_GPL3" file included with Crossbow.
+
+The Perl modules included in the "contrib" subdirectory are under the
+same license as Perl itself.

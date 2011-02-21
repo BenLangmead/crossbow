@@ -1,0 +1,136 @@
+#!/usr/bin/perl -w
+
+##
+# Author: Ben Langmead
+#   Date: February 11, 2010
+#
+# Use 'elastic-mapreduce' ruby script to invoke an EMR job described
+# in a dynamically-generated JSON file.  Constructs the elastic-
+# mapreduce invocation from paramteres/defaults/environment variables.
+#
+
+use strict;
+use warnings;
+
+use FindBin qw($Bin);
+use lib $Bin;
+use CrossbowIface;
+
+my $APP = "Crossbow";
+my $app = lc $APP;
+my $SCRIPT = "cb_emr";
+my $VERSION = `cat $Bin/VERSION`; $VERSION =~ s/\s//g;
+
+my $usage = qq{
+$SCRIPT: Run $APP v$VERSION as an Elastic MapReduce job
+
+Usage: perl $SCRIPT --input <url> --output <url> \
+                    [--reference <url> | --just-preprocess ] [options]
+
+Options (defaults in []):
+
+ EMR params:
+
+  --credentials <path>   Path to credentials.json file [elastic-mapreduce
+                         script's default]
+  --emr-script <path>    Path to 'elastic-mapreduce' script [First under
+                         \$${APP}_EMR, then in \$PATH]
+  --hadoop-version <ver> Hadoop version to use on EMR; for now, the options are
+                         0.18 and 0.20 [0.20]
+  --dry-run              Produce job's .json and .sh files and print
+                        'elastic-mapreduce' command but don't run it
+  --name <name>          Name for EMR job ["$APP"]
+  --stay-alive           Keep cluster running even if it completes or a step
+                         fails [off]
+  --instance-type <type> EC2 instance type [c1.xlarge (highly recommended)]
+  --nodes <int>          Number of nodes (instances) to allocate [1]
+  --emr-args "<args>"    Extra arguments for 'elastic-mapreduce' script [none]
+  --logs <url>           By default, logs are deposited in 'log' directory
+                         alongside the --output URL.  Override by specifying
+                         --logs and an S3 URL. Can't be a subdirectory of
+                         --output.
+  --no-logs              Disables copying of logs entirely [off]
+  --no-emr-debug         Disable SimpleDB-based debugging.  SimpleDB-based
+                         debugging enables the "Debug" button in the AWS
+                         Console.  User must have SimpleDB account when this is
+                         *not* specified. [off]
+
+ Job params (don't affect results):
+
+  --input <url>          S3 URL for input.  Usually a directory with
+                         preprocessed reads.  If --preprocess or
+                         --just-preprocess are specified, URL is a manifest
+                         file.
+  --output <url>         Final output (S3)
+  --intermediate <url>   Intermediate output (can be HDFS, S3).  Use an S3 URL
+                         if you'd like keep to keep intermediate results after
+                         cluster is deallocated. [hdfs:///$app/intermediate]
+  --partition-len <int>  Partition length in bases [1 million]
+
+ $APP params (affect results):
+
+  --reference <url>      Reference jar (can be HDFS, S3, local, HTTP, FTP)
+  --quality <type>       Encoding for sequence quality values; one of: phred33,
+                         phred64, solexa64 [phred33]
+  --just-align           Don't do SNP calling; --output will contain alignments
+  --resume-align         --input URL is a directory of output from the Crossbow
+                         alignment step (obtained e.g. using --intermediate);
+                         pipeline resumes at the SNP calling step
+  --resume-snps          --input URL is a directory of output from the Crossbow
+                         SNP calling step (obtained e.g. using --intermediate);
+                         pipeline resumes at post-SNP-calling sort step
+  --bowtie-args "<args>" Arguments for Bowtie [-M 1] (Note: --partition --mm -t
+                         --hadoopout --startverbose are always set by Crossbow)
+  --ss-args "<args>"     Arguments for SOAPsnp [-2 -u -n -q] (Note: -i -d -o -s
+                         -z -L -T are always set by Crossbow)
+  --ss-hap-args "<args>" Additional SOAPsnp arguments when reference is haploid
+                         [-r 0.0001] (Note: -m is always set by Crossbow)
+  --ss-dip-args "<args>" Additional SOAPsnp arguments when reference is diploid
+                         [-r 0.00005 -e 0.0001]
+  --haploids "<chrs>"    Comma-separated names of references that are haploid.
+                         Others are considered diploid. [All diploid].
+  --all-haploids         Consider all chromosomes to be haploid when calling
+                         SNPs. [All diploid]
+  --discard-reads <frac> Randomly discard specified fraction of input reads.
+                         [off]
+  --truncate <int>       Truncate reads longer than <int> bases to <int> bases
+                         by trimming from the 3' end [off]
+  --truncate-discard <int> Same as --truncate except that reads shorter than
+                         <int> bases are discarded. [off]
+
+  Preprocessing params (not necessary if --input points to preprocessed reads):
+
+  --preprocess           --input URL is a manifest file describing a set of
+                         unpreprocessed, FASTQ read files; preprocess them
+                         before running $APP [off]
+  --just-preprocess      Like --preprocess but $APP isn't run; --output
+                         contains preprocessed reads [off]
+  --pre-output <url>     If --preprocess is on, put preprocessed output here
+                         instead of in the intermediate directory [off].  Has
+                         no effect if --just-preprocess is specifeid (use
+                         --output). Useful if future jobs will make use of the
+                         same input.
+  --pre-compress <type>  Compression type; one of: gzip, none [gzip]
+  --pre-stop <int>       Stop preprocessing after <int> reads/mates [no limit]
+  --pre-filemax <int>    Split preprocessed output such that there are no more
+                         than <int> reads/mates per preprocessed read file;
+                         0 = no limit. [500,000]
+
+  Other params:
+
+  --test                 Try to locate all necessary software; print a helpful
+                         message showing what was found and quit [off]
+  --tempdir <path>       Put temporary scripts and files in <path> [/tmp]
+
+};
+
+# Try to avoid forcing the user to use the equals sign in cases where
+# they're specifying a set of arguments, as in --bowtie-args "-n 3 -l 35"
+for(my $i = 0; $i < scalar(@ARGV)-1; $i++) {
+	if($ARGV[$i] =~ /^-.*-args$/) {
+		$ARGV[$i] = "$ARGV[$i]=\"".$ARGV[$i+1]."\"";
+		splice @ARGV, $i+1, 1;
+	}
+}
+
+CrossbowIface::crossbow(\@ARGV, $SCRIPT, $usage, undef, undef, undef, undef);

@@ -1,0 +1,234 @@
+<!DOCTYPE html PUBLIC "-//W3C//DTD XHTML 1.0 Strict//EN" "http://www.w3.org/TR/xhtml1/DTD/xhtml1-strict.dtd">
+<html xmlns="http://www.w3.org/1999/xhtml">
+<head>
+<title>Bowtie: Tutorial</title>
+<meta http-equiv="Content-Type" content="text/html; charset=UTF-8" />
+<link rel="stylesheet" type="text/css" href="../css/style.css" media="screen" />
+<meta name="verify-v1" content="YJT1CfXN3kzE9cr+jvNB+Q73lTfHrv8eivoY+xjblc0=" />
+</head>
+<body>
+<div id="wrap">
+  <!--#include virtual="top.ssi" -->
+  <div id="main">
+  	<!--#include virtual="rhsidebar.ssi" -->
+    <div id="leftside">
+  	<h1> Getting started</h1>
+<div id="toc"
+><ul
+  ><li
+    ><a href="#mouse-chromosome-17-example" id="TOC-mouse-chromosome-17-example"
+      >Mouse Chromosome 17 Example</a
+      ><ul
+      ><li
+	><a href="#step-1-preprocess-and-copy-the-reads-from-the-era" id="TOC-step-1-preprocess-and-copy-the-reads-from-the-era"
+	  >Step 1. Preprocess and copy the reads from the ERA</a
+	  ></li
+	><li
+	><a href="#step-2-create-and-upload-the-reference-jar" id="TOC-step-2-create-and-upload-the-reference-jar"
+	  >Step 2. Create and upload the reference jar</a
+	  ></li
+	><li
+	><a href="#step-3-start-the-crossbow-job" id="TOC-step-3-start-the-crossbow-job"
+	  >Step 3. Start the Crossbow job</a
+	  ></li
+	><li
+	><a href="#step-4-sanity-check-the-results" id="TOC-step-4-sanity-check-the-results"
+	  >Step 4. Sanity-check the results</a
+	  ></li
+	></ul
+      ></li
+    ></ul
+  ></div
+><h1 id="mouse-chromosome-17-example"
+><a href="#TOC-mouse-chromosome-17-example"
+  >Mouse Chromosome 17 Example</a
+  ></h1
+><p
+>This example guides you through (a) preprocessing and copying a public short-read dataset from the <a href="http://www.ncbi.nlm.nih.gov/Traces/sra/"
+  >NCBI Short Read Archive</a
+  > into <a href="https://s3.amazonaws.com/"
+  >Amazon S3</a
+  >, (b) creating a reference jar using public data from <a href="http://www.ncbi.nlm.nih.gov/projects/SNP"
+  >dbSNP</a
+  > and <a href="http://hgdownload.cse.ucsc.edu/downloads.html"
+  >UCSC</a
+  >, then (c) running a <a href="http://bowtie-bio.sf.net/crossbow"
+  >Crossbow</a
+  > job that aligns and calls SNPs from that dataset. The datasets used here are for M. musculus chromosome 17. This example is intended to show how each step of the process works; it does not require much time or money to run. This example is not intended to highlight Crossbow's speed or scalability. Those features are far better demonstrated using much larger, whole-genome datasets.</p
+><p
+>This example assumes that you have already set up your <a href="http://aws.amazon.com/" title="Amazon Web Services"
+  >AWS</a
+  > accounts and credentials as described in the <a href="http://bowtie-bio.sf.net/crossbow/manual.shtml"
+  >Crossbow Manual</a
+  >.</p
+><p
+>Reads are taken from a <a href="http://genomebiology.com/2009/10/10/R112"
+  >mouse reseqeuncing study</a
+  > by Ian Sudbery and colleagues.</p
+><h2 id="step-1-preprocess-and-copy-the-reads-from-the-era"
+><a href="#TOC-step-1-preprocess-and-copy-the-reads-from-the-era"
+  >Step 1. Preprocess and copy the reads from the ERA</a
+  ></h2
+><p
+>The quickest way to get started with a copy/preprocessing job is to simply run the <code
+  >cb-copy-interactive</code
+  > script and answer the prompts. When asked for the manifest file, specify the <code
+  >copy.manifiest</code
+  > file in the <code
+  >examples/mouse17</code
+  > subdirectory of the Crossbow directory. Alternately use this command:</p
+><pre
+><code
+  >cb-copy-local \
+    -n 5 \
+    -r 50 \
+    -i &lt;path-to-examples/mouse17&gt;/copy.manifest \
+    -o s3n://&lt;read-bucket-name&gt;/mm9chr17 \
+    -m 2 \
+    -t c1.medium \
+    -M 500000 \
+    -c crossbowcopy&lt;your-account-#-without-dashes&gt;
+</code
+  ></pre
+><p
+>These are reasonable defaults. In our experiments, this job took about 15 minutes and cost about $2-3. Remember to terminate it when it completes.</p
+><p
+>Once the job is complete, you should see that the destination directory in S3 contains a set of files (about 115 of them if you used <code
+  >-M 500000</code
+  >) with names that start with <code
+  >ERR0028</code
+  > and end with <code
+  >gz</code
+  >.</p
+><h2 id="step-2-create-and-upload-the-reference-jar"
+><a href="#TOC-step-2-create-and-upload-the-reference-jar"
+  >Step 2. Create and upload the reference jar</a
+  ></h2
+><p
+>Scripts have already been created to create a reference jar from publicly available <em
+  >M. musculus</em
+  > genome data (at <a href="http://hgdownload.cse.ucsc.edu/downloads.html"
+  >UCSC</a
+  >) and SNP data (at <a href="http://www.ncbi.nlm.nih.gov/projects/SNP"
+  >dbSNP</a
+  >). Change to the <code
+  >reftools</code
+  > subdirectory and run the <code
+  >mm9_chr17_jar</code
+  > shell script. When the script completes, a <code
+  >mm9chr17</code
+  > subdirectory should have been created containing a jar file named <code
+  >mm9_chr17.jar</code
+  >. Upload this jar file to an S3 bucket (e.g. using <a href="http://s3tools.org/s3cmd"
+  >s3cmd</a
+  >'s <code
+  >put</code
+  > command, <a href="http://hadoop.apache.org/"
+  >Hadoop</a
+  >'s <code
+  >hadoop fs -put</code
+  > command, or a graphical user interface such as <a href="http://www.s3fox.net/"
+  >S3 Firefox Organizer</a
+  >, <a href="http://www.bucketexplorer.com/"
+  >Bucket Explorer</a
+  > or <a href="http://cyberduck.ch/"
+  >Cyberduck</a
+  >) and change its permissions to be readable by Everyone. You should now be able to access it through the following URL:</p
+><pre
+><code
+  >http://&lt;bucket-name&gt;.s3.amazonaws.com/&lt;path-to-jar&gt;
+</code
+  ></pre
+><p
+>Make a note of the URL for the next step. You may also want to make a note of the reference jar file's <a href="http://en.wikipedia.org/wiki/Md5"
+  >MD5</a
+  > checksum either by running a tool like <code
+  >md5sum</code
+  > on a local copy of <code
+  >mm9_chr17.jar</code
+  >, or by running something like <code
+  >s3cmd ls --list-md5</code
+  > on the jar in S3.</p
+><h2 id="step-3-start-the-crossbow-job"
+><a href="#TOC-step-3-start-the-crossbow-job"
+  >Step 3. Start the Crossbow job</a
+  ></h2
+><p
+>The quickest way to get started with a Crossbow job is to simply run the <code
+  >cb-interactive</code
+  > script and answer the prompts. When asked for the reference jar file, specify the URL from the previous step. For extra data integrity, also specify the <a href="http://en.wikipedia.org/wiki/Md5"
+  >MD5</a
+  > checksum from the previous step when prompted. The maximum read length in this dataset is 36. When prompted for an instance type, select option 5 (<code
+  >c1.xlarge</code
+  >). When prompted for number of nodes, select 3. Alternately, issue this command (portions in square brackets are optional):</p
+><pre
+><code
+  >cb-local \
+    -r http://&lt;bucket-name&gt;.s3.amazonaws.com/&lt;path-to-jar&gt;[::&lt;MD5&gt;] \
+    -n 8 \
+    -i s3n://&lt;read-bucket-name&gt;/mm9chr17 \
+    -t c1.xlarge \
+    -a &quot;-v 2 --strata --best -m 1&quot; \
+    -b &quot;-2 -u -n -q&quot; \
+    -L 36 \
+    -s 1000000 \
+    -q phred33 \
+    -c crossbow&lt;your-account-#-without-dashes&gt;
+</code
+  ></pre
+><p
+>These are reasonable defaults. In our experiments, this job took about 30-40 minutes to run and cost about <span class="math"
+  >2.50-</span
+  >3. Remember to terminate it when it completes.</p
+><p
+>Note that these are not reasonable defaults for genomes larger than than a few hundred megabases. For larger genomes, always use the <code
+  >c1.xlarge</code
+  > instance type (option <code
+  >-t c1.xlarge</code
+  >).</p
+><p
+>See the manual for instructions on how to monitor your EC2 job.</p
+><h2 id="step-4-sanity-check-the-results"
+><a href="#TOC-step-4-sanity-check-the-results"
+  >Step 4. Sanity-check the results</a
+  ></h2
+><p
+>Results are automatically downloaded from the EC2 cluster into the directory from which Crossbow was run and saved in a tar archive with name <code
+  >&lt;cluster-name&gt;-output.tar</code
+  >. To unpack the tar archive, run:</p
+><pre
+><code
+  >tar xvf &lt;cluster-name&gt;-output.tar
+</code
+  ></pre
+><p
+>or a similar command. The archive will be unpacked to a subdirectory named <code
+  >output</code
+  >, which will contain a set of files named <code
+  >chrXX.gz</code
+  >, where <code
+  >XX</code
+  > is a chromosome name as specified in the chromosome map (cmap) file when the reference jar was built. Each <code
+  >chrXX.gz</code
+  > file contains all of the SNPs on chromosome <code
+  >XX</code
+  > sorted along the forward reference strand.</p
+>
+    </div>
+  </div>
+  <!--#include virtual="foot.ssi" -->
+</div>
+
+<!-- Google analytics code -->
+<script type="text/javascript">
+var gaJsHost = (("https:" == document.location.protocol) ? "https://ssl." : "http://www.");
+document.write(unescape("%3Cscript src='" + gaJsHost + "google-analytics.com/ga.js' type='text/javascript'%3E%3C/script%3E"));
+</script>
+<script type="text/javascript">
+var pageTracker = _gat._getTracker("UA-5334290-1");
+pageTracker._trackPageview();
+</script>
+<!-- End google analytics code -->
+
+</body>
+</html>

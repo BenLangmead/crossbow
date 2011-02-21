@@ -1,0 +1,249 @@
+#!/usr/bin/perl -w
+
+##
+# Author: Ben Langmead
+#   Date: March 17, 2010
+#
+# Use perl Hadoop wrappers to intiate a local Crossbow computation
+# similar to the Hadoop version (but without using Hadoop or Java).
+#
+
+use strict;
+use warnings;
+use Getopt::Long;
+use FindBin qw($Bin);
+use lib $Bin;
+use CrossbowIface;
+use Cwd 'abs_path';
+Getopt::Long::Configure ("pass_through", "no_auto_abbrev", "permute", "prefix_pattern=(--|-)");
+
+my $APP = "Crossbow";
+my $app = lc $APP;
+my $SCRIPT = "cb_local";
+my $VERSION = `cat $Bin/VERSION`; $VERSION =~ s/\s//g;
+
+my $usage = qq{
+$SCRIPT: Run $APP v$VERSION on a single computer
+
+Usage: perl $SCRIPT --input <url> --output <url> \
+                    [--reference <url> | --just-preprocess ] [options]
+
+Options (defaults in []):
+
+ Job params:
+
+  --input <path>         Local path to input.  Typically points to a directory
+                         containing preprocessed reads, but if --preprocess or
+                         --just-preprocess are enabled, points to a manifest
+                         file.  If --resume-* is specified, <path> is the
+                         directory with the intermediate results to be resumed.
+  --output <path>        Path to store final output
+  --intermediate <path>  Path to store intermediate output
+                         [/tmp/$APP/intermediate]
+  --dry-run              Produce and print path to a script for running the
+                         local job, but don't run it.
+  --bowtie <path>        Path to bowtie binary [search BOWTIE_HOME, PATH]
+  --soapsnp <path>       Path to soapsnp binary [search SOAPSNP_HOME, PATH]
+
+ $APP params:
+
+  --reference <path>     Path to directory with reference information (must be
+                         local, with "index", "sequences", "snps" subdirs)
+  --just-align           Don't do SNP calling; --output will contain alignments
+  --bowtie-args "<args>" Arguments for Bowtie [-M 1] (Note: --partition --mm -t
+                         --hadoopout --startverbose are always set by Crossbow)
+  --ss-args "<args>"     Arguments for SOAPsnp [-2 -u -n -q] (Note: -i -d -o -s
+                         -z -L -T are always set by Crossbow)
+  --ss-hap-args "<args>" Additional SOAPsnp arguments when reference is haploid
+                         [-r 0.0001] (Note: -m is always set by Crossbow)
+  --ss-dip-args "<args>" Additional SOAPsnp arguments when reference is diploid
+                         [-r 0.00005 -e 0.0001]
+  --haploids "<chrs>"    Comma-separated names of references to be considered
+                         haploid.  Others are considered diploid. [None]
+  --all-haploids         Consider all chromosomes to be haploid when calling
+                         SNPs. [All diploid]
+  --quality <type>       Encoding for sequence quality values; one of: phred33,
+                         phred64, solexa64 [phred33]
+  --discard-reads <frac> Randomly discard specified fraction of input reads.
+                         [off]
+  --truncate <int>       Truncate reads longer than <int> bases to <int> bases
+                         by trimming from the 3' end.
+  --truncate-discard <int> Same as --truncate except that reads shorter than
+                         <int> bases are discarded.
+  --partition-len <int>  Partition length in bases [1 million]
+
+  Preprocessing params (not necessary if --input contains preprocessed reads):
+
+  --preprocess           --input URL is a manifest file describing a set of
+                         unpreprocessed, FASTQ read files; preprocess them
+                         before running $APP [off]
+  --just-preprocess      Like --preprocess but $APP isn't run; --output
+                         contains preprocessed reads [off]
+  --pre-output <url>     If --preprocess is on, put preprocessed output here
+                         instead of in the intermediate directory [off].  Has
+                         no effect if --just-preprocess is specified (--output
+                         is used instead).  Useful if future jobs use same
+                         input.
+  --pre-compress <type>  Compression type; one of: gzip, none [gzip]
+  --pre-stop <int>       Stop preprocessing after <int> reads/mates [no limit]
+  --pre-filemax <int>    Split preprocessed output such that there are no more
+                         than <int> reads/mates per preprocessed read file;
+                         0 = no limit. [500,000]
+
+  Other params:
+
+  --cpus <int>           # CPUs to use (in parallel) for this job [1].
+  --max-sort-records <int> Maximum # records dispatched to sort routine at one
+                         time when sorting bins before reduce step.  In each
+                         child process, this number is effectively divided by
+                         --cpus. [200000]
+  --max-sort-files <int> Maximum # total files opened by sort routines.  In
+                         each child process, this number is effectively divided
+                         by --cpus. [40]
+  --dont-overwrite       Abort if an intermediate or output directory already
+                         exists, instead of removing it [off]
+  --tempdir <path>       Put temporary scripts in <path>
+                         [/tmp/$APP/invoke.scripts]
+                         (umask 0077 used to protect credentials)
+
+};
+
+# Try to avoid forcing the user to use the equals sign in cases where
+# they're specifying a set of arguments, as in --bowtie-args "-n 3 -l 35"
+for(my $i = 0; $i < scalar(@ARGV)-1; $i++) {
+	if($ARGV[$i] =~ /^-.*-args$/) {
+		$ARGV[$i] = "$ARGV[$i]=\"".$ARGV[$i+1]."\"";
+		splice @ARGV, $i+1, 1;
+	}
+}
+
+my $input = "";
+my $output = "";
+my $intermediate = "";
+my $ref = "";
+my $index = "";
+my $sequences = "";
+my $snps = "";
+my $cmap = "";
+my $justPreprocess = 0;
+my $verbose = 0;
+my $test = 0;
+
+sub dieusage($$$) {
+	my ($text, $usage, $lev) = @_;
+	print STDERR "$usage\nError:\n";
+	print STDERR "$text\n\n";
+	exit $lev;
+}
+
+GetOptions (
+	"input:s"            => \$input,
+	"output:s"           => \$output,
+	"intermediate:s"     => \$intermediate,
+	"reference:s"        => \$ref,
+	"index:s"            => \$index,
+	"sequences:s"        => \$sequences,
+	"snps:s"             => \$snps,
+	"cmap:s"             => \$cmap,
+	"just-preprocess"    => \$justPreprocess,
+	"test"               => \$test,
+	"verbose"            => \$verbose
+) || die "Error parsing options";
+
+##
+# Take a path and make it absolute.  If it has a protocol, assume it's
+# already absolute.
+#
+sub absPath($$$) {
+	my ($path, $check, $name) = @_;
+	return $path if $path =~ /^s3n?:\//i;
+	return $path if $path =~ /^hdfs:\//i;
+	return $path if $path =~ /^file:\//i;
+	$path =~ s/^~/$ENV{HOME}/;
+	die "Error: $name path doesn't exist: $path" unless (!$check || -f $path || -d $path);
+	return abs_path($path);
+}
+
+if($verbose) {
+	print STDERR "Relative paths:\n";
+	print STDERR "  input: $input\n";
+	print STDERR "  output: $output\n";
+	print STDERR "  intermediate: $intermediate\n";
+	print STDERR "  reference: $ref\n";
+	print STDERR "  index: $index\n";
+	print STDERR "  sequences: $sequences\n";
+	print STDERR "  snps: $snps\n";
+	print STDERR "  cmap: $cmap\n";
+}
+
+$input        = absPath($input, 1, "--input") if $input ne "";
+$output       = absPath($output, 0, "--output") if $output ne "";
+$intermediate = absPath($intermediate, 0, "--intermediate") if $intermediate ne "";
+$index        = absPath($index, 1, "--index") if $index ne "";
+$ref          = absPath($ref, 1, "--reference") if $ref ne "";
+$sequences    = absPath($sequences, 1, "--sequences") if $sequences ne "";
+$snps         = absPath($snps, 1, "--snps") if $snps ne "";
+$cmap         = absPath($cmap, 1, "--cmap") if $cmap ne "";
+
+if($verbose) {
+	print STDERR "Absolute paths:\n";
+	print STDERR "  input: $input\n";
+	print STDERR "  output: $output\n";
+	print STDERR "  intermediate: $intermediate\n";
+	print STDERR "  reference: $ref\n";
+	print STDERR "  index: $index\n";
+	print STDERR "  sequences: $sequences\n";
+	print STDERR "  snps: $snps\n";
+	print STDERR "  cmap: $cmap\n";
+}
+
+if(!$test) {
+	$input ne ""  || dieusage("Must specify --input",  $usage, 1);
+	$output ne "" || dieusage("Must specify --output", $usage, 1);
+}
+
+my @args = ();
+
+push @args, "--local-job";
+push @args, ("--input-local", $input) if $input ne "";
+push @args, ("--output-local", $output) if $output ne "";
+push @args, ("--intermediate-local", $intermediate) if $intermediate ne "";
+push @args, "--verbose" if $verbose;
+if($ref ne "") {
+	$index     = "$ref/index";
+	$sequences = "$ref/sequences";
+	$snps      = "$ref/snps";
+	$cmap      = "$ref/cmap.txt";
+	-d $index     || die "Index directory under --reference directory, $index doesn't exist\n";
+	-d $sequences || die "Sequences directory under --reference directory, $sequences doesn't exist\n";
+	-d $snps      || die "SNPs directory under --reference directory, $snps doesn't exist\n";
+	-f $cmap      || die "cmap files under --reference directory, $cmap doesn't exist\n";
+	my @indexes = <$index/*.rev.1.ebwt>;
+	scalar(@indexes) <= 1 ||
+		die "Error: there seems to be more than one index in $index\n";
+	scalar(@indexes) == 1 || die "Error: no index found in $index\n";
+	my @is = split(/\//, $indexes[0]);
+	my $indexBase = $is[-1];
+	$indexBase =~ s/\.rev\.1\.ebwt$//;
+	push @args, ("--index-local", "$index/$indexBase");
+	push @args, ("--sequences-local", $sequences);
+	push @args, ("--snps-local", $snps);
+	push @args, ("--cmap-local", $cmap);
+} else {
+	push @args, ("--index-local", $index) if $index ne "";
+	push @args, ("--sequences-local", $sequences) if $sequences ne "";
+	push @args, ("--cmap-local", $cmap) if $cmap ne "";
+	push @args, ("--snps-local", $snps) if $snps ne "";
+}
+if(!$justPreprocess) {
+	$index     ne "" || $test || die "Must specify --reference or --index\n";
+	$sequences ne "" || $test || die "Must specify --reference or --sequences\n";
+	$snps      ne "" || $test || die "Must specify --reference or --snps\n";
+	$cmap      ne "" || $test || die "Must specify --reference or --cmap\n";
+}
+
+push @args, "--test" if $test;
+push @args, "--just-preprocess" if $justPreprocess;
+push @args, @ARGV;
+
+CrossbowIface::crossbow(\@args, $SCRIPT, $usage, undef, undef, undef, undef);

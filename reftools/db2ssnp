@@ -1,0 +1,314 @@
+#!/usr/bin/perl -w
+
+##
+# db2ssnp
+#
+#  Authors: Ben Langmead & Michael C. Schatz
+#     Date: 10/9/2009
+
+use strict;
+use Getopt::Long;
+use FileHandle;
+
+my $usage = qq{
+Usage: db2ssnp -snps <file/URL> -cmap <file> -asm <name>
+
+Takes a dbSNP ASN.1 flat file and, optionally, a dbSNP genotype XML file,
+and converts to the 10-field format expected by SOAPsnp's -s option.  If the
+genotyping XML file is specified, then allele frequency information is added to
+the output file wherever possible.  The name of the reference assembly to use
+(e.g. "reference" for human or "C57BL/6J" for mouse) must be specified and must
+match the assembly.  The cmap file maps chromosome names used in dbSNP to
+indexes used internally in Crossbow.
+
+Options except -freqs are mandatory.  URLs may be http:// or ftp://.
+
+  -snps <file/URL>  file/URL for dbSNP ASN.1 flat file to process; can be .gz
+  -freqs <file/URL> URL for dbSNP genotyping XML file to profess; can be .gz
+  -cmap <map>       map dbSNP chromosome names to alternate names for output
+  -asm <name>       name of genomic assembly to use in -snps, -freqs files
+};
+
+my $flatin  = ""; # input files
+my $gtxml   = ""; # input files
+my $cmapstr = ""; # chromosome map
+my $asm     = "";
+
+my $result = GetOptions(
+	"snps=s"  => \$flatin,
+	"freqs=s" => \$gtxml,
+	"cmap=s"  => \$cmapstr,
+	"asm=s"   => \$asm
+);
+
+$asm ne "" || die "Must specify -asm\n";
+$flatin =~ s/~/$ENV{HOME}/;
+$gtxml =~ s/~/$ENV{HOME}/;
+
+my %cmap = ();
+if($cmapstr ne "") {
+	open CMAP, "$cmapstr";
+	while(<CMAP>) {
+		chomp;
+		my @s = split;
+		next if $s[0] eq "" || $#s < 1;
+		$cmap{$s[0]} = $s[1];
+	}
+	close(CMAP);
+}
+
+sub checkCurl {
+	my $r = system("curl --version | grep -i -q curl 2> /dev/null");
+	if($r != 0) {
+		die "'curl' executable not in PATH; please install curl and add to PATH\n";
+	}
+}
+
+sub checkGzip {
+	if(system("gzip -h >/dev/null 2>/dev/null") != 0) {
+		die "'gzip' executable not in PATH; please install gzip and add to PATH\n";
+	}
+}
+
+sub isDna {
+	my $d = uc shift;
+	return $d eq 'A' || $d eq 'C' || $d eq 'G' || $d eq 'T';
+}
+
+sub isAlleleSep {
+	my $d = shift;
+	return $d eq '\'' || $d eq '/';
+}
+
+sub comp {
+	my $c = uc shift;
+	if($c eq 'A') {
+		return 'T';
+	} elsif($c eq 'C') {
+		return 'G';
+	} elsif($c eq 'G') {
+		return 'C';
+	} elsif($c eq 'T') {
+		return 'A';
+	}
+	die "Bad DNA char: $c\n";
+}
+
+##
+# Create a file handle from a filename, possibly representing a gzipped
+# file, or from an http or ftp URL.
+#
+sub toFileHandle {
+	my $f = shift;
+	my $fh = FileHandle->new;
+	if($f =~ /^(http|ftp):/) {
+		checkCurl();
+		my $gz = "";
+		if($f =~ /gz$/) {
+			$gz = "gzip -dc | ";
+			checkGzip();
+		}
+		$fh->open("curl $f 2>/dev/null | $gz ");
+	} else {
+		my $gz = "";
+		if($f =~ /gz$/) {
+			$gz = " | gzip -dc |";
+			checkGzip();
+		}
+		$fh->open("$f$gz");
+	}
+	return $fh;
+}
+
+# Output fields, expected by soapsnp -s
+#
+#  1)  Chromosome ID
+#  2)  1-based offset into chromosome
+#  3)  Whether SNP has allele frequency information (1 = yes, 0 = no)
+#  4)  Whether SNP is validated by experiment (1 = yes, 0 = no)
+#  5)  Whether SNP is actually an indel (1 = yes, 0 = no)
+#  6)  Frequency of A allele, as a decimal number
+#  7)  Frequency of C allele, as a decimal number
+#  8)  Frequency of G allele, as a decimal number
+#  9)  Frequency of T allele, as a decimal number
+#  10) SNP id (e.g. a dbSNP id such as "rs9976767")
+
+my $tot = 0;
+my $nval = 0;
+my %rss = ();
+my %popcnts = ();
+my %poplabs = ();
+my %isVal = ();
+
+my ($rs, $val, $als, $pop, $sz, $al, $freq, $ssToRsOrient);
+my @chrs;
+my @poss;
+my @orients;
+my $tmpfn = ".tmp.$$.dbsnp";
+open(TMP, ">$tmpfn") || die "Could not open '$tmpfn' for writing";
+my $gtLines = 0;
+if($gtxml ne "") {
+	my $fh = toFileHandle($gtxml);
+	my %als = ('A' => 0.0, 'C' => 0.0, 'G' => 0.0, 'T' => 0.0);
+	my $cumsz = 0;
+	$sz = 0;
+	while(<$fh>) {
+		$gtLines++;
+		chomp;
+		if(/<SnpInfo\s+rsId="([^"]*)"/) {
+			$rs = "rs$1";
+		} elsif(/<SnpLoc\s+genomicAssembly=".*$asm.*".*\schrom="([^"]*)".*\sstart="([^"]*)".*\srsOrientToChrom="([^"]*)"/) {
+			next if $1 eq '?';
+			next if $2 eq '?';
+			push @chrs, $1;
+			#$chrs[-1] eq $chrs[0] || die "Chrs has ".scalar(@chrs)." elts; first is $chrs[0], last is $chrs[-1]";
+			push @poss, ($2+1);
+			$2 == int($2) || die "start isn't a number: $_\n";
+			push @orients, $3;
+			$3 eq "fwd" || $3 eq "rev" || die;
+		} elsif(/<SsInfo.*\s+ssOrientToRs="([^"]*)"/) {
+			$ssToRsOrient = $1;
+			$1 eq "fwd" || $1 eq "rev" || die;
+		} elsif(/<ByPop\s+popId="([^"]*)".*\s+sampleSize="([^"]*)"/) {
+			$pop = $1;
+			$cumsz += $sz;
+			$sz = $2;
+			$popcnts{$pop} += $sz;
+			$sz == int($sz) || die "Bad sample size: $_\n";
+		} elsif(/<AlleleFreq\s+allele="([^"]*)"\s+freq="([^"]*)"/) {
+			$al = $1;
+			next if !isDna($al);
+			$freq = $2;
+			$ssToRsOrient ne "" || die;
+			$al = comp($al) if $ssToRsOrient eq 'rev';
+			if($sz > 0) {
+				$als{$al} *= (($cumsz * 1.0) / ($cumsz + $sz * 1.0));
+				if($freq > 0) {
+					$als{$al} += (($freq * $sz) / ($cumsz + $sz * 1.0));
+				}
+			}
+		} elsif(/<\/SnpInfo>/) {
+			if($rs ne "") {
+				$rss{$rs} = 1;
+				for(my $i = 0; $i <= $#chrs; $i++) {
+					my $a = ($orients[$i] eq 'fwd' ? $als{A} : $als{T});
+					my $c = ($orients[$i] eq 'fwd' ? $als{C} : $als{G});
+					my $g = ($orients[$i] eq 'fwd' ? $als{G} : $als{C});
+					my $t = ($orients[$i] eq 'fwd' ? $als{T} : $als{A});
+					my $chr = $cmap{$chrs[$i]} if defined($cmap{$chrs[$i]});
+					printf TMP "$chr\t$poss[$i]\t1\t1\t0\t%.4f\t%.4f\t%.4f\t%.4f\t$rs\n", $a, $c, $t, $g;
+				}
+				$tot++;
+				$nval++;
+			}
+			%als = ('A' => 0.0, 'C' => 0.0, 'G' => 0.0, 'T' => 0.0);
+			@chrs = ();
+			@poss = ();
+			@orients = ();
+			$sz = 0;
+			$cumsz = 0;
+		} elsif(/<Population popId="([^"]*)".*\s+handle="([^"]*)".*\s+locPopId="([^"]*)"/) {
+			$2 ne "" || die;
+			$3 ne "" || die;
+			$poplabs{$1}{handle} = $2;
+			$poplabs{$1}{id} = $3;
+		}
+	}
+	close($fh);
+	print STDERR "Read allele frequncy information from $gtxml\n";
+}
+close(TMP);
+my $fh = toFileHandle($flatin);
+my %alhash = ();
+my $flatLines = 0;
+while(<$fh>) {
+	chomp;
+	$flatLines++;
+	if(/^rs/) {
+		$rs = substr($_, 0, index($_, " "));
+		$val = -1;
+	} elsif(/SNP\s+[|]\s+alleles=/) {
+		my $idx = 14;
+		substr($_, $idx, 1) eq "'" || die;
+		$idx++;
+		my $alleles = 0;
+		$als = "";
+		%alhash = ();
+		while(substr($_, $idx, 1) ne "'") {
+			my $c = substr($_, $idx, 1);
+			if(isDna($c) &&
+			   isAlleleSep(substr($_, $idx-1, 1)) &&
+			   isAlleleSep(substr($_, $idx+1, 1)))
+			{
+				$als .= $c;
+				$alhash{$c} = 1;
+			}
+			$idx++;
+		}
+	} elsif(/VAL\s+[|]\s+validated=/) {
+		$val = substr($_, 16, 1) eq 'Y' ? 1 : 0;
+	} elsif(/^CTG\s+[|]\s+assembly=.*$asm/) {
+		/chr=([^\s]+)/;
+		next if $1 eq '?';
+		my $chr = $1;
+		if(defined($cmap{$chr})) {
+			$chr = $cmap{$chr};
+		}
+		$chr ne '?' || die;
+		my $orient = substr($_, -1, 1);
+		$orient eq '-' || $orient eq '+' || die;
+		/chr[-]pos=([^ ]+)/;
+		my $pos = $1;
+		next if $pos eq '?';
+		$val != -1 || die;
+		if(length($als) > 1 && $rs ne "") {
+			if(defined($rss{$rs})) {
+				$isVal{$rs} = 1 if $val;
+			} else {
+				my $num = length($als);
+				my ($af, $cf, $gf, $tf) = (0, 0, 0, 0);
+				$af = 1.0/$num if defined($alhash{A});
+				$cf = 1.0/$num if defined($alhash{C});
+				$gf = 1.0/$num if defined($alhash{G});
+				$tf = 1.0/$num if defined($alhash{T});
+				if($orient eq '-') {
+					my $tmp;
+					$tmp = $af; $af = $tf; $tf = $tmp;
+					$tmp = $cf; $cf = $gf; $gf = $tmp;
+				}
+				print "$chr\t$pos\t0\t$val\t0";
+				printf "\t%0.3f\t%0.3f\t%0.3f\t%0.3f", $af, $cf, $tf, $gf;
+				print "\t$rs\n";
+				$tot++;
+				$nval++ if $val;
+			}
+		}
+	} elsif(/^\s*$/) {
+		$als = "";
+	}
+}
+print STDERR "Read genotype information from $flatin\n";
+close($fh);
+
+# Now go back and output SNPs with allele frequencies with the
+# correct 'validated' flag.
+open(TMP, $tmpfn) || die "Could not open '$tmpfn' for reading";
+my $tmpLines = 0;
+while(<TMP>) {
+	$tmpLines++;
+	chomp;
+	my @s = split(/\t/, $_);
+	my $val = $isVal{$s[9]} || 0;
+	printf "$s[0]\t$s[1]\t$s[2]\t$val\t$s[4]\t$s[5]\t$s[6]\t$s[7]\t$s[8]\t$s[9]\n";
+}
+print STDERR "Re-read temporary allele frequency info from $tmpfn\n";
+close(TMP);
+unlink($tmpfn);
+
+print STDERR "Total SNPs written: $tot\n";
+print STDERR "   w/ allele frequency info: ".(scalar(keys %rss))."\n";
+print STDERR "   validated: $nval\n";
+print STDERR "   gt file lines read: $gtLines\n";
+print STDERR "   flat file lines read: $flatLines\n";
+print STDERR "   temp allele freq file lines read: $tmpLines\n";
+

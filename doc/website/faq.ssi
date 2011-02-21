@@ -1,0 +1,15 @@
+<h2>Does Crossbow support colorspace?</h2>
+Yes, but note that the pre-built reference jars available from this
+site are currently all in nucleotide space.  In the future, we will
+also post colorspace versions of the reference jars.  That said,
+Crossbow works fine with colorspace reads: just ensure that you specify
+a colorspace reference jar and pass -C to Bowtie.
+
+<h2>Can Crossbow handle a mix of colorspace and normal (nucleotide-space) reads in a single job?</h2>
+No.  As of now, Crossbow applies the same set of Bowtie arguments to
+every invocation Bowtie, and so cannot be used on both types of reads
+in the same job.
+
+<h2>Can Crossbow output alignments in SAM or BAM format?</h2>
+No.  While Bowtie itself can certainly do this, Crossbow does not yet have a
+facility for outputting a directory of SAM/BAM files either as the final result or as an intermediate result.

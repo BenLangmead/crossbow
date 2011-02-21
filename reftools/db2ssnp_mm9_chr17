@@ -1,0 +1,30 @@
+#!/bin/sh
+
+##
+# db2ssnp_mm9_chr17
+#
+#  Authors: Ben Langmead & Michael C. Schatz
+#     Date: 10/9/2009
+#
+# Invoke db2ssnp with appropriate arguments for mouse chromosome 17.
+
+GT_BASE=ftp://ftp.ncbi.nih.gov/snp/organisms/mouse_10090/genotype
+SNP_BASE=ftp://ftp.ncbi.nih.gov/snp/organisms/mouse_10090/ASN1_flat
+
+mkdir -p .mm9_chr17snps
+
+cat <<EOF > .mm9_chr17snps/cmap.txt
+17	0
+EOF
+
+j=0
+for i in 17 ; do
+	perl db2ssnp -asm="C57BL/6J" \
+	             -cmap=.mm9_chr17snps/cmap.txt \
+	             -snps=$SNP_BASE/ds_flat_ch$i.flat.gz \
+	             -freqs=$GT_BASE/gt_chr$i.xml.gz \
+	              > .mm9_chr17snps/chr$j.snps
+	j=`expr $j + 1`
+done
+mv .mm9_chr17snps mm9_chr17snps
+echo "Output in mm9_chr17snps"

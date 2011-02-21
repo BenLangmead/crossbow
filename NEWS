@@ -1,0 +1,206 @@
+Crossbow: Parallel short read genotyping in the cloud
+http://bowtie-bio.sf.net/crossbow
+
+Crossbow NEWS
+=============
+
+   Crossbow is now available for download.  0.1.0 was the first version
+to be released, and it was released under the OSI Artistic License (see
+LICENSE_ARTISTIC file) and freely available to the public for download.
+Portions of the Crossbow package are borrowed from other sources, and
+those portions are subject to other licenses (see LICENSES file).  The
+current version is 1.1.1.
+
+Reporting Issues
+================
+
+Please report any issues using the Sourceforge bug tracker:
+
+  https://sourceforge.net/tracker/?group_id=236897&atid=1101606
+
+Version Release History
+=======================
+
+Version 1.1.1 - February 7, 2011
+   * Added support for the .sra file format, used by the Sequence Read
+     Archive.  These files can now be specified in the manifest.  Crossbow
+     uses the fastq-convert tool from the SRA Toolkit to convert .sra
+     files to .fastq files in the preprocess stage.
+   * The examples that included defunct SRA FASTQ files were updated to
+     point to new .sra files instead.
+
+Version 1.1.0 - October 11, 2010
+   * Added --discard-ref-bin and --discard-all options, which can be
+     helpful to reduce Crossbow running time when a run's chief purpose
+     is to test whether it runs all the way through.
+   * Fixed a bug in soapsnp that caused a segmentation fault in the
+     last partition of a chromosome when chromosome length is a
+     multiple of 64.
+   * Revamped the reference jar scripts (in $CROSSBOW_HOME/reftools).
+     The new scripts use Ensembl rather than UCSC & dbSNP.  The old
+     scripts (db2ssnp* and *_jar) are still there, but are likely to be
+     deprecated soon.
+   * Fixed a few bugs in the hg19_jar and db2ssnp_hg19 scripts.
+   * Removed the hg18_jar script, which was broken by a reorganization
+     of the dbSNP site.
+   * Uses Bowtie 0.12.7 instead of 0.12.5.
+   * Switched Mouse17 example's manifest files back to use .gz
+     extension instead of .bz2.
+
+Version 1.0.9 - September 13, 2010
+   * Fixed example manifests that point to Short Read Archive files to
+     use .bz2 instead of .gz extensions.
+
+Version 1.0.8 - September 4, 2010
+   * Set the memory cap on the sort task to be inversely proportional
+     to --cpus, to avoid memory footprint blowup on computers with more
+     processors.
+   * Fixed a final issue that affected how Crossbow handles quality
+     value conversion.
+   * Fixed issue whereby bzip2'ed data would be handled incorrectly by
+     the preprocessor.
+   * Fixed counter in Preprocess step that would erroneously refer to
+     unpaired reads as paired.  Also "Read data fetched to EC2" has
+     been changed to "Read data fetched".
+   * In EMR mode, updated where user credentials are found; Amazon
+     changed their path sometime around 8/30/2010.
+   * In EMR mode, updated the manner in which the bootstrap action is
+     specified; the old way was disabled by Amazon sometime around
+     8/30/2010.
+   * Fixed issue whereby ReduceWrap.pl would crash in cases with a
+     large number of bins (>10 million) .
+   * NOTE: The Short Read Archive (SRA) seems to be in the midst of a
+     reorganization that includes files that were previously gzipped
+     being replaced with versions zipped with bzip2.  The files will
+     sometimes disappear for a while.  If you are having problems with
+     an example where input reads come from the SRA, try renaming files
+     in the manifest file as appropriate.  If that doesn't work, please
+     contact us.
+
+Version 1.0.7 - August 27, 2010
+   * Fixed issue whereby the order of the arguments to bowtie would
+     result in a crash when POSIXLY_CORRECT is set.
+   * Fixed --keep-all option, which was causing a crash.
+   * Fixed a lingering quality bug whereby qualities were converted
+     immediately to phred33 but phred64 or solexa64 flags would be
+     spuriously passed to Bowtie.
+
+Version 1.0.6 - August 26, 2010
+   * Single-computer mode now copies the output that it writes to the
+     console to a file 'cb.local.(pid).out'.  Please include the
+     contents of this file when reporting issues.
+   * Sorting in single-computer mode is now more portable; switched
+     from command-line sort to pure-Perl File::Sort.
+   * Fixed bug whereby the quality setting would be propagated to
+     Bowtie but not to SOAPsnp, causing SOAPsnp to operate with
+     incorrect (over-optimistic) quality values when Phred+64 or
+     Solexa+64 modes were used.
+   * More helpful output from MapWrap.pl and ReduceWrap.pl to make it
+     easier to debug issues in single-computer-mode runs.
+   * Fixed issue where web form would incorrectly convert + signs in
+     AWS secret key to spaces, causing some good credentials to fail
+     verification.
+   * Fixed issue in preprocessor that mishandles copies when user's AWS
+     secret key contains slash characters.
+
+Version 1.0.5 - August 15, 2010
+   * Fixed issue that prevented CROSSBOW_EMR_HOME environment variable
+     from working.
+   * Fixed issue whereby Align.pl script fails to report a count for
+     the number of reads with alignments sampled due to Bowtie's -M
+     option.
+   * Fixed issue whereby scripts in the $CROSSBOW_HOME/reftools
+     directory had `#!/bin/sh` headers but were actually bash scripts.
+   * Fixed issue that made it difficult to specify a space-separated
+     list of arguments to the --bowtie-args and other --*-args
+     parameters.
+   * Fixed issue whereby most documentation referred to arguments with
+     a single-dash prefix, whereas users with the POSIXLY_CORRECT
+     environment variable set must use a double-dash prefix.
+     Documentation and code have been updated to always use double-dash
+     prefixes.
+
+Major revision: Version 1.0.4 - July 21, 2010
+   * Crossbow has been largely rewritten as an Amazon Elastic MapReduce
+     (EMR) application, as opposed to an Elastic Compute Cloud (EC2)
+     application.  EMR runs on top of EC2 and is a more appropriate way
+     to run Crossbow for several reasons, including:
+     + The AWS Console's Elastic MapReduce tab, together with EMR's
+       Debug Job Flow feature, provide a much friendlier interface for
+       monitoring and manipulating jobs.
+     + The elaborate scripts for automating cluster setup, teardown,
+       proxy connection, etc., are all gone.  They are either
+       irrelevant now, or else are handled automatically by EMR.
+   * A web-based GUI for composing and submitting EMR jobs has been
+     added.  Most helpfully, the web GUI has features for
+     sanity-checking inputs; e.g. whether the user's credentials as
+     entered are valid, whether the input URL exists, etc.
+   * Crossbow is now fully "tri-mode", with separate cloud, Hadoop, and
+     single-computer operating modes.  All three modes share a great
+     deal of common infrastructure, making all three modes easier to
+     maintain going forward.
+     + Crossbow's Hadoop mode is now much improved, having an interface
+       very similar to cloud and single-computer modes.
+     + A new single-computer operating mode has been added that (a)
+       uses many processors/cores to shorten computation time, and (b)
+       does not require the user to have a cloud account or a Hadoop
+       installation.  It also doesn't require Java; just appropriate
+       versions of Bowtie, SOAPsnp (some of which are included), Perl,
+       and other tools.  Its interface is very similar to cloud and
+       Hadoop modes.
+   * The manual is entirely rewritten.  It now contains information
+     about running in all three modes (cloud, Hadoop, single-computer),
+     and gives multiple examples for how to run in each mode.
+   * Fixed a bug whereby allele frequency columns in the provided
+     reference jars had T and G columns switched.
+   * SOAPsnp reduce step now outputs more counter and status
+     information.
+   * SOAPsnp reduce step outputs an additional column per SNP
+     indicating paired-end coverage.
+   * Compatible with Bowtie versions 0.12.0 and above.  Bowtie 0.12.5
+     now included.
+   * Many other new options and features.  See manual.
+
+Version 0.1.3 - October 21, 2009
+   * cb-local now gives the user clear feedback when worker nodes fail
+     to confirm the MD5 signature of the reference jar.  If this
+     failure occurs several times per node across all nodes, the
+     supplied MD5 is probably incorrect.
+   * An extra Reduce step was added to the end of the Crossbow job to
+     bin and sort SNPs before downloaded to the user's computer.  This
+     step also renames output files by chromosome and deletes empty
+     output files.
+   * Added another example that uses recently-published mouse
+     chromosome 17 data (sequenced by Sudbery et al).  The TUTORIAL
+     file now points to this new example.
+   * More and clearer messages in the output from cb-local.
+
+Version 0.1.2 - October 12, 2009
+   * Many fixes for the scripts that automate the reference-jar
+     building process.
+   * Added two utility scripts, dist_mfa and sanity_check, to the
+     reftools subdirectory.  See their documentation for details.
+   * Added scripts for building a reference jar for C. elegans using
+     UCSC's ce6 (WormBase's WS190) assembly and information from dbSNP.
+     This small genome is used in the new TUTORIAL.
+   * New TUTORIAL steps the user through preprocessing reads from the
+     NCBI Short Read Archive, creating a reference .jar from a UCSC
+     assembly (ce6 in this case) and a set of SNP descriptions from
+     dbSNP, then running Crossbow and examining the resulting SNPs.
+   * Extended the preprocess-and-copy infrastructure to allow output
+     from a single input file to be split over many output files.  This
+     is critical for achieving good load balance across a breadth of
+     datasets.
+
+Version 0.1.1 - October 9, 2009
+   * Added scripts that automate the reference-jar building process for
+     UCSC genomes hg18 and mm9.  These scripts can be adapted to other
+     species.  See the new "Using Automatic Scripts" subsection of the
+     "Building a Reference Jar" section of the MANUAL for details.
+   * License agreement files are now organized better.  All licenses
+     applying to all software included in Crossbow are in "LICENSE*"
+     files in the Crossbow root directory.
+   * Minor updates to MANUAL
+
+Version 0.1.0 - October 3, 2009
+   * First stable release of Crossbow.
