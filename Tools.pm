@@ -11,6 +11,11 @@ package Tools;
 use strict;
 use warnings;
 use AWS;
+use FindBin qw($Bin);
+
+# Prefix to use for environment variables.  E.g. in Myrna, we dont look for
+# MYRNA_SRATOOLKIT_HOME before we look for SRATOOLKIT_HOME.
+our $pre = "";
 
 our $s3cmd_arg = "";
 our $s3cmd = "";
@@ -179,7 +184,31 @@ sub ensureJar() {
 sub jar() { ensureJar(); return $jar; }
 
 sub initTools() {
-	if(defined($ENV{JAVA_HOME})) {
+
+	# Read the tool name from the 'TOOLNAME' file.  We'll use an all-caps
+	# version of this as our environment variable prefix.
+	if(open(NAME, "$Bin/TOOLNAME")) {
+		$pre = <NAME>;
+		$pre =~ s/^\s*//;
+		$pre =~ s/\s*$//;
+		$pre = uc $pre;
+		$pre .= "_";
+		close(NAME);
+	} else {
+		$pre = "";
+		print STDERR "Warning: No TOOLNAME file in tool directory: Bin\n";
+	}
+	
+	#
+	# JAVA_HOME
+	#
+	
+	if($pre ne "" && defined($ENV{"${pre}JAVA_HOME"})) {
+		my $h = $ENV{"${pre}JAVA_HOME"};
+		$jar = "$h/bin/jar";
+		unless(-x $jar) { $jar = "" };
+	}
+	elsif(defined($ENV{JAVA_HOME})) {
 		$jar = "$ENV{JAVA_HOME}/bin/jar";
 		unless(-x $jar) { $jar = "" };
 	}
@@ -189,7 +218,16 @@ sub initTools() {
 		unless(-x $jar) { $jar = "" };
 	}
 	
-	if(defined($ENV{S3CMD_HOME})) {
+	#
+	# S3CMD_HOME
+	#
+
+	if($pre ne "" && defined($ENV{"${pre}S3CMD_HOME"})) {
+		my $h = $ENV{"${pre}S3CMD_HOME"};
+		$s3cmd = "$h/s3cmd";
+		unless(-x $s3cmd) { $s3cmd = "" };
+	}
+	elsif(defined($ENV{S3CMD_HOME})) {
 		$s3cmd = "$ENV{S3CMD_HOME}/s3cmd";
 		unless(-x $s3cmd) { $s3cmd = "" };
 	}
@@ -198,8 +236,17 @@ sub initTools() {
 		chomp($s3cmd);
 		unless(-x $s3cmd) { $s3cmd = "" };
 	}
-	
-	if(defined($ENV{HADOOP_HOME})) {
+
+	#
+	# HADOOP_HOME
+	#
+
+	if($pre ne "" && defined($ENV{"${pre}HADOOP_HOME"})) {
+		my $h = $ENV{"${pre}HADOOP_HOME"};
+		$hadoop = "$h/bin/hadoop";
+		unless(-x $hadoop) { $hadoop = "" };
+	}
+	elsif(defined($ENV{HADOOP_HOME})) {
 		$hadoop = "$ENV{HADOOP_HOME}/bin/hadoop";
 		unless(-x $hadoop) { $hadoop = "" };
 	}
@@ -209,7 +256,16 @@ sub initTools() {
 		unless(-x $hadoop) { $hadoop = "" };
 	}
 
-	if(defined($ENV{SRATOOLKIT_HOME})) {
+	#
+	# SRATOOLKIT_HOME
+	#
+
+	if($pre ne "" && defined($ENV{"${pre}SRATOOLKIT_HOME"})) {
+		my $h = $ENV{"${pre}SRATOOLKIT_HOME"};
+		$sra_conv = "$h/fastq-dump";
+		unless(-x $sra_conv) { $sra_conv = "" };
+	}
+	elsif(defined($ENV{SRATOOLKIT_HOME})) {
 		$sra_conv = "$ENV{SRATOOLKIT_HOME}/fastq-dump";
 		unless(-x $sra_conv) { $sra_conv = "" };
 	}
@@ -224,7 +280,16 @@ sub initTools() {
 		unless(-x $sra_conv) { $sra_conv = "" };
 	}
 
-	if(defined($ENV{SAMTOOLS_HOME})) {
+	#
+	# SAMTOOLS_HOME
+	#
+
+	if($pre ne "" && defined($ENV{"${pre}SAMTOOLS_HOME"})) {
+		my $h = $ENV{"${pre}SAMTOOLS_HOME"};
+		$samtools = "$h/samtools";
+		unless(-x $samtools) { $samtools = "" };
+	}
+	elsif(defined($ENV{SAMTOOLS_HOME})) {
 		$samtools = "$ENV{SAMTOOLS_HOME}/samtools";
 		unless(-x $samtools) { $samtools = "" };
 	}
@@ -238,8 +303,17 @@ sub initTools() {
 		chomp($samtools);
 		unless(-x $samtools) { $samtools = "" };
 	}
-	
-	if(defined($ENV{R_HOME})) {
+
+	#
+	# R_HOME
+	#
+
+	if($pre ne "" && defined($ENV{"${pre}R_HOME"})) {
+		my $h = $ENV{"${pre}R_HOME"};
+		$r = "$h/bin/Rscript";
+		unless(-x $r) { $r = "" };
+	}
+	elsif(defined($ENV{R_HOME})) {
 		$r = "$ENV{R_HOME}/bin/Rscript";
 		unless(-x $r) { $r = "" };
 	}
