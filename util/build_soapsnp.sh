@@ -20,7 +20,7 @@ Usage: build_crossbow_jar [-m] [-u <URL>]
 
 	-b........do bowtie too
 	-m        compile Mac versions of binaries first
-	-u <URL>  compile sources from given URL instead of CVS
+	-u <URL>  compile sources from given URL instead of SVN
 	-h        show usage message
 
 EOF
@@ -63,8 +63,8 @@ mkdir -p .build
 
 cd .build
 
-# SOAPsnp source always comes from CVS
-cvs -d :ext:${user}@${linux_host}:/fs/szdevel/src/cvsroot co crossbow/soapsnp
+# SOAPsnp source always comes from svn
+svn co https://bowtie-bio.svn.sourceforge.net/svnroot/bowtie-bio/crossbow
 mv crossbow/soapsnp soapsnp
 rm -rf crossbow
 
@@ -153,7 +153,7 @@ fi
 # Get and build SOAPsnp source
 ssh ${user}@${linux_host} \
 	"cd /tmp/.build_crossbow_tmp && " \
-	"cvs -d /fs/szdevel/src/cvsroot co crossbow/soapsnp && " \
+	"svn co https://bowtie-bio.svn.sourceforge.net/svnroot/bowtie-bio/crossbow && " \
 	"cd crossbow/soapsnp && " \
 	"make -j2 BITS=32 soapsnp soapsnp-debug"
 
