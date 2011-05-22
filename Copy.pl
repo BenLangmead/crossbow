@@ -20,6 +20,7 @@ use Get;
 use Util;
 use AWS;
 use Tools;
+use File::Basename;
 use File::Path qw(mkpath rmtree);
 
 {
@@ -268,7 +269,7 @@ sub fetch($$$) {
 		my $sra_conv = Tools::sra();
 		$newfname =~ s/\.sra$/.fastq/;
 		mkpath("./sra_tmp");
-		Util::runAndWait("$sra_conv $fname -O ./sra_tmp", "fastq-dump") == 0 ||
+		Util::runAndWait("$sra_conv $fname -O ./sra_tmp > /dev/null", "fastq-dump") == 0 ||
 			die "Error performing SRA-to-FASTQ $fname";
 		Util::runAndWait("cat ./sra_tmp/* > $newfname", "cat") == 0 ||
 			die "Error copying resuld of SRA-to-FASTQ $fname";
@@ -403,10 +404,10 @@ sub doUnpairedUrl($$$$$) {
 	
 	# turn FASTQ entries into single-line reads
 	my $fh;
-	open $fh, $fn || die "Could not open input file $fn";
+	open($fh, $fn) || die "Could not open input file $fn";
 	my $r = 0;
 	my $fileno = 1;
-	open $of, ">${fn}_$fileno.out";
+	open($of, ">${fn}_$fileno.out") || die "Could not open output file ${fn}_$fileno.out";
 	my $fn_nospace = $fn;
 	$fn_nospace =~ s/[\s]+//g;
 	my $rname = "FN:".$fn_nospace; # Add filename
@@ -433,7 +434,7 @@ sub doUnpairedUrl($$$$$) {
 				system("rm -f ${fn}_$fileno.out ${fn}_$fileno.out.* >&2");
 			}
 			$fileno++;
-			open $of, ">${fn}_$fileno.out" || die;
+			open($of, ">${fn}_$fileno.out") || die "Could not open output file ${fn}_$fileno.out";
 		}
 		$totunpaired++;
 		if(++$unpaired >= 100000) {
@@ -476,12 +477,12 @@ sub doPairedUrl($$$$$$$) {
 	
 	# turn FASTQ pairs into tuples
 	my ($fh1, $fh2);
-	open $fh1, $fn1 || die "Could not open input file $fn1";
-	open $fh2, $fn2 || die "Could not open input file $fn2";
+	open($fh1, $fn1) || die "Could not open input file $fn1";
+	open($fh2, $fn2) || die "Could not open input file $fn2";
 	my $r = 0;
 	my $fileno = 1;
 	my $of;
-	open $of, ">${fn1}_$fileno.out" || die;
+	open($of, ">${fn1}_$fileno.out") || die;
 	my $fn1_nospace = $fn1;
 	$fn1_nospace =~ s/[\s]+//g;
 	my $rname .= "FN:".$fn1_nospace; # Add filename
@@ -513,7 +514,7 @@ sub doPairedUrl($$$$$$$) {
 				system("rm -f ${fn1}_$fileno.out ${fn1}_$fileno.out.* >&2");
 			}
 			$fileno++;
-			open $of, ">${fn1}_$fileno.out" || die;
+			open($of, ">${fn1}_$fileno.out") || die "Could not open output file ${fn1}_$fileno.out";
 		}
 		$totpaired++;
 		if(++$paired >= 100000) {
@@ -595,22 +596,23 @@ while (<>) {
 	my ($url1, $md51) = (addkey($s[0]), $s[1]);
 	my $color = 0; # TODO
 
+	my $turl1 = fileparse($url1);
 	if($#s >= 3) {
 		# If s[4] is defined, it contains the sample label
-		msg("Doing paired-end entry ".Util::trim(`basename $url1`)."");
+		msg("Doing paired-end entry $turl1");
 		my ($url2, $md52) = (addkey($s[2]), $s[3]);
 		doPairedUrl($url1, $md51, $url2, $md52, $s[4], urlToFormat($url1), $color);
 		counter("Short read preprocessor,Paired URLs,1");
 	} else {
 		# If s[2] is defined, it contains the sample label
-		msg("Doing unpaired entry ".Util::trim(`basename $url1`)."");
+		msg("Doing unpaired entry $turl1");
 		doUnpairedUrl($url1, $md51, $s[2], urlToFormat($url1), $color);
 		counter("Short read preprocessor,Unpaired URLs,1");
 	}
 	msg("Total unpaired reads: $totunpaired");
 	msg("Total paired reads: $totpaired");
 }
-#print "FAKE\n";
+print "FAKE\n";
 
 counter("Short read preprocessor,Warnings,$ws");
 msg("Warnings: $ws");
