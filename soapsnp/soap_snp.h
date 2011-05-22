@@ -374,7 +374,7 @@ public:
 	ubit64_t * get_bin_seq() {
 		return bin_seq;
 	}
-	uint32_t get_elts() {
+	ubit32_t get_elts() {
 		return elts;
 	}
 	const std::vector<pair<int, int> >& get_regions() {
