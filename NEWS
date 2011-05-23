@@ -9,7 +9,7 @@ to be released, and it was released under the OSI Artistic License (see
 LICENSE_ARTISTIC file) and freely available to the public for download.
 Portions of the Crossbow package are borrowed from other sources, and
 those portions are subject to other licenses (see LICENSES file).  The
-current version is 1.1.1.
+current version is 1.1.2.
 
 Reporting Issues
 ================
@@ -22,15 +22,20 @@ Version Release History
 =======================
 
 Version 1.1.2 - May 23, 2011
-   * Fixed issue with SRA input whereby status output from fastq-dump
+   * Added --just-align and --resume-align options.  --just-align
+     causes Crossbow to put the results of the Alignment phase in the
+     --output directory and quit after the alignment phase.  You can
+     later "resume" Crossbow by specifying this directory as the
+     --input directory and specifying the --resume-align option.
+   * Fixed issue with .sra input whereby status output from fastq-dump
      would be interpreted as a read.
    * Other minor bugfixes.
 
 Version 1.1.1 - February 7, 2011
    * Added support for the .sra file format, used by the Sequence Read
-     Archive.  These files can now be specified in the manifest.  Crossbow
-     uses the fastq-convert tool from the SRA Toolkit to convert .sra
-     files to .fastq files in the preprocess stage.
+     Archive.  These files can now be specified in the manifest.
+     Crossbow uses the fastq-convert tool from the SRA Toolkit to
+     convert .sra files to .fastq files in the preprocess stage.
    * The examples that included defunct SRA FASTQ files were updated to
      point to new .sra files instead.
 

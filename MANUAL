@@ -29,10 +29,10 @@ these errors.  Crossbow is provided "as is" with no warranty.  See
 `LICENSE` file.
 
 [Amazon Web Services]: http://aws.amazon.com
-[Amazon EC2]: http://aws.amazon.com/ec2/
-[Amazon S3]: http://aws.amazon.com/s3/
-[Amazon EMR]: http://aws.amazon.com/elasticmapreduce/
-[Amazon SimpleDB]: http://aws.amazon.com/simpledb/
+[Amazon EC2]: http://aws.amazon.com/ec2
+[Amazon S3]: http://aws.amazon.com/s3
+[Amazon EMR]: http://aws.amazon.com/elasticmapreduce
+[Amazon SimpleDB]: http://aws.amazon.com/simpledb
 [AWS]: http://aws.amazon.com
 
 # Crossbow modes and prerequisites
@@ -81,12 +81,13 @@ Crossbow can be run in four different ways.
 [Amazon EMR]: http://aws.amazon.com/elasticmapreduce
 [Elastic MapReduce]: http://aws.amazon.com/elasticmapreduce
 [EMR]: http://aws.amazon.com/elasticmapreduce
-[S3]: http://aws.amazon.com/s3/
-[EC2]: http://aws.amazon.com/ec2/
+[S3]: http://aws.amazon.com/s3
+[EC2]: http://aws.amazon.com/ec2
 [going rate]: http://aws.amazon.com/ec2/#pricing
 [Elastic MapReduce web interface]: https://console.aws.amazon.com/elasticmapreduce/home
 [AWS Console]: https://console.aws.amazon.com
-`elastic-mapreduce`: http://docs.amazonwebservices.com/ElasticMapReduce/latest/DeveloperGuide/index.html?download_ruby.html
+[AWS console]: https://console.aws.amazon.com
+`elastic-mapreduce`: http://aws.amazon.com/developertools/2264?_encoding=UTF8&jiveRedirect=1
 [Java]: http://java.sun.com/
 [Hadoop]: http://hadoop.apache.org/
 [R]: http://www.r-project.org/
@@ -159,11 +160,11 @@ To install Amazon's `elastic-mapreduce` tool, follow the instructions
 in Amazon Elastic MapReduce developer's guide for [How to Download and
 Install Ruby and the Command Line Interface].  That document describes:
 
-[How to Download and Install Ruby and the Command Line Interface]: http://docs.amazonwebservices.com/ElasticMapReduce/latest/DeveloperGuide/index.html?download_ruby.html
+[How to Download and Install Ruby and the Command Line Interface]: http://aws.amazon.com/developertools/2264?_encoding=UTF8&jiveRedirect=1
 
 1. Installing an appropriate version of [Ruby], if necessary.
 
-2. [Setting up an EC2 keypair], if necessary.
+2. Setting up an EC2 keypair, if necessary.
 
 3. Setting up a credentials file, which is used by the
    `elastic-mapreduce` tool for authentication.
@@ -215,8 +216,8 @@ software).
 [s3cmd]: http://s3tools.org/s3cmd
 [Python]: http://www.python.org/download/
 [Firefox]: http://www.mozilla.com/firefox/
-[S3 buckets]: http://docs.amazonwebservices.com/AmazonS3/latest/index.html?UsingBucket.html
-[S3 bucket]: http://docs.amazonwebservices.com/AmazonS3/latest/index.html?UsingBucket.html
+[S3 buckets]: http://docs.amazonwebservices.com/AmazonS3/latest/gsg/
+[S3 bucket]: http://docs.amazonwebservices.com/AmazonS3/latest/gsg/
 [S3 charges]: http://aws.amazon.com/s3/#pricing
 [S3Fox Organizer]: http://www.s3fox.net/
 [Cyberduck]: http://cyberduck.ch/
@@ -280,6 +281,35 @@ Otherwise:
 [NFS share]: http://en.wikipedia.org/wiki/Network_File_System_(protocol)
 [pseudo distributed]: http://hadoop.apache.org/common/docs/current/quickstart.html#PseudoDistributed
 
+## The SRA toolkit
+
+The [Sequence Read Archive] (SRA) is a resource at the [National Center
+for Biotechnology Information] (NCBI) for storing sequence data from
+modern sequencing instruments.  Sequence data underlying many studies,
+including very large studies, can often be downloaded from this
+archive.
+
+The SRA uses a special file format to store archived read data.  These
+files end in extensions `.sra`, and they can be specified as inputs
+to Crossbow's preprocessing step in exactly the same way as [FASTQ] files.
+
+However, if you plan to use `.sra` files as input to Crossbow in either
+[Hadoop] mode or in single-computer mode, you must first install the
+[SRA toolkit]'s `fastq-dump` tool appropriately.  See the [SRA toolkit]
+page for details about how to download and install.
+
+When searching for the `fastq-dump` tool at runtime, Crossbow searches the
+following places in order:
+
+1. The directory specified in the `--sra-toolkit` option
+2. The directory specified in the `$CROSSBOW_SRATOOLKIT_HOME` environment
+   variable.
+3. In the system `PATH`
+
+[Sequence Read Archive]: http://www.ncbi.nlm.nih.gov/books/NBK47533/
+[National Center for Biotechnology Information]: http://www.ncbi.nlm.nih.gov/
+[SRA toolkit]: http://trace.ncbi.nlm.nih.gov/Traces/sra/sra.cgi?cmd=show&f=software&m=software&s=software
+
 # Running Crossbow
 
 The commands for invoking Crossbow from the command line are:
@@ -310,8 +340,8 @@ Crossbow on a single computer via the command line] for details.
 2. [EC2], [S3], [EMR], and [SimpleDB] accounts.  To check which ones you've
    already enabled, visit your [Account Activity] page.
 3. A tool for browsing and exchanging files with [S3]
-    a. The [AWS Console]'s [S3 tab] is a good web-based tool that does not
-       require software installation
+    a. The [AWS Console]'s [S3 tab] is a good web-based tool that does
+       not require software installation
     b. A good command line tool is [s3cmd]
     c. A good GUI tool is [S3Fox Organizer], which is a Firefox Plugin
     d. Others include [Cyberduck], [Bucket Explorer]
@@ -327,18 +357,18 @@ Crossbow on a single computer via the command line] for details.
 [Cyberduck]: http://cyberduck.ch/
 [Bucket Explorer]: http://www.bucketexplorer.com/
 [What S3 is]: http://aws.amazon.com/s3/
-[What an S3 bucket is]: http://docs.amazonwebservices.com/AmazonS3/latest/index.html?UsingBucket.html
+[what an S3 bucket is]: http://docs.amazonwebservices.com/AmazonS3/latest/gsg/
 [will cost you]: http://aws.amazon.com/ec2/#pricing
 
 ## To run
 
-1.  *If the input reads have not yet been preprocessed by Crossbow*
-    (i.e. input is FASTQ), then first (a) prepare a [manifest file]
-    with URLs pointing to the FASTQ files, and (b) upload it to an [S3]
-    bucket that you own.  See your [S3] tool's documentation for how to
-    create a bucket and upload a file to it.  The URL for the [manifest
-    file] will be the input URL for your [EMR] job.
-    
+1.  *If the input reads have not yet been preprocessed by Crossbow* (i.e.
+    input is [FASTQ] or `.sra`), then first (a) prepare a [manifest
+    file] with URLs pointing to the read files, and (b) upload it to an
+    [S3] bucket that you own.  See your [S3] tool's documentation for
+    how to create a bucket and upload a file to it.  The URL for the
+    [manifest file] will be the input URL for your [EMR] job.
+
     *If the input reads have already been preprocessed by Crossbow*,
     make a note of of the [S3] URL where they're located.  This will
     be the input URL for your [EMR] job.
@@ -355,6 +385,7 @@ Crossbow on a single computer via the command line] for details.
     reference URL for your [EMR] job.
 
 [Crossbow website]: http://bowtie-bio.sf.net/crossbow
+`.sra`: http://www.ncbi.nlm.nih.gov/books/NBK47540/
 
 3. In a web browser, go to the [Crossbow web interface].
 
@@ -389,17 +420,17 @@ Crossbow on a single computer via the command line] for details.
 [Cyberduck]: http://cyberduck.ch/
 [Bucket Explorer]: http://www.bucketexplorer.com/
 [What S3 is]: http://aws.amazon.com/s3/
-[What an S3 bucket is]: http://docs.amazonwebservices.com/AmazonS3/latest/index.html?UsingBucket.html
+[What an S3 bucket is]: http://docs.amazonwebservices.com/AmazonS3/latest/gsg/
 [will cost you]: http://aws.amazon.com/ec2/#pricing
 
 ## To run
 
-1.  *If the input reads have not yet been preprocessed by Crossbow*
-    (i.e. input is FASTQ), then first (a) prepare a [manifest file]
-    with URLs pointing to the FASTQ files, and (b) upload it to an [S3]
-    bucket that you own.  See your [S3] tool's documentation for how to
-    create a bucket and upload a file to it.  The URL for the [manifest
-    file] will be the input URL for your [EMR] job.
+1.  *If the input reads have not yet been preprocessed by Crossbow* (i.e.
+    input is [FASTQ] or `.sra`), then first (a) prepare a [manifest
+    file] with URLs pointing to the read files, and (b) upload it to an
+    [S3] bucket that you own.  See your [S3] tool's documentation for
+    how to create a bucket and upload a file to it.  The URL for the
+    [manifest file] will be the input URL for your [EMR] job.
     
     *If the input reads have already been preprocessed by Crossbow*,
     make a note of of the [S3] URL where they're located.  This will
@@ -645,6 +676,14 @@ be installed in this same directory on all [Hadoop] worker nodes.  By
 default, Crossbow searches the `PATH` and in the directory pointed to
 by the `CROSSBOW_HOME` environment variable.
 
+    --sra-toolkit <path>
+
+Path to the directory containing the programs in the [SRA toolkit],
+including `fastq-dump`.  This overrides all other ways that Crossbow
+searches for `fastq-dump`, including the `CROSSBOW_SRATOOLKIT_HOME`
+environment variable, the subdirectories of the `$CROSSBOW_HOME/bin`
+directory, and the `PATH`.
+
     --soapsnp <path>
 
 Local path to the SOAPsnp executable to use when running the Call SNPs
@@ -778,6 +817,14 @@ overrides all other ways that Crossbow searches for `bowtie`, including
 the `CROSSBOW_BOWTIE_HOME` environment variable, the subdirectories of
 the `$CROSSBOW_HOME/bin` directory, and the `PATH`.
 
+    --sra-toolkit <path>
+
+Path to the directory containing the programs in the [SRA toolkit],
+including `fastq-dump`.  This overrides all other ways that Crossbow
+searches for `fastq-dump`, including the `CROSSBOW_SRATOOLKIT_HOME`
+environment variable, the subdirectories of the `$CROSSBOW_HOME/bin`
+directory, and the `PATH`.
+
     --soapsnp <path>
 
 Path to the SOAPsnp executable to use when running the Call SNPs step.
@@ -804,7 +851,7 @@ scale] that includes values as low as -5.  Default: `phred33`.
 [Phred scale]: http://en.wikipedia.org/wiki/Phred_quality_score
 [Phred+33]: http://en.wikipedia.org/wiki/FASTQ_format#Encoding
 [Phred+64]: http://en.wikipedia.org/wiki/FASTQ_format#Encoding
-[solexa+64]: http://en.wikipedia.org/wiki/FASTQ_format#Encoding
+[Solexa+64]: http://en.wikipedia.org/wiki/FASTQ_format#Encoding
 [log-odds scale]: http://en.wikipedia.org/wiki/FASTQ_format#Variations
 
     --preprocess
@@ -822,6 +869,19 @@ The input path or URL refers to a [manifest file] rather than a
 directory of preprocessed reads.  Crossbow will preprocess the reads
 listed in the [manifest file] and store the preprocessed reads in the
 `--output` directory and quit.  Default: off.
+
+    --just-align
+
+Instead of running the Crossbow pipeline all the way through to the end,
+run the pipeline up to and including the align stage and store the
+results in the `--output` URL.  To resume the run later, use
+`--resume-align`.
+
+    --resume-align
+
+Resume the Crossbow pipeline from just after the alignment stage.  The
+`--input` URL must point to an `--output` URL from a previous run
+using `--just-align`.
 
     --bowtie-args "<args>"
 
@@ -1409,8 +1469,8 @@ Crossbow (substitute the number of CPUs you'd like to use for
 
 # Manifest files
 
-A manifest file describes a set of (possibly [gzip] or [bzip2]
-compressed) [FASTQ] input files that might be located:
+A manifest file describes a set of [FASTQ] or `.sra` formatted input
+files that might be located:
 
 [gzip]: http://en.wikipedia.org/wiki/Gzip
 [bzip2]: http://en.wikipedia.org/wiki/Bzip2
@@ -1424,6 +1484,13 @@ compressed) [FASTQ] input files that might be located:
 
 A manifest file can contain any combination of URLs and local paths
 from these various types of sources.
+
+[FASTQ] files can be gzip or bzip2-compressed (i.e. with `.gz` or
+`.bz2` file extensions).  If `.sra` files are specified in the
+manifest and Crossbow is being run in single-computer or [Hadoop] modes,
+then the `fastq-dump` tool must be installed and Myrna must be able to
+locate it.  See the `--sra-toolkit` option and the [SRA Toolkit
+section of the manual].
 
 Each line in the manifest file represents either one file, for unpaired
 input reads, or a pair of files, for paired input reads.  For a set of
@@ -1630,13 +1697,6 @@ The [AWS Console] summarizes current information regarding all your
 running [EC2] nodes and [EMR] jobs.  Each job is listed in the "Amazon
 Elastic MapReduce" tab of the console, whereas individual [EC2] nodes
 are listed in the "Amazon EC2" tab.
-
-See Amazon's [Using the Elastic MapReduce Console] document, espeically
-the [How to View Details of the Job Flow] subsection, for further
-information about the console.
-
-[Using the Elastic MapReduce Console]: http://docs.amazonwebservices.com/ElasticMapReduce/latest/GettingStartedGuide/gsConsoleRunJob.html
-[How to View Details of the Job Flow]: http://docs.amazonwebservices.com/ElasticMapReduce/latest/GettingStartedGuide/gsConsoleRunJob.html#MonitoringtheJob
 
 # Crossbow Output
 

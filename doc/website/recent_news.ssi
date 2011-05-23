@@ -1,3 +1,27 @@
+<h2>Version 1.1.2 - May 23, 2011</h2>
+<ul>
+  <li>
+     Added
+     <a href="manual.shtml#cb-just-align"><tt>--just-align</tt></a>
+     and
+     <a href="manual.shtml#cb-resume-align"><tt>--resume-align</tt></a>
+     options.
+     <a href="manual.shtml#cb-just-align"><tt>--just-align</tt></a>
+     causes Crossbow to put the results of the Alignment phase in the
+     <tt>--output</tt>
+     directory and quit after the alignment phase.  You can
+     later "resume" Crossbow by specifying this directory as the
+     <tt>--input</tt>
+     directory and specifying the
+     <a href="manual.shtml#cb-resume-align"><tt>--resume-align</tt></a>
+     option.
+  <li>
+     Fixed issue with <tt>.sra</tt> input whereby status output from fastq-dump
+     would be interpreted as a read.
+  <li>
+     Other minor bugfixes.
+</ul>
+
 <h2>Version 1.1.1 - February 7, 2011</h2>
 <ul>
   <li>
@@ -122,36 +146,4 @@
  <li>
      Fixed issue in preprocessor that mishandles copies when user's AWS
      secret key contains slash characters.
-</ul>
-
-<h2>Version 1.0.5 - August 16, 2010</h2>
-<ul>
- <li>
-     Fixed issue that prevented <tt>CROSSBOW_EMR_HOME</tt> environment variable
-     from working.
- <li>
-     Fixed issue whereby <tt>Align.pl</tt> script fails to report a count for
-     the number of reads with alignments sampled due to Bowtie's <tt>-M</tt>
-     option.
- <li>
-     Fixed issue whereby scripts in the <tt>$CROSSBOW_HOME/reftools</tt>
-     directory had <tt>#!/bin/sh</tt> headers but were actually <tt>bash</tt> scripts.
- <li>
-     Fixed issue that made it difficult to specify a space-separated
-     list of arguments to the <tt>--bowtie-args</tt> and other <tt>--*-args</tt>
-     parameters.
- <li>
-     Fixed issue whereby most documentation referred to arguments with
-     a single-dash prefix, whereas users with the <tt>POSIXLY_CORRECT</tt>
-     environment variable set must use a double-dash prefix.
-     Documentation and code have been updated to always use double-dash
-     prefixes.
-</ul>
-
-<h2>Myrna paper out - 8/11/10</h2>
-<ul>
- <li>
-   The provisional version of the <a href="http://genomebiology.com/2010/11/8/R83/abstract">Myrna paper</a>
-   appeared today in <a href="http://genomebiology.com/">Genome Biology</a>.  See the <a href="http://bowtie-bio.sourceforge.net/myrna">Myrna site</a>
-   for details about the software.
 </ul>

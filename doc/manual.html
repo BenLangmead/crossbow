@@ -1,7 +1,7 @@
 <!DOCTYPE html PUBLIC "-//W3C//DTD XHTML 1.0 Transitional//EN" "http://www.w3.org/TR/xhtml1/DTD/xhtml1-transitional.dtd">
 <html xmlns="http://www.w3.org/1999/xhtml">
 <head>
-  <title>Crossbow 1.1.1 Manual - Crossbow: Parallel short read genotyping in the cloud</title>
+  <title>Crossbow 1.1.2 Manual - Crossbow: Parallel short read genotyping in the cloud</title>
   <meta http-equiv="Content-Type" content="text/html; charset=utf-8" />
   <meta name="generator" content="pandoc" />
   <meta name="author" content="Ben Langmead and Michael C. Schatz" />
@@ -2032,6 +2032,48 @@
   > and store the preprocessed reads in the <code
   >--output</code
   > directory and quit. Default: off.</p
+></td></tr><tr><td id="cb-just-align">
+
+
+<pre
+><code
+  >--just-align
+</code
+  ></pre
+></td><td>
+<p
+>Instead of running the Crossbow pipeline all the way through to the end, run the pipeline up to and including the align stage and store the results in the <a href="#cb-local-output"
+  ><code
+    >--output</code
+    ></a
+  > URL. To resume the run later, use <a href="#cb-resume-align"
+  ><code
+    >--resume-align</code
+    ></a
+  >.</p
+></td></tr><tr><td id="cb-resume-align">
+
+
+<pre
+><code
+  >--resume-align
+</code
+  ></pre
+></td><td>
+<p
+>Resume the Crossbow pipeline from just after the alignment stage. The <a href="#cb-local-input"
+  ><code
+    >--input</code
+    ></a
+  > URL must point to an <a href="#cb-local-output"
+  ><code
+    >--output</code
+    ></a
+  > URL from a previous run using <a href="#cb-just-align"
+  ><code
+    >--just-align</code
+    ></a
+  >.</p
 ></td></tr><tr><td id="cb-bowtie-args">
 
 
@@ -3239,7 +3281,7 @@ $CROSSBOW_HOME/cb_local \
   ><code
     >.sra</code
     ></a
-  > files are specified in the manifest and Myrna is being run in single-computer or <a href="http://hadoop.apache.org/"
+  > files are specified in the manifest and Crossbow is being run in single-computer or <a href="http://hadoop.apache.org/"
   >Hadoop</a
   > modes, then the <code
   >fastq-dump</code

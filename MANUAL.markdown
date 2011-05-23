@@ -1159,6 +1159,31 @@ listed in the [manifest file] and store the preprocessed reads in the
 
 [manifest file]: #manifest-files
 
+</td></tr><tr><td id="cb-just-align">
+
+[`--just-align`]: #cb-just-align
+
+    --just-align
+
+</td><td>
+
+Instead of running the Crossbow pipeline all the way through to the end,
+run the pipeline up to and including the align stage and store the
+results in the [`--output`] URL.  To resume the run later, use
+[`--resume-align`].
+
+</td></tr><tr><td id="cb-resume-align">
+
+[`--resume-align`]: #cb-resume-align
+
+    --resume-align
+
+</td><td>
+
+Resume the Crossbow pipeline from just after the alignment stage.  The
+[`--input`] URL must point to an [`--output`] URL from a previous run
+using [`--just-align`].
+
 </td></tr><tr><td id="cb-bowtie-args">
 
 [`--bowtie-args`]: #cb-bowtie-args
@@ -1881,7 +1906,7 @@ from these various types of sources.
 
 [FASTQ] files can be gzip or bzip2-compressed (i.e. with `.gz` or
 `.bz2` file extensions).  If [`.sra`] files are specified in the
-manifest and Myrna is being run in single-computer or [Hadoop] modes,
+manifest and Crossbow is being run in single-computer or [Hadoop] modes,
 then the `fastq-dump` tool must be installed and Myrna must be able to
 locate it.  See the [`--sra-toolkit`] option and the [SRA Toolkit
 section of the manual].

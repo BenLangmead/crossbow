@@ -1,5 +1,5 @@
 <h1>Table of Contents</h1>
-<p>&nbsp;Version <b>1.1.1</b></p>
+<p>&nbsp;Version <b>1.1.2</b></p>
 <!-- paste everything from div id="toc" on here -->
 <div id="TOC"
 ><ul
@@ -2022,6 +2022,48 @@
   > and store the preprocessed reads in the <code
   >--output</code
   > directory and quit. Default: off.</p
+></td></tr><tr><td id="cb-just-align">
+
+
+<pre
+><code
+  >--just-align
+</code
+  ></pre
+></td><td>
+<p
+>Instead of running the Crossbow pipeline all the way through to the end, run the pipeline up to and including the align stage and store the results in the <a href="#cb-local-output"
+  ><code
+    >--output</code
+    ></a
+  > URL. To resume the run later, use <a href="#cb-resume-align"
+  ><code
+    >--resume-align</code
+    ></a
+  >.</p
+></td></tr><tr><td id="cb-resume-align">
+
+
+<pre
+><code
+  >--resume-align
+</code
+  ></pre
+></td><td>
+<p
+>Resume the Crossbow pipeline from just after the alignment stage. The <a href="#cb-local-input"
+  ><code
+    >--input</code
+    ></a
+  > URL must point to an <a href="#cb-local-output"
+  ><code
+    >--output</code
+    ></a
+  > URL from a previous run using <a href="#cb-just-align"
+  ><code
+    >--just-align</code
+    ></a
+  >.</p
 ></td></tr><tr><td id="cb-bowtie-args">
 
 
@@ -3229,7 +3271,7 @@ $CROSSBOW_HOME/cb_local \
   ><code
     >.sra</code
     ></a
-  > files are specified in the manifest and Myrna is being run in single-computer or <a href="http://hadoop.apache.org/"
+  > files are specified in the manifest and Crossbow is being run in single-computer or <a href="http://hadoop.apache.org/"
   >Hadoop</a
   > modes, then the <code
   >fastq-dump</code
