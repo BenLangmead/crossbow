@@ -23,6 +23,7 @@ for i in $ARGS ; do
 	scp -i $EC2_KEYPAIR VERSION root@$i:/var/www/cgi-bin/VERSION_CROSSBOW
 	scp -i $EC2_KEYPAIR webui/wait.gif root@$i:/home/webuser/helloworld/htdocs/
 	ssh -i $EC2_KEYPAIR root@$i chmod a+x /var/www/cgi-bin/*.pl
+	ssh -i $EC2_KEYPAIR root@$i rm -f /var/www/cgi-bin/VERSION
 
 	# URL to surf to
 	echo "http://$i/cgi-bin/crossbow.pl\n";
