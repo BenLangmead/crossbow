@@ -21,6 +21,11 @@ Please report any issues using the Sourceforge bug tracker:
 Version Release History
 =======================
 
+Version 1.1.2 - May 23, 2011
+   * Fixed issue with SRA input whereby status output from fastq-dump
+     would be interpreted as a read.
+   * Other minor bugfixes.
+
 Version 1.1.1 - February 7, 2011
    * Added support for the .sra file format, used by the Sequence Read
      Archive.  These files can now be specified in the manifest.  Crossbow
