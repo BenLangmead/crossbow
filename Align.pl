@@ -135,9 +135,28 @@ msg("bowtie args: @ARGV");
 msg("ls -al");
 msg(`ls -al`);
 
-my %counters = ();
-Counters::getCounters($cntfn, \%counters, \&msg, 1);
-msg("Retrived ".scalar(keys %counters)." counters from previous stages\n");
+#BEGIN James
+#remove counters 
+#my %counters = ();
+#Counters::getCounters($cntfn, \%counters, \&msg, 1);
+#msg("Retrived ".scalar(keys %counters)." counters from previous stages\n");
+
+
+#remove entire environment
+foreach my $k (keys %ENV)
+{
+  next if $k =~ /^PATH$/;
+  next if $k =~ /^PWD$/;
+  next if $k =~ /^HOME$/;
+  next if $k =~ /^USER$/;
+  next if $k =~ /^TERM$/;
+
+  delete $ENV{$k};
+}
+
+$ENV{SHELL}="/bin/sh";
+#end James
+
 
 if($sam_passthru) {
 	my $alsUnpaired = 0;

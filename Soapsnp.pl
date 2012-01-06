@@ -138,17 +138,34 @@ msg("dryrun: $dryRun");
 msg("ls -al");
 print STDERR `ls -al`;
 
-my %counters = ();
-Counters::getCounters($cntfn, \%counters, \&msg, 1);
-msg("Retrived ".scalar(keys %counters)." counters from previous stages\n");
 
-msg("Checking that 1 or more reads aligned in Align stage...");
-my $alreps = defined($counters{"Bowtie"}{"Reads with at least 1 reported alignment"});
-if(defined($alreps) && $alreps > 0) {
-	msg("Yes, $alreps alignments reported in Align stage");
-} else {
-	msg("Warning: no alignments reported in Align stage; SOAPsnp will not be run");
+#BEGIN James
+#my %counters = ();
+#Counters::getCounters($cntfn, \%counters, \&msg, 1);
+#msg("Retrived ".scalar(keys %counters)." counters from previous stages\n");
+
+#msg("Checking that 1 or more reads aligned in Align stage...");
+#my $alreps = defined($counters{"Bowtie"}{"Reads with at least 1 reported alignment"});
+#if(defined($alreps) && $alreps > 0) {
+#	msg("Yes, $alreps alignments reported in Align stage");
+#} else {
+#	msg("Warning: no alignments reported in Align stage; SOAPsnp will not be run");
+#}
+
+#remove entire environment (James)
+foreach my $k (keys %ENV)
+{
+    next if $k =~ /^PATH$/;
+    next if $k =~ /^PWD$/;
+    next if $k =~ /^HOME$/;
+    next if $k =~ /^USER$/;
+    next if $k =~ /^TERM$/;
+
+    delete $ENV{$k};
 }
+
+$ENV{SHELL}="/bin/sh";
+#end James
 
 $refdir ne "" || $ref ne "" || die "Must specify either -refdir <path> or -ref <url> and -destdir\n";
 $refdir ne "" || $dest_dir ne "" || die "Must specify either -refdir <path> or -ref <url> and -destdir\n";

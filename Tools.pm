@@ -32,6 +32,7 @@ our $wget = "";
 our $wget_arg = "";
 our $md5 = "";
 our $md5_arg = "";
+our $unzip = "";
 my $r = "";
 
 my $hadoopEnsured = 0;
@@ -183,6 +184,8 @@ sub ensureJar() {
 }
 sub jar() { ensureJar(); return $jar; }
 
+sub unzip(){ return $unzip; }
+
 sub initTools() {
 
 	# Read the tool name from the 'TOOLNAME' file.  We'll use an all-caps
@@ -217,6 +220,14 @@ sub initTools() {
 		chomp($jar);
 		unless(-x $jar) { $jar = "" };
 	}
+	
+	##unzip
+	if($unzip eq ""){
+	    $unzip = `which unzip 2>/dev/null`;
+	    chomp($unzip);
+	    unless(-x $unzip){ $unzip = "" };
+	}
+
 	
 	#
 	# S3CMD_HOME

@@ -353,7 +353,8 @@ GetOptions (
 	"no-overwrite"              => \$dontForce,
 	"bowtie:s"                  => \$bowtie,
 	"samtools:s"                => \$samtools,
-	"fastq-dump:s"              => \$sra,
+	#"fastq-dump:s"              => \$sra,
+	"sra-toolkit:s"             => \$sra,
 	"soapsnp:s"                 => \$soapsnp,
 	"external-sort"             => \$externalSort,
 # Hadoop job params

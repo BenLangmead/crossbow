@@ -336,11 +336,19 @@ sub ensureFetched {
 				croak("Return value from download task was $ret but the file $dest_dir/$base doesn't exist\n");
 			}
 			if($base =~ /\.jar$/) {
-				print STDERR "Pid $$:   extract jar\n";
-				my $jar_exe = Tools::jar();
-				$cmd = "cd $dest_dir && $jar_exe xf $base >&2";
-				print STDERR "$cmd\n";
-				$ret = Util::runAndWait($cmd, "jar xf");
+			    print STDERR "Pid $$:   extract jar\n";
+			    #prefer unzip to jar
+			    my $jar_exe = Tools::unzip();
+			    my $jar_arguments = "";
+			    if($jar_exe eq ""){
+				print $STDERR "Could not find unzip, falling back to jar";
+				$jar_exe = Tools::jar();
+				$jar_arguments = "xf";
+			    }
+			    $cmd = "cd $dest_dir && $jar_exe $jar_arguments $base >&2";
+			    print STDERR "$cmd\n";
+			    $ret = Util::runAndWait($cmd, "$jar_exe $jar_arguments");
+			    
 			} elsif($base =~ /\.tar\.gz$/ || $base =~ /\.tgz$/) {
 				$cmd = "cd $dest_dir && tar zxf $base >&2";
 				print STDERR "$cmd\n";
