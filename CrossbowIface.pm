@@ -353,8 +353,7 @@ GetOptions (
 	"no-overwrite"              => \$dontForce,
 	"bowtie:s"                  => \$bowtie,
 	"samtools:s"                => \$samtools,
-	#"fastq-dump:s"              => \$sra,
-	"sra-toolkit:s"             => \$sra,
+	"fastq-dump:s"              => \$sra,
 	"soapsnp:s"                 => \$soapsnp,
 	"external-sort"             => \$externalSort,
 # Hadoop job params
@@ -673,7 +672,7 @@ if($test) {
 		$bowtie   = checkExe($bowtie,   "bowtie",    "${pre}BOWTIE_HOME",     "",    "--bowtie"  ,    0);
 		$samtools = checkExe($samtools, "samtools",  "${pre}SAMTOOLS_HOME",   "",    "--samtools",    0) if $useSamtools;
 		$soapsnp  = checkExe($soapsnp,  "soapsnp",   "${pre}SOAPSNP_HOME",    "",    "--soapsnp" ,    0);
-		$sra      = checkExe($sra,      "fastq-dump","${pre}SRATOOLKIT_HOME", "",    "--sra-toolkit", 0, 4);
+		$sra      = checkExe($sra,      "fastq-dump","${pre}SRATOOLKIT_HOME", "",    "--fastq-dump", 0, 4);
 		$msg->("Summary:\n");
 		$msgf->("  bowtie: %s\n",     ($bowtie   ne "" ? "INSTALLED at $bowtie"   : "NOT INSTALLED"));
 		$msgf->("  samtools: %s\n",   ($samtools ne "" ? "INSTALLED at $samtools" : "NOT INSTALLED")) if $useSamtools;
@@ -702,7 +701,7 @@ if($localJob || $hadoopJob) {
 	$bowtie    = checkExe($bowtie,   "bowtie",     "${pre}BOWTIE_HOME",     "",    "--bowtie"  ,    1) if $useBowtie;
 	$samtools  = checkExe($samtools, "samtools",   "${pre}SAMTOOLS_HOME",   "",    "--samtools",    1) if $useSamtools;
 	$soapsnp   = checkExe($soapsnp,  "soapsnp",    "${pre}SOAPSNP_HOME",    "",    "--soapsnp" ,    1) if $useSoapsnp;
-	$sra       = checkExe($sra,      "fastq-dump", "${pre}SRATOOLKIT_HOME", "",    "--sra-toolkit", 0, 4) if $useSraToolkit;
+	$sra       = checkExe($sra,      "fastq-dump", "${pre}SRATOOLKIT_HOME", "",    "--fastq-dump", 0, 4) if $useSraToolkit;
 	if($sra eq "") {
 		print STDERR "***WARNING***\n";
 		print STDERR "***WARNING***: SRA toolkit fastq-dump not found; .sra inputs won't work but others will\n";
@@ -960,6 +959,10 @@ $preprocArgs .= " --maxperfile=$preprocMax";
 $preprocArgs .= " --s";
 $preprocArgs .= " --push=$outputPreprocUpper";
 
+$preprocArgs .= " --fastq-dump=$sra" if ($sra ne "");
+
+
+
 my $samtoolsCacheFiles = qq!"$cachef",   "s3n://$appDir/samtools$bits#samtools"!;
 my $sraCacheFiles      = qq!"$cachef",   "s3n://$appDir/fastq-dump$bits#fastq-dump"!;
 
@@ -991,11 +994,13 @@ echo ==========================
 date
 $hadoop jar $hadoopStreamingJar \\
 	-D mapred.reduce.tasks=0 \\
+        -D mapred.job.name='Preprocess $inputPreproc' \\
 	-input $inputPreproc \\
 	-output $outputPreproc \\
 	-mapper '$Bin/Copy.pl $samtools_arg $preprocArgs' \\
 	$hadoopCacheFiles \\
-	-inputformat org.apache.hadoop.mapred.lib.NLineInputFormat
+	-inputformat org.apache.hadoop.mapred.lib.NLineInputFormat 
+
 
 [ \$? -ne 0 ] && echo "Non-zero exitlevel from Preprocess stage" && exit 1
 phase=`expr \$phase + 1`
@@ -1072,6 +1077,7 @@ echo ==========================
 date
 $hadoop jar $hadoopStreamingJar \\
 	-D mapred.reduce.tasks=0 \\
+        -D mapred.job.name='Align $inputAlign' \\
 	-input $inputAlign \\
 	-output $outputAlign \\
 	-mapper '$Bin/Align.pl $bowtie_arg $alignArgs' \\
@@ -1165,6 +1171,7 @@ date
 $hadoop jar $hadoopStreamingJar \\
 	-D stream.num.map.output.key.fields=3 \\
 	-D $snpsPartitionConf \\
+	-D mapred.job.name='Soapsnp $inputSnp' \\
 	-D mapred.reduce.tasks=$snpTasks \\
 	-partitioner org.apache.hadoop.mapred.lib.KeyFieldBasedPartitioner \\
 	-input $inputSnp \\
@@ -1281,6 +1288,7 @@ $hadoop jar $hadoopStreamingJar \\
 	-D stream.num.map.output.key.fields=2 \\
 	-D $postprocPartitionConf \\
 	-D mapred.reduce.tasks=30 \\
+	-D mapred.job.name='Postprocess $inputPostproc' \\
 	-input $inputPostproc \\
 	-output $output/ignoreme2 \\
 	-mapper 'cat' \\

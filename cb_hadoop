@@ -42,6 +42,7 @@ Options (defaults in []):
                          if you'd like keep to keep intermediate results after
                          cluster is deallocated. [hdfs:///crossbow]
   --partition-len <int>  Partition length in bases [1 million]
+  --fastq-dump <path>    Path to fastq-dump binary on slaves [search \$PATH locally]
   --bowtie <path>        Path to bowtie binary on slaves [search
                          \$MYRNA_BOWTIE_HOME, \$MYRNA_HOME/bin, \$PATH locally]
   --soapsnp <path>       Path to soapsnp binary on slaves [search

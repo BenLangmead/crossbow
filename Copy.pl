@@ -67,29 +67,49 @@ sub msg($) {
 Tools::initTools();
 
 GetOptions(
-	"compress:s"   => \$compress,
-	"push:s"       => \$push,
-	"samtools:s"   => \$Tools::samtools_arg,
-	"s3cmd:s"      => \$Tools::s3cmd_arg,
-	"s3cfg:s"      => \$Tools::s3cfg,
-	"md5:s"        => \$Tools::md5_arg,
-	"accessid:s"   => \$AWS::accessKey,
-	"secretid:s"   => \$AWS::secretKey,
-	"hadoop:s"     => \$Tools::hadoop_arg,
-	"stop:i"       => \$stopAfter,
-	"maxperfile:i" => \$maxPerFile,
-	"keep"         => \$keep,
-	"h"            => \$helpflag,
-	"s"            => \$skipfirst,
-	"owner:s"      => \$owner,
-	"label-rg"     => \$labReadGroup,
-	"counters:s"   => \$cntfn,
-	"verbose"      => \$verbose)
+	"compress:s"    => \$compress,
+	"push:s"        => \$push,
+	"samtools:s"    => \$Tools::samtools_arg,
+	"s3cmd:s"       => \$Tools::s3cmd_arg,
+	"s3cfg:s"       => \$Tools::s3cfg,
+	"md5:s"         => \$Tools::md5_arg,
+        "fastq-dump:s"  => \$Tools::sra_conv,
+	"accessid:s"    => \$AWS::accessKey,
+	"secretid:s"    => \$AWS::secretKey,
+	"hadoop:s"      => \$Tools::hadoop_arg,
+	"stop:i"        => \$stopAfter,
+	"maxperfile:i"  => \$maxPerFile,
+	"keep"          => \$keep,
+	"h"             => \$helpflag,
+	"s"             => \$skipfirst,
+	"owner:s"       => \$owner,
+	"label-rg"      => \$labReadGroup,
+	"counters:s"    => \$cntfn,
+	"verbose"       => \$verbose)
 	|| die "GetOptions failed\n";
 
-my %counters = ();
-Counters::getCounters($cntfn, \%counters, \&msg, 1);
-msg("Retrived ".scalar(keys %counters)." counters from previous stages");
+#BEGIN James
+#remove Counters
+#my %counters = ();
+#Counters::getCounters($cntfn, \%counters, \&msg, 1);
+#msg("Retrived ".scalar(keys %counters)." counters from previous stages");
+
+#remove entire environment
+foreach my $k (sort keys %ENV)
+{
+    #print STDERR "$k : $ENV{$k}\n";
+    next if $k =~ /^PATH$/;
+    next if $k =~ /^PWD$/;
+    next if $k =~ /^HOME$/;
+    next if $k =~ /^USER$/;
+    next if $k =~ /^TERM$/;
+    
+    delete $ENV{$k};
+}
+
+$ENV{SHELL}="/bin/sh";
+#end James          
+
 
 my $ws = 0;
 

@@ -308,7 +308,7 @@ page for details about how to download and install.
 When searching for the `fastq-dump` tool at runtime, Crossbow searches the
 following places in order:
 
-1. The directory specified in the [`--sra-toolkit`] option
+1. The path specified in the [`--fastq-dump`] option
 2. The directory specified in the `$CROSSBOW_SRATOOLKIT_HOME` environment
    variable.
 3. In the system `PATH`
@@ -838,11 +838,11 @@ be installed in this same directory on all [Hadoop] worker nodes.  By
 default, Crossbow searches the `PATH` and in the directory pointed to
 by the `CROSSBOW_HOME` environment variable.
 
-</td></tr><tr><td id="cb-hadoop-sra-toolkit">
+</td></tr><tr><td id="cb-hadoop-fastq-dump">
 
-[`--sra-toolkit`]: #cb-hadoop-sra-toolkit
+[`--fastq-dump`]: #cb-hadoop-fastq-dump
 
-    --sra-toolkit <path>
+    --fastq-dump <path>
 
 </td><td>
 
@@ -1066,11 +1066,11 @@ overrides all other ways that Crossbow searches for `bowtie`, including
 the `CROSSBOW_BOWTIE_HOME` environment variable, the subdirectories of
 the `$CROSSBOW_HOME/bin` directory, and the `PATH`.
 
-</td></tr><tr><td id="cb-local-sra-toolkit">
+</td></tr><tr><td id="cb-local-fastq-dump">
 
-[`--sra-toolkit`]: #cb-local-sra-toolkit
+[`--fastq-dump`]: #cb-local-fastq-dump
 
-    --sra-toolkit <path>
+    --fastq-dump <path>
 
 </td><td>
 
@@ -1908,10 +1908,10 @@ from these various types of sources.
 `.bz2` file extensions).  If [`.sra`] files are specified in the
 manifest and Crossbow is being run in single-computer or [Hadoop] modes,
 then the `fastq-dump` tool must be installed and Myrna must be able to
-locate it.  See the [`--sra-toolkit`] option and the [SRA Toolkit
+locate it.  See the [`--fastq-dump`] option and the [SRA Toolkit
 section of the manual].
 
-[SRA Toolkit section of the manual]: #the-sra-toolkit
+[SRA Toolkit section of the manual]: #the-fastq-dump
 
 Each line in the manifest file represents either one file, for unpaired
 input reads, or a pair of files, for paired input reads.  For a set of

@@ -22,7 +22,6 @@ our $s3cmd = "";
 our $s3cfg = "";
 our $hadoop_arg = "";
 our $hadoop = "";
-our $sra_conv_arg = "";
 our $sra_conv = "";
 our $samtools_arg = "";
 our $samtools = "";
@@ -68,14 +67,9 @@ sub samtools() { ensureSamtools(); return $samtools; }
 my $sraEnsured = 0;
 sub ensureSRAConvert() {
 	return if $sraEnsured;
-	$sra_conv = $sra_conv_arg if $sra_conv_arg ne "";
 	my $ret = system("$sra_conv -H >&2 >/dev/null") >> 8;
 	if($ret != 4) {
-		if($sra_conv_arg ne "") {
-			die "--sraconv argument \"$sra_conv\" doesn't exist or isn't executable\n";
-		} else {
-			die "fastq-dump could not be found in SRATOOLKIT_HOME or PATH; please specify --sraconv\n";
-		}
+	   die "fastq-dump could not be found in SRATOOLKIT_HOME or PATH; please specify --fastq-dump\n";
 	}
 	$sraEnsured = 1;
 }
@@ -270,15 +264,15 @@ sub initTools() {
 	#
 	# SRATOOLKIT_HOME
 	#
-
+	print STDERR "Initializing SRATOOLKIT_HOME\n";
 	if($pre ne "" && defined($ENV{"${pre}SRATOOLKIT_HOME"})) {
-		my $h = $ENV{"${pre}SRATOOLKIT_HOME"};
-		$sra_conv = "$h/fastq-dump";
-		unless(-x $sra_conv) { $sra_conv = "" };
+	    my $h = $ENV{"${pre}SRATOOLKIT_HOME"};
+	    $sra_conv = "$h/fastq-dump";
+	    unless(-x $sra_conv) { $sra_conv = "" };
 	}
 	elsif(defined($ENV{SRATOOLKIT_HOME})) {
-		$sra_conv = "$ENV{SRATOOLKIT_HOME}/fastq-dump";
-		unless(-x $sra_conv) { $sra_conv = "" };
+	    $sra_conv = "$ENV{SRATOOLKIT_HOME}/fastq-dump";
+	    unless(-x $sra_conv) { $sra_conv = "" };
 	}
 	if($sra_conv eq "") {
 		$sra_conv = `which fastq-dump 2>/dev/null`;
@@ -290,6 +284,8 @@ sub initTools() {
 		chomp($sra_conv);
 		unless(-x $sra_conv) { $sra_conv = "" };
 	}
+
+	print STDERR "In init sra_conv = $sra_conv \n";
 
 	#
 	# SAMTOOLS_HOME
