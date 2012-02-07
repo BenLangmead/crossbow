@@ -973,7 +973,7 @@ my $preprocessJson = qq!
   "Name": "Preprocess short reads",
   "ActionOnFailure": "$failAction",
   "HadoopJarStep": {
-    "Jar": "/home/hadoop/contrib/streaming/hadoop-$hadoopVersion-streaming.jar",
+    "Jar": "/home/hadoop/contrib/streaming/hadoop-streaming.jar",
     "Args": [
       "${conf}mapred.reduce.tasks=0",
       "-input",       "$inputPreproc",
@@ -1058,7 +1058,7 @@ my $alignJson = qq!
   "Name": "$APP Step 1: Align with Bowtie", 
   "ActionOnFailure": "$failAction", 
   "HadoopJarStep": { 
-    "Jar": "/home/hadoop/contrib/streaming/hadoop-$hadoopVersion-streaming.jar", 
+    "Jar": "/home/hadoop/contrib/streaming/hadoop-streaming.jar", 
     "Args": [ 
       "${conf}mapred.reduce.tasks=0",
       "-input",       "$inputAlign",
@@ -1147,7 +1147,7 @@ my $snpsJson = qq!
   "Name": "$APP Step 2: Call SNPs with SOAPsnp", 
   "ActionOnFailure": "$failAction", 
   "HadoopJarStep": { 
-    "Jar": "/home/hadoop/contrib/streaming/hadoop-$hadoopVersion-streaming.jar", 
+    "Jar": "/home/hadoop/contrib/streaming/hadoop-streaming.jar", 
     "Args": [
       "${conf}stream.num.map.output.key.fields=3",
       "${conf}$snpsPartitionConf",
@@ -1236,7 +1236,7 @@ my $countersJson = qq!
   "Name": "Get counters", 
   "ActionOnFailure": "$failAction", 
   "HadoopJarStep": { 
-    "Jar": "/home/hadoop/contrib/streaming/hadoop-$hadoopVersion-streaming.jar", 
+    "Jar": "/home/hadoop/contrib/streaming/hadoop-streaming.jar", 
     "Args": [ 
       "${conf}mapred.reduce.tasks=1",
       "-input",       "$inputDummy",
@@ -1264,7 +1264,7 @@ my $postprocJson = qq!
   "Name": "$APP Step 3: Postprocess", 
   "ActionOnFailure": "$failAction", 
   "HadoopJarStep": { 
-    "Jar": "/home/hadoop/contrib/streaming/hadoop-$hadoopVersion-streaming.jar", 
+    "Jar": "/home/hadoop/contrib/streaming/hadoop-streaming.jar", 
     "Args": [ 
       "${conf}stream.num.map.output.key.fields=2",
       "${conf}$postprocPartitionConf",
