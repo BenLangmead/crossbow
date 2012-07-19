@@ -1484,7 +1484,7 @@ if($dryrun) {
 	$msg->($ms) if $verbose;
 	$msg->("Running...\n");
 	open(CMDP, $pipe) || die "Could not open pipe '$pipe' for reading\n";
-	for my $line (<CMDP>) { $msg->($line); }
+	while(<CMDP>) { $msg->($_); }
 	close(CMDP);
 	$msg->("elastic-mapreduce script completed with exitlevel $?\n");
 }
