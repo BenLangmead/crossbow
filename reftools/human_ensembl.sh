@@ -51,8 +51,8 @@ source $CROSSBOW_HOME/reftools/shared.sh
 
 check_prereqs
 find_bowtie_build
-do_snps
 do_index $*
+do_snps
 do_jar
 
 cd ..
