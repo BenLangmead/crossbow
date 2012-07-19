@@ -1,5 +1,13 @@
 #!/usr/bin/perl -w
 
+##
+# ensembl_snps.pl
+#
+
+# To explore Ensembl SNP database version numbers do:
+#
+# $ mysql
+
 use strict;
 use warnings;
 use Getopt::Long;
@@ -8,7 +16,7 @@ use File::Path qw(mkpath);
 my $user = "anonymous";
 my $host = "ensembldb.ensembl.org";
 my $port = 5306;
-my $database = "homo_sapiens_variation_59_37d";
+my $database = "homo_sapiens_variation_47_36i";
 my $crossbowOut = ""; # output dir for Crossbow-style output
 my $crossbowCmap = ""; # Crossbow-style chromosome name map
 my $limit = 0;
