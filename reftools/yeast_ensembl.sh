@@ -24,7 +24,7 @@
 SUFFIX=$1
 shift
 ENSEMBL_VER=67
-ENSEMBL_SNP_VER=7
+ENSEMBL_SNP_VER=4
 ENSEMBL_PREFIX=Saccharomyces_cerevisiae.EF4.$ENSEMBL_VER
 ENSEMBL_ORGANISM=scerevisiae
 ENSEMBL_FTP=ftp://ftp.ensembl.org/pub/release-$ENSEMBL_VER/fasta/saccharomyces_cerevisiae/dna
