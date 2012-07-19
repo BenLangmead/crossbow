@@ -23,9 +23,9 @@
 
 SUFFIX=$1
 shift
-ENSEMBL_VER=59
-ENSEMBL_SNP_VER=21n
-ENSEMBL_PREFIX=Pan_troglodytes.CHIMP2.1.$ENSEMBL_VER
+ENSEMBL_VER=67
+ENSEMBL_SNP_VER=214
+ENSEMBL_PREFIX=Pan_troglodytes.CHIMP2.1.4.$ENSEMBL_VER
 ENSEMBL_ORGANISM=ptroglodytes
 ENSEMBL_FTP=ftp://ftp.ensembl.org/pub/release-$ENSEMBL_VER/fasta/pan_troglodytes/dna
 ENSEMBL_SNP_DB=pan_troglodytes_variation_${ENSEMBL_VER}_${ENSEMBL_SNP_VER}
@@ -42,13 +42,13 @@ BASE_CHRS="chromosome.1"
 while [ $i -lt 23 ] ; do
 	if [ $i -eq 2 ] ; then
 		# "Chromosome 2" comes in 2 parts
-		BASE_CHRS="$BASE_CHRS chromosome.2a chromosome.2b"
+		BASE_CHRS="$BASE_CHRS chromosome.2A chromosome.2B"
 	else
 		BASE_CHRS="$BASE_CHRS chromosome.$i"
 	fi
 	i=`expr $i + 1`
 done
-BASE_CHRS="$BASE_CHRS chromosome.X chromosome.Y chromosome.MT chromosome.M chromosome.Un nonchromosomal"
+BASE_CHRS="$BASE_CHRS chromosome.X chromosome.Y nonchromosomal"
 CHRS_TO_INDEX=$BASE_CHRS
 
 [ -z "$CROSSBOW_HOME" ] && echo "CROSSBOW_HOME not set" && exit 1

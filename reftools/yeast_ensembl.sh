@@ -23,9 +23,9 @@
 
 SUFFIX=$1
 shift
-ENSEMBL_VER=59
-ENSEMBL_SNP_VER=2a
-ENSEMBL_PREFIX=Saccharomyces_cerevisiae.EF2.$ENSEMBL_VER
+ENSEMBL_VER=67
+ENSEMBL_SNP_VER=7
+ENSEMBL_PREFIX=Saccharomyces_cerevisiae.EF4.$ENSEMBL_VER
 ENSEMBL_ORGANISM=scerevisiae
 ENSEMBL_FTP=ftp://ftp.ensembl.org/pub/release-$ENSEMBL_VER/fasta/saccharomyces_cerevisiae/dna
 ENSEMBL_SNP_DB=saccharomyces_cerevisiae_variation_${ENSEMBL_VER}_${ENSEMBL_SNP_VER}
@@ -38,7 +38,7 @@ cd $SIMPLE_NAME
 
 # Compose the list of fasta files to download
 BASE_CHRS=
-for i in 2-micron I II III IV IX Mito V VI VII VIII X XI XII XIII XIV XV XVI ; do
+for i in I II III IV IX Mito V VI VII VIII X XI XII XIII XIV XV XVI ; do
 	BASE_CHRS="$BASE_CHRS chromosome.$i"
 done
 CHRS_TO_INDEX=$BASE_CHRS

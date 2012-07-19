@@ -23,8 +23,8 @@
 
 SUFFIX=$1
 shift
-ENSEMBL_VER=59
-ENSEMBL_SNP_VER=37l
+ENSEMBL_VER=67
+ENSEMBL_SNP_VER=37
 ENSEMBL_PREFIX=Mus_musculus.NCBIM37.$ENSEMBL_VER
 ENSEMBL_ORGANISM=mmusculus
 ENSEMBL_FTP=ftp://ftp.ensembl.org/pub/release-$ENSEMBL_VER/fasta/mus_musculus/dna

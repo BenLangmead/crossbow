@@ -23,9 +23,9 @@
 
 SUFFIX=$1
 shift
-ENSEMBL_VER=59
-ENSEMBL_SNP_VER=525a
-ENSEMBL_PREFIX=Drosophila_melanogaster.BDGP5.25.$ENSEMBL_VER
+ENSEMBL_VER=67
+ENSEMBL_SNP_VER=539
+ENSEMBL_PREFIX=Drosophila_melanogaster.BDGP5.$ENSEMBL_VER
 ENSEMBL_ORGANISM=dmelanogaster
 ENSEMBL_FTP=ftp://ftp.ensembl.org/pub/release-$ENSEMBL_VER/fasta/drosophila_melanogaster/dna
 ENSEMBL_SNP_DB=drosophila_melanogaster_variation_${ENSEMBL_VER}_${ENSEMBL_SNP_VER}
