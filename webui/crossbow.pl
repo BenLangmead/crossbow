@@ -16,6 +16,7 @@ use CrossbowIface;
 use S3Util;
 use CGI::Carp qw(fatalsToBrowser);
 
+my $VERSION = "1.2.0";
 my $debugLev = 0;
 my $cgi  = CGI->new();
 my $ajax = CGI::Ajax->new(submitClicked  => \&submitClicked,
@@ -305,6 +306,7 @@ sub submitClicked {
 	}
 	push @as, "$clusterWait";
 	push @as, "--instances=$numNodes";
+	push @as, "--verbose";
 	push @as, "--instance-type=$instanceType";
 	
 	my $stdout = "";
@@ -320,6 +322,10 @@ sub submitClicked {
 		my $str = shift @_;
 		$stderr .= sprintf $str, @_;
 	};
+	if(!defined($ENV{HOME})) {
+		$stderr .= "Had to define HOME in myrna.pl\n";
+		$ENV{HOME} = "/var/www/cgi-bin";
+	}
 	CrossbowIface::crossbow(\@as, "crossbow.pl", "(no usage)", $stdoutf, $stdoutff, $stderrf, $stderrff);
 	
 	my $jobid = "";
@@ -468,6 +474,11 @@ div.nextButton:active{
 <div id="main"> 
 <div class="pagebreak"> 
 <table width="520" cellpadding="5" cellspacing="0">
+ <tr >
+  <td class="left" colspan=2>
+   <h2>Crossbow $VERSION</h2>
+  </td>
+ </tr>
  <tr >
   <td width="165" class="left" >
    <label >AWS ID <span class="required">*</span></label>
