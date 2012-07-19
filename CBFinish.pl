@@ -80,6 +80,7 @@ sub msg($) {
 }
 
 Tools::initTools();
+my %env = %ENV;
 
 GetOptions (
 	"output:s"        => \$output,
@@ -95,6 +96,8 @@ GetOptions (
 	"destdir:s"       => \$dest_dir,
 	"counters:s"      => \$cntfn) || dieusage("Bad option", 1);
 
+Tools::purgeEnv();
+
 $dest_dir = "." if $dest_dir eq "";
 
 msg("s3cmd: found: $Tools::s3cmd, given: $Tools::s3cmd_arg");
@@ -109,28 +112,6 @@ msg("Output dir: $output");
 msg("ls -al");
 msg(`ls -al`);
 
-
-#BEGIN James
-#remove counters
-#my %counters = ();
-#Counters::getCounters($cntfn, \%counters, \&msg, 1);
-#msg("Retrived ".scalar(keys %counters)." counters from previous stages\n");
-
-#remove entire environment
-foreach my $k (keys %ENV)
-{
-    next if $k =~ /^PATH$/;
-    next if $k =~ /^PWD$/;
-    next if $k =~ /^HOME$/;
-    next if $k =~ /^USER$/;
-    next if $k =~ /^TERM$/;
-
-    delete $ENV{$k};
-}
-
-$ENV{SHELL}="/bin/sh";
-#end James
-
 if($cmap_jar ne "") {
 	mkpath($dest_dir);
 	(-d $dest_dir) || die "-destdir $dest_dir does not exist or isn't a directory, and could not be created\n";
@@ -144,7 +125,7 @@ sub pushResult($) {
 	msg("Pushing $fn");
 	$output .= "/" unless $output =~ /\/$/;
 	if($output =~ /^s3/i) {
-		Get::do_s3_put($fn, $output, \@counterUpdates);
+		Get::do_s3_put($fn, $output, \@counterUpdates, \%env);
 	} elsif($output =~ /^hdfs/i) {
 		my $ret = Get::do_hdfs_put($fn, $output, \@counterUpdates);
 		if($ret != 0) {
@@ -176,7 +157,7 @@ sub loadCmap($) {
 
 if($cmap_jar ne "") {
 	msg("Ensuring cmap jar is installed");
-	Get::ensureFetched($cmap_jar, $dest_dir, \@counterUpdates);
+	Get::ensureFetched($cmap_jar, $dest_dir, \@counterUpdates, undef, undef, \%env);
 	push @counterUpdates, "Postprocess,Calls to ensureJar,1";
 	$cmap_file = "$dest_dir/cmap.txt";
 	msg("Examining extracted files");

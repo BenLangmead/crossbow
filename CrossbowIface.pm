@@ -108,9 +108,9 @@ our $cores = 0;
 our $dontForce = 0;
 our $bowtie = "";
 our $samtools = "";
-our $sra = "";
+our $fastq_dump = "";
 our $useSamtools = 0;
-our $useSraToolkit = 0;
+our $useFastqDump = 0;
 our $soapsnp = "";
 our $externalSort = 0;
 our $maxSortRecords = 800000;
@@ -353,7 +353,7 @@ GetOptions (
 	"no-overwrite"              => \$dontForce,
 	"bowtie:s"                  => \$bowtie,
 	"samtools:s"                => \$samtools,
-	"fastq-dump:s"              => \$sra,
+	"fastq-dump:s"              => \$fastq_dump,
 	"soapsnp:s"                 => \$soapsnp,
 	"external-sort"             => \$externalSort,
 # Hadoop job params
@@ -460,8 +460,8 @@ our %instTypeBitsMap = (
 #
 sub partitionConf($) {
 	my $binFields = shift;
-	my @vers = split(/\./, $hadoopVersion);
-	scalar(@vers >= 2) || die "Could not parse Hadoop version: \"$hadoopVersion\"\n";
+	my @vers = split(/[^0-9]+/, $hadoopVersion);
+	scalar(@vers) >= 2 && scalar(@vers <= 4) || die "Could not parse Hadoop version: \"$hadoopVersion\"\n";
 	my ($hadoopMajorVer, $hadoopMinorVer) = ($vers[0], $vers[1]);
 	my $hadoop18Partition = "num.key.fields.for.partition=$binFields";
 	my $hadoop19Partition = "mapred.text.key.partitioner.options=-k1,$binFields";
@@ -476,8 +476,8 @@ sub partitionConf($) {
 # was -jobconf; in newer versions, it's -D.
 #
 sub confParam() {
-	my @vers = split(/\./, $hadoopVersion);
-	scalar(@vers >= 2) || die "Could not parse Hadoop version: \"$hadoopVersion\"\n";
+	my @vers = split(/[^0-9]+/, $hadoopVersion);
+	scalar(@vers) >= 2 && scalar(@vers <= 4) || die "Could not parse Hadoop version: \"$hadoopVersion\"\n";
 	my ($hadoopMajorVer, $hadoopMinorVer) = ($vers[0], $vers[1]);
 	if($hadoopMajorVer == 0 && $hadoopMinorVer < 19) {
 		return "-jobconf\", \"";
@@ -489,8 +489,8 @@ sub confParam() {
 # Return the parameter used to ask streaming Hadoop to cache a file.
 #
 sub cacheFile() {
-	my @vers = split(/\./, $hadoopVersion);
-	scalar(@vers >= 2) || die "Could not parse Hadoop version: \"$hadoopVersion\"\n";
+	my @vers = split(/[^0-9]+/, $hadoopVersion);
+	scalar(@vers) >= 2 && scalar(@vers <= 4) || die "Could not parse Hadoop version: \"$hadoopVersion\"\n";
 	my ($hadoopMajorVer, $hadoopMinorVer) = ($vers[0], $vers[1]);
 	#if($hadoopMajorVer == 0 && $hadoopMinorVer < 19) {
 		return "-cacheFile";
@@ -507,7 +507,7 @@ sub instanceTypeBits($) {
 	return $instTypeBitsMap{$_[0]};
 }
 
-$hadoopVersion = "0.20" if !defined($hadoopVersion) || $hadoopVersion eq "";
+$hadoopVersion = "0.20.205" if !defined($hadoopVersion) || $hadoopVersion eq "";
 my $appDir = "$app-emr/$VERSION";
 $accessKey = $ENV{AWS_ACCESS_KEY_ID} if
 	$accessKey eq "" && $awsEnv && defined($ENV{AWS_ACCESS_KEY_ID});
@@ -654,7 +654,7 @@ $lastStage ne "" || die;
 my $numStages = 0;
 for my $k (keys %stages) { $numStages += $stages{$k}; }
 
-$useSraToolkit = $stages{preprocess};
+$useFastqDump = $stages{preprocess};
 $useSamtools = $stages{align} && 0;
 my $useBowtie = $stages{align};
 my $sraToolkit = $stages{preprocess};
@@ -663,26 +663,26 @@ my $pre = "CROSSBOW_";
 $bowtie   =~ s/^~/$ENV{HOME}/;
 $samtools =~ s/^~/$ENV{HOME}/;
 $soapsnp  =~ s/^~/$ENV{HOME}/;
-$sra      =~ s/^~/$ENV{HOME}/;
+$fastq_dump =~ s/^~/$ENV{HOME}/;
 if($test) {
 	$verbose = 1;
 	my $failed = 0;
 	if($localJob || $hadoopJob) {
 		# Check for binaries
-		$bowtie   = checkExe($bowtie,   "bowtie",    "${pre}BOWTIE_HOME",     "",    "--bowtie"  ,    0);
-		$samtools = checkExe($samtools, "samtools",  "${pre}SAMTOOLS_HOME",   "",    "--samtools",    0) if $useSamtools;
-		$soapsnp  = checkExe($soapsnp,  "soapsnp",   "${pre}SOAPSNP_HOME",    "",    "--soapsnp" ,    0);
-		$sra      = checkExe($sra,      "fastq-dump","${pre}SRATOOLKIT_HOME", "",    "--fastq-dump", 0, 4);
+		$bowtie     = checkExe($bowtie,     "bowtie",    "${pre}BOWTIE_HOME",     "",    "--bowtie"  ,    0);
+		$samtools   = checkExe($samtools,   "samtools",  "${pre}SAMTOOLS_HOME",   "",    "--samtools",    0) if $useSamtools;
+		$soapsnp    = checkExe($soapsnp,    "soapsnp",   "${pre}SOAPSNP_HOME",    "",    "--soapsnp" ,    0);
+		$fastq_dump = checkExe($fastq_dump, "fastq-dump","${pre}SRATOOLKIT_HOME", "",    "--fastq-dump",  0, 4);
 		$msg->("Summary:\n");
 		$msgf->("  bowtie: %s\n",     ($bowtie   ne "" ? "INSTALLED at $bowtie"   : "NOT INSTALLED"));
 		$msgf->("  samtools: %s\n",   ($samtools ne "" ? "INSTALLED at $samtools" : "NOT INSTALLED")) if $useSamtools;
 		$msgf->("  soapsnp: %s\n",    ($soapsnp  ne "" ? "INSTALLED at $soapsnp"  : "NOT INSTALLED"));
-		$msgf->("  fastq-dump: %s\n", ($sra      ne "" ? "INSTALLED at $sra"      : "NOT INSTALLED"));
+		$msgf->("  fastq-dump: %s\n", ($fastq_dump ne "" ? "INSTALLED at $fastq_dump"       : "NOT INSTALLED")) if $useFastqDump;
 		$msg->("Hadoop note: executables must be runnable via the SAME PATH on all nodes.\n") if $hadoopJob;
 		$failed = $bowtie eq "" || ($useSamtools && $samtools eq "") || $soapsnp eq ""; #|| $sra eq ""; 
 		if($failed) {
 			$msg->("FAILED install test\n");
-		} elsif($sra eq "") {
+		} elsif($fastq_dump eq "") {
 			$msg->("PASSED WITH ***WARNING***: SRA toolkit fastq-dump not found; .sra inputs won't work but others will\n");
 		} else {
 			$msg->("PASSED install test\n");
@@ -698,13 +698,13 @@ if($test) {
 }
 if($localJob || $hadoopJob) {
 	# Check for binaries
-	$bowtie    = checkExe($bowtie,   "bowtie",     "${pre}BOWTIE_HOME",     "",    "--bowtie"  ,    1) if $useBowtie;
-	$samtools  = checkExe($samtools, "samtools",   "${pre}SAMTOOLS_HOME",   "",    "--samtools",    1) if $useSamtools;
-	$soapsnp   = checkExe($soapsnp,  "soapsnp",    "${pre}SOAPSNP_HOME",    "",    "--soapsnp" ,    1) if $useSoapsnp;
-	$sra       = checkExe($sra,      "fastq-dump", "${pre}SRATOOLKIT_HOME", "",    "--fastq-dump", 0, 4) if $useSraToolkit;
-	if($sra eq "") {
+	$bowtie     = checkExe($bowtie,     "bowtie",     "${pre}BOWTIE_HOME",     "",    "--bowtie"  ,      1) if $useBowtie;
+	$samtools   = checkExe($samtools,   "samtools",   "${pre}SAMTOOLS_HOME",   "",    "--samtools",      1) if $useSamtools;
+	$soapsnp    = checkExe($soapsnp,    "soapsnp",    "${pre}SOAPSNP_HOME",    "",    "--soapsnp" ,      1) if $useSoapsnp;
+	$fastq_dump = checkExe($fastq_dump, "fastq-dump", "${pre}SRATOOLKIT_HOME", "",    "--fastq-dump", 0, 4) if $useFastqDump;
+	if($fastq_dump eq "") {
 		print STDERR "***WARNING***\n";
-		print STDERR "***WARNING***: SRA toolkit fastq-dump not found; .sra inputs won't work but others will\n";
+		print STDERR "***WARNING***: fastq-dump not found; .sra inputs won't work but others will\n";
 		print STDERR "***WARNING***\n";
 	}
 } else {
@@ -735,13 +735,20 @@ if(!$hadoopJob && !$localJob) {
 		$emrArgs .= " " if ($emrArgs ne "" && $emrArgs !~ /\s$/);
 		$emrArgs .= "--log-uri $logs ";
 	}
-	if($hadoopVersion ne "0.20") {
-		if($hadoopVersion ne "0.18") {
-			print STDERR "Error: Expected hadoop version 0.18 or 0.20, got $hadoopVersion\n";
-			exit 1;
-		}
+	my @vers = split(/[^0-9]+/, $hadoopVersion);
+	if($vers[0] < 1 && $vers[1] < 20) {
+		die "Error: Myrna not compatible with Hadoop versions before 0.20";
+	}
+	scalar(@vers) >= 2 && scalar(@vers <= 4) || die "Could not parse Hadoop version: \"$hadoopVersion\"\n";
+	if     ($vers[0] == 0 && $vers[1] == 20 && scalar(@vers) > 2 && $vers[2] == 205) {
 		$emrArgs .= " " if ($emrArgs ne "" && $emrArgs !~ /\s$/);
-		$emrArgs .= "--hadoop-version=0.18 ";
+		$emrArgs .= "--hadoop-version=0.20.205 --ami-version 2.0 ";
+	} elsif($vers[0] == 0 && $vers[1] == 20) {
+		$emrArgs .= " " if ($emrArgs ne "" && $emrArgs !~ /\s$/);
+		$emrArgs .= "--hadoop-version=0.20 --ami-version 1.0 ";
+	} else {
+		print STDERR "Error: Expected Hadoop version 0.20 or 0.20.205, got $hadoopVersion\n";
+		exit 1;
 	}
 }
 my $intermediateSet = ($intermediate ne "" || $intermediateLocal ne "");
@@ -882,7 +889,16 @@ if(!$localJob && !$hadoopJob) {
 		$hadoopHome = `dirname $hadoopHome`;
 		chomp($hadoopHome);
 		$hadoopStreamingJar = "";
-		my @hadoopStreamingJars = <$hadoopHome/contrib/streaming/hadoop-*-streaming.jar>;
+		my @hadoopStreamingJars;
+		@hadoopStreamingJars = <$hadoopHome/contrib/streaming/hadoop-*-streaming.jar>;
+		if(scalar(@hadoopStreamingJars) == 0) {
+			# Alternate naming scheme
+			@hadoopStreamingJars = <$hadoopHome/contrib/streaming/hadoop-streaming-*.jar>;
+		}
+		if(scalar(@hadoopStreamingJars) == 0) {
+			# Alternate naming scheme
+			@hadoopStreamingJars = <$hadoopHome/contrib/streaming/hadoop-streaming.jar>;
+		}
 		$hadoopStreamingJar = $hadoopStreamingJars[0] if scalar(@hadoopStreamingJars) > 0;
 	} else {
 		$hadoopStreamingJar = $hadoopStreamingJar_arg;
@@ -894,9 +910,14 @@ if(!$localJob && !$hadoopJob) {
 			die "Cannot find streaming jar in $hadoopHome/contrib/streaming; please specify --streaming-jar\n";
 		}
 	}
-	$hadoopStreamingJar =~ /hadoop-([^\/\\]*)-streaming.jar/;
-	$hadoopVersion = $1;
-	$hadoopVersion =~ s/\+.*$//; # trim patch indicator
+	$hadoopStreamingJar =~ /hadoop-(.*)-streaming\.jar$/; $hadoopVersion = $1;
+	if(!defined($hadoopVersion)) {
+		# Alternate naming scheme
+		$hadoopStreamingJar =~ /hadoop-streaming-(.*)\.jar$/; $hadoopVersion = $1;
+	}
+	defined($hadoopVersion) || die "Could not parse streaming jar name: $hadoopStreamingJar";
+	# Hadoop version might be as simlpe as 0.20 or as complex as 0.20.2+737
+	$emsg->("Detected Hadoop version '$hadoopVersion'") if $verbose;
 } elsif($localJob) {
 	system("sort < /dev/null") == 0 || die "Could not invoke 'sort'; is it in the PATH?\n";
 }
@@ -905,6 +926,7 @@ if(!$localJob && !$hadoopJob) {
 my $bowtie_arg = "";
 my $samtools_arg = "";
 my $soapsnp_arg = "";
+my $fastq_dump_arg = "";
 if($localJob || $hadoopJob) {
 	if($useSamtools) {
 		$samtools ne "" || die;
@@ -923,6 +945,18 @@ if($localJob || $hadoopJob) {
 		$msg->("$APP expects 'soapsnp' to be at path $soapsnp on the workers\n") if $hadoopJob;
 		$soapsnp_arg = "--soapsnp $soapsnp";
 	}
+	
+	if($useFastqDump) {
+		$fastq_dump ne "" || die;
+		$msg->("$APP expects 'fastq-dump' to be at path $fastq_dump on the workers\n") unless $localJob;
+		$fastq_dump_arg = "--fastq-dump $fastq_dump";
+	}
+}
+
+# Set up name of streaming jar for EMR mode
+my $emrStreamJar = "/home/hadoop/contrib/streaming/hadoop-streaming-$hadoopVersion.jar";
+if($hadoopVersion eq "0.20" || $hadoopVersion eq "0.18") {
+	$emrStreamJar = "/home/hadoop/contrib/streaming/hadoop-$hadoopVersion-streaming.jar";
 }
 
 # Set up some variables to save us some typing:
@@ -959,10 +993,6 @@ $preprocArgs .= " --maxperfile=$preprocMax";
 $preprocArgs .= " --s";
 $preprocArgs .= " --push=$outputPreprocUpper";
 
-$preprocArgs .= " --fastq-dump=$sra" if ($sra ne "");
-
-
-
 my $samtoolsCacheFiles = qq!"$cachef",   "s3n://$appDir/samtools$bits#samtools"!;
 my $sraCacheFiles      = qq!"$cachef",   "s3n://$appDir/fastq-dump$bits#fastq-dump"!;
 
@@ -973,7 +1003,7 @@ my $preprocessJson = qq!
   "Name": "Preprocess short reads",
   "ActionOnFailure": "$failAction",
   "HadoopJarStep": {
-    "Jar": "/home/hadoop/contrib/streaming/hadoop-streaming.jar",
+    "Jar": "$emrStreamJar",
     "Args": [
       "${conf}mapred.reduce.tasks=0",
       "-input",       "$inputPreproc",
@@ -994,13 +1024,12 @@ echo ==========================
 date
 $hadoop jar $hadoopStreamingJar \\
 	-D mapred.reduce.tasks=0 \\
-        -D mapred.job.name='Preprocess $inputPreproc' \\
+	-D mapred.job.name='Preprocess $inputPreproc' \\
 	-input $inputPreproc \\
 	-output $outputPreproc \\
-	-mapper '$Bin/Copy.pl $samtools_arg $preprocArgs' \\
+	-mapper '$Bin/Copy.pl $samtools_arg $fastq_dump_arg $preprocArgs' \\
 	$hadoopCacheFiles \\
-	-inputformat org.apache.hadoop.mapred.lib.NLineInputFormat 
-
+	-inputformat org.apache.hadoop.mapred.lib.NLineInputFormat
 
 [ \$? -ne 0 ] && echo "Non-zero exitlevel from Preprocess stage" && exit 1
 phase=`expr \$phase + 1`
@@ -1024,6 +1053,7 @@ perl $Bin/MapWrap.pl \\
 			--compress=$preprocCompress \\
 			--stop=$preprocStop \\
 			--maxperfile $preprocMax \\
+			$fastq_dump_arg \\
 			--push $outputPreproc \\
 			--counters ${output}_counters/counters.txt
 
@@ -1058,7 +1088,7 @@ my $alignJson = qq!
   "Name": "$APP Step 1: Align with Bowtie", 
   "ActionOnFailure": "$failAction", 
   "HadoopJarStep": { 
-    "Jar": "/home/hadoop/contrib/streaming/hadoop-streaming.jar", 
+    "Jar": "$emrStreamJar", 
     "Args": [ 
       "${conf}mapred.reduce.tasks=0",
       "-input",       "$inputAlign",
@@ -1077,7 +1107,7 @@ echo ==========================
 date
 $hadoop jar $hadoopStreamingJar \\
 	-D mapred.reduce.tasks=0 \\
-        -D mapred.job.name='Align $inputAlign' \\
+	-D mapred.job.name='Align $inputAlign' \\
 	-input $inputAlign \\
 	-output $outputAlign \\
 	-mapper '$Bin/Align.pl $bowtie_arg $alignArgs' \\
@@ -1147,7 +1177,7 @@ my $snpsJson = qq!
   "Name": "$APP Step 2: Call SNPs with SOAPsnp", 
   "ActionOnFailure": "$failAction", 
   "HadoopJarStep": { 
-    "Jar": "/home/hadoop/contrib/streaming/hadoop-streaming.jar", 
+    "Jar": "$emrStreamJar", 
     "Args": [
       "${conf}stream.num.map.output.key.fields=3",
       "${conf}$snpsPartitionConf",
@@ -1236,7 +1266,7 @@ my $countersJson = qq!
   "Name": "Get counters", 
   "ActionOnFailure": "$failAction", 
   "HadoopJarStep": { 
-    "Jar": "/home/hadoop/contrib/streaming/hadoop-streaming.jar", 
+    "Jar": "$emrStreamJar", 
     "Args": [ 
       "${conf}mapred.reduce.tasks=1",
       "-input",       "$inputDummy",
@@ -1264,7 +1294,7 @@ my $postprocJson = qq!
   "Name": "$APP Step 3: Postprocess", 
   "ActionOnFailure": "$failAction", 
   "HadoopJarStep": { 
-    "Jar": "/home/hadoop/contrib/streaming/hadoop-streaming.jar", 
+    "Jar": "$emrStreamJar", 
     "Args": [ 
       "${conf}stream.num.map.output.key.fields=2",
       "${conf}$postprocPartitionConf",
@@ -1402,23 +1432,22 @@ if(!$localJob && !$hadoopJob) {
 }
 $name =~ s/"//g;
 (defined($emrScript) && $emrScript ne "") || $localJob || $hadoopJob || die;
-my $cmdJson = qq!$emrScript \\
-    $credentials \\
-    --create \\
-    $emrArgs \\
-    --name "$name" \\
-    --num-instances $numNodes \\
-    --instance-type $instType \\
-    --json $jsonFile \\
-    --bootstrap-action s3://elasticmapreduce/bootstrap-actions/configurations/latest/memory-intensive \\
-    --bootstrap-name "Set memory-intensive mode" \\
-    --bootstrap-action s3://elasticmapreduce/bootstrap-actions/configure-hadoop \\
-    --bootstrap-name "Configure Hadoop" \\
-      --args "-s,mapred.job.reuse.jvm.num.tasks=1,-s,mapred.tasktracker.reduce.tasks.maximum=$cores,-s,io.sort.mb=100" \\
-    --bootstrap-action s3://elasticmapreduce/bootstrap-actions/add-swap \\
-    --bootstrap-name "Add Swap" \\
-      --args "$swap"
-!;
+my $cmdJson = "$emrScript ".
+    "--create ".
+    "$credentials ".
+    "$emrArgs ".
+    "--name \"$name\" ".
+    "--num-instances $numNodes ".
+    "--instance-type $instType ".
+    "--json $jsonFile ".
+    "--bootstrap-action s3://elasticmapreduce/bootstrap-actions/configurations/latest/memory-intensive ".
+    "--bootstrap-name \"Set memory-intensive mode\" ".
+    "--bootstrap-action s3://elasticmapreduce/bootstrap-actions/configure-hadoop ".
+    "--bootstrap-name \"Configure Hadoop\" ".
+    "--args \"-s,mapred.job.reuse.jvm.num.tasks=1,-s,mapred.tasktracker.reduce.tasks.maximum=$cores,-s,io.sort.mb=100\" ".
+    "--bootstrap-action s3://elasticmapreduce/bootstrap-actions/add-swap ".
+    "--bootstrap-name \"Add Swap\" ".
+    "--args \"$swap\"";
 
 my $cmdSh = "sh $runLocalFile";
 my $cmdHadoop = "sh $runHadoopFile";
@@ -1440,18 +1469,24 @@ $msg->("Hadoop streaming commands in: $runHadoopFile\n") if $hadoopJob;
 if($dryrun) {
 	$msg->("Exiting without running command because of --dryrun\n");
 } else {
-	$msg->("Running...\n");
+	my $ms = "";
 	my $pipe;
 	if($localJob) {
 		$pipe = "$cmdSh 2>&1 |";
+		$ms .= "$cmdSh\n" if $verbose;
 	} elsif($hadoopJob) {
 		$pipe = "$cmdHadoop 2>&1 |";
+		$ms .= "$cmdHadoop\n" if $verbose;
 	} else {
 		$pipe = "$cmdJson 2>&1 |";
+		$ms .= "$cmdJson\n" if $verbose;
 	}
+	$msg->($ms) if $verbose;
+	$msg->("Running...\n");
 	open(CMDP, $pipe) || die "Could not open pipe '$pipe' for reading\n";
-	while(<CMDP>) { $msg->($_); }
+	for my $line (<CMDP>) { $msg->($line); }
 	close(CMDP);
+	$msg->("elastic-mapreduce script completed with exitlevel $?\n");
 }
 $msg->("$warnings warnings\n") if $warnings > 0;
 

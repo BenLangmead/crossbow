@@ -14,7 +14,7 @@ use AWS;
 use FindBin qw($Bin);
 
 # Prefix to use for environment variables.  E.g. in Myrna, we dont look for
-# MYRNA_SRATOOLKIT_HOME before we look for SRATOOLKIT_HOME.
+# MYRNA_FASTQ_DUMP_HOME before we look for FASTQ_DUMP_HOME.
 our $pre = "";
 
 our $s3cmd_arg = "";
@@ -22,17 +22,23 @@ our $s3cmd = "";
 our $s3cfg = "";
 our $hadoop_arg = "";
 our $hadoop = "";
-our $sra_conv = "";
+our $fastq_dump_arg = "";
+our $fastq_dump = "";
+our $soapsnp_arg = "";
+our $soapsnp = "";
 our $samtools_arg = "";
 our $samtools = "";
+our $bowtie_arg = "";
+our $bowtie = "";
 our $jar = "";
 our $jar_arg = "";
 our $wget = "";
 our $wget_arg = "";
 our $md5 = "";
 our $md5_arg = "";
+our $r = "";
+our $r_arg = "";
 our $unzip = "";
-my $r = "";
 
 my $hadoopEnsured = 0;
 sub ensureHadoop() {
@@ -49,6 +55,38 @@ sub ensureHadoop() {
 }
 sub hadoop() { ensureHadoop(); return $hadoop; }
 
+# Bowtie
+my $bowtieEnsured = 0;
+sub ensureBowtie() {
+	return if $bowtieEnsured;
+	$bowtie = $bowtie_arg if $bowtie_arg ne "";
+	if(! -x $bowtie) {
+		if($bowtie_arg ne "") {
+			die "--bowtie argument \"$bowtie\" doesn't exist or isn't executable\n";
+		} else {
+			die "bowtie could not be found in BOWTIE_HOME or PATH; please specify --bowtie\n";
+		}
+	}
+	$bowtieEnsured = 1;
+}
+sub bowtie() { ensureBowtie(); return $bowtie; }
+
+# SOAPsnp
+my $soapsnpEnsured = 0;
+sub ensureSoapsnp() {
+	return if $soapsnpEnsured;
+	$soapsnp = $soapsnp_arg if $soapsnp_arg ne "";
+	if(! -x $soapsnp) {
+		if($soapsnp_arg ne "") {
+			die "--soapsnp argument \"$soapsnp\" doesn't exist or isn't executable\n";
+		} else {
+			die "soapsnp could not be found in SOAPSNP_HOME or PATH; please specify --soapsnp\n";
+		}
+	}
+	$soapsnpEnsured = 1;
+}
+sub soapsnp() { ensureSoapsnp(); return $soapsnp; }
+
 my $samtoolsEnsured = 0;
 sub ensureSamtools() {
 	return if $samtoolsEnsured;
@@ -64,22 +102,31 @@ sub ensureSamtools() {
 }
 sub samtools() { ensureSamtools(); return $samtools; }
 
-my $sraEnsured = 0;
-sub ensureSRAConvert() {
-	return if $sraEnsured;
-	my $ret = system("$sra_conv -H >&2 >/dev/null") >> 8;
-	if($ret != 4) {
-	   die "fastq-dump could not be found in SRATOOLKIT_HOME or PATH; please specify --fastq-dump\n";
+my $fqdumpEnsured = 0;
+sub ensureFastqDump() {
+	return if $fqdumpEnsured;
+	$fastq_dump = $fastq_dump_arg if $fastq_dump_arg ne "";
+	my $ret = 0;
+	if($fastq_dump ne "") {
+		$ret = system("$fastq_dump -H >&2 >/dev/null") >> 8;
 	}
-	$sraEnsured = 1;
+	if($ret != 4) {
+		if($fastq_dump_arg ne "") {
+			die "--fastq-dump argument \"$fastq_dump\" doesn't exist or isn't executable\n";
+		} else {
+			die "fastq-dump could not be found in FASTQ_DUMP_HOME or PATH; please specify --fastq-dump\n";
+		}
+	}
+	$fqdumpEnsured = 1;
 }
-sub sra() { ensureSRAConvert(); return $sra_conv; }
+sub fastq_dump() { ensureFastqDump(); return $fastq_dump; }
 
 ##
 # Write a temporary s3cfg file with appropriate keys.
 #
-sub writeS3cfg() {
-	AWS::ensureKeys($hadoop, $hadoop_arg);
+sub writeS3cfg($) {
+	my ($env) = @_;
+	AWS::ensureKeys($hadoop, $hadoop_arg, $env);
 	my $cfgText = qq{
 [default]
 access_key = $AWS::accessKey
@@ -115,7 +162,8 @@ verbosity = WARNING
 }
 
 my $s3cmdEnsured = 0;
-sub ensureS3cmd() {
+sub ensureS3cmd($) {
+	my ($env) = @_;
 	return if $s3cmdEnsured;
 	$s3cmd = $s3cmd_arg if $s3cmd_arg ne "";
 	if(system("$s3cmd --version >&2") != 0) {
@@ -126,12 +174,12 @@ sub ensureS3cmd() {
 		}
 	}
 	if($s3cfg eq "") {
-		writeS3cfg() unless -f ".s3cfg";
+		writeS3cfg($env) unless -f ".s3cfg";
 		$s3cfg = ".s3cfg";
 	}
 	$s3cmdEnsured = 1;
 }
-sub s3cmd() { ensureS3cmd(); return "$s3cmd -c $s3cfg"; }
+sub s3cmd($) { ensureS3cmd($_[0]); return "$s3cmd -c $s3cfg"; }
 
 my $md5Ensured = 0;
 sub ensureMd5() {
@@ -178,6 +226,22 @@ sub ensureJar() {
 }
 sub jar() { ensureJar(); return $jar; }
 
+# Rscript
+my $rscriptEnsured = 0;
+sub ensureRscript() {
+	return if $rscriptEnsured;
+	$r = $r_arg if $r_arg ne "";
+	if(! -x $r) {
+		if($r_arg ne "") {
+			die "--R argument \"$r_arg\" doesn't exist or isn't executable\n";
+		} else {
+			die "Rscript could not be found in R_HOME or PATH; please specify --R\n";
+		}
+	}
+	$rscriptEnsured = 1;
+}
+sub Rscript() { ensureRscript(); return $r; }
+
 sub unzip(){ return $unzip; }
 
 sub initTools() {
@@ -197,7 +261,7 @@ sub initTools() {
 	}
 	
 	#
-	# JAVA_HOME
+	# jar
 	#
 	
 	if($pre ne "" && defined($ENV{"${pre}JAVA_HOME"})) {
@@ -224,7 +288,7 @@ sub initTools() {
 
 	
 	#
-	# S3CMD_HOME
+	# s3cmd
 	#
 
 	if($pre ne "" && defined($ENV{"${pre}S3CMD_HOME"})) {
@@ -243,7 +307,7 @@ sub initTools() {
 	}
 
 	#
-	# HADOOP_HOME
+	# hadoop
 	#
 
 	if($pre ne "" && defined($ENV{"${pre}HADOOP_HOME"})) {
@@ -262,33 +326,80 @@ sub initTools() {
 	}
 
 	#
-	# SRATOOLKIT_HOME
+	# fastq-dump
 	#
-	print STDERR "Initializing SRATOOLKIT_HOME\n";
-	if($pre ne "" && defined($ENV{"${pre}SRATOOLKIT_HOME"})) {
-	    my $h = $ENV{"${pre}SRATOOLKIT_HOME"};
-	    $sra_conv = "$h/fastq-dump";
-	    unless(-x $sra_conv) { $sra_conv = "" };
+	if($pre ne "" && defined($ENV{"${pre}FASTQ_DUMP_HOME"})) {
+		my $h = $ENV{"${pre}FASTQ_DUMP_HOME"};
+		$fastq_dump = "$h/fastq-dump";
+		unless(-x $fastq_dump) { $fastq_dump = "" };
 	}
-	elsif(defined($ENV{SRATOOLKIT_HOME})) {
-	    $sra_conv = "$ENV{SRATOOLKIT_HOME}/fastq-dump";
-	    unless(-x $sra_conv) { $sra_conv = "" };
+	elsif(defined($ENV{FASTQ_DUMP_HOME})) {
+		$fastq_dump = "$ENV{FASTQ_DUMP_HOME}/fastq-dump";
+		unless(-x $fastq_dump) { $fastq_dump = "" };
 	}
-	if($sra_conv eq "") {
-		$sra_conv = `which fastq-dump 2>/dev/null`;
-		chomp($sra_conv);
-		unless(-x $sra_conv) { $sra_conv = "" };
+	if($fastq_dump eq "") {
+		$fastq_dump = `which fastq-dump 2>/dev/null`;
+		chomp($fastq_dump);
+		unless(-x $fastq_dump) { $fastq_dump = "" };
 	}
-	if($sra_conv eq "") {
-		$sra_conv = "./fastq-dump";
-		chomp($sra_conv);
-		unless(-x $sra_conv) { $sra_conv = "" };
+	if($fastq_dump eq "") {
+		$fastq_dump = "./fastq-dump";
+		chomp($fastq_dump);
+		unless(-x $fastq_dump) { $fastq_dump = "" };
 	}
 
-	print STDERR "In init sra_conv = $sra_conv \n";
+	#
+	# bowtie
+	#
+
+	if($pre ne "" && defined($ENV{"${pre}BOWTIE_HOME"})) {
+		my $h = $ENV{"${pre}BOWTIE_HOME"};
+		$bowtie = "$h/bowtie";
+		unless(-x $bowtie) { $bowtie = "" };
+	}
+	elsif(defined($ENV{BOWTIE_HOME})) {
+		$bowtie = "$ENV{BOWTIE_HOME}/bowtie";
+		unless(-x $bowtie) { $bowtie = "" };
+	}
+	if($bowtie eq "") {
+		$bowtie = `which bowtie 2>/dev/null`;
+		chomp($bowtie);
+		unless(-x $bowtie) { $bowtie = "" };
+	}
+	if($bowtie eq "" && -f "./bowtie") {
+		$bowtie = "./bowtie";
+		chomp($bowtie);
+		chmod 0777, $bowtie;
+		unless(-x $bowtie) { $bowtie = "" };
+	}
 
 	#
-	# SAMTOOLS_HOME
+	# soapsnp
+	#
+
+	if($pre ne "" && defined($ENV{"${pre}SOAPSNP_HOME"})) {
+		my $h = $ENV{"${pre}SOAPSNP_HOME"};
+		$soapsnp = "$h/soapsnp";
+		unless(-x $soapsnp) { $soapsnp = "" };
+	}
+	elsif(defined($ENV{SOAPSNP_HOME})) {
+		$soapsnp = "$ENV{SOAPSNP_HOME}/soapsnp";
+		unless(-x $soapsnp) { $soapsnp = "" };
+	}
+	if($soapsnp eq "") {
+		$soapsnp = `which soapsnp 2>/dev/null`;
+		chomp($soapsnp);
+		unless(-x $soapsnp) { $soapsnp = "" };
+	}
+	if($soapsnp eq "" && -f "./soapsnp") {
+		$soapsnp = "./soapsnp";
+		chomp($soapsnp);
+		chmod 0777, $soapsnp;
+		unless(-x $soapsnp) { $soapsnp = "" };
+	}
+
+	#
+	# samtools
 	#
 
 	if($pre ne "" && defined($ENV{"${pre}SAMTOOLS_HOME"})) {
@@ -312,7 +423,7 @@ sub initTools() {
 	}
 
 	#
-	# R_HOME
+	# Rscript
 	#
 
 	if($pre ne "" && defined($ENV{"${pre}R_HOME"})) {
@@ -333,6 +444,7 @@ sub initTools() {
 		$r = "Rscript";
 	}
 	
+	# md5/md5sum, for checking integrity of downloaded files
 	$md5 = `which md5 2>/dev/null`;
 	chomp($md5);
 	$md5 = "" unless(-x $md5);
@@ -342,10 +454,12 @@ sub initTools() {
 		$md5 = "" unless(-x $md5);
 	}
 	
+	# wget, for downloading files over http or ftp
 	$wget = `which wget 2>/dev/null`;
 	chomp($wget);
 	unless(-x $wget) { $wget = "" };
 	
+	# expand s3cmd if it's present
 	if(-f "s3cmd.tar.gz") {
 		system("tar zxvf s3cmd.tar.gz >/dev/null");
 	}
@@ -370,6 +484,24 @@ sub lookFor($$$) {
 	}
 	$tool = "./$exe" if ($tool eq "" && -x "./$exe");
 	return $tool;
+}
+
+##
+# Purge the environment down to a few essentials.  This fixes an issue
+# whereby some environment changes made by hadoop.sh mess with future
+# invocations of hadoop.
+#
+sub purgeEnv() {
+	foreach my $k (keys %ENV) {
+		next if $k eq "PATH";
+		next if $k eq "PWD";
+		next if $k eq "HOME";
+		next if $k eq "USER";
+		next if $k eq "TERM";
+		next if $k eq "JAVA_HOME";
+		delete $ENV{$k};
+	}
+	$ENV{SHELL}="/bin/sh";
 }
 
 ##

@@ -48,8 +48,8 @@ sub parse_url($) {
 ##
 # Prepare an s3 URL for use with s3cmd.
 #
-sub s3cmdify($) {
-	my $path = shift;
+sub s3cmdify($$) {
+	my ($path, $env) = @_;
 	$path =~ s/^S3N:/s3n:/;
 	$path =~ s/^S3:/s3:/;
 	$path =~ s/^s3n:/s3:/;
@@ -57,7 +57,7 @@ sub s3cmdify($) {
 	# key ID.  It's better than using a regular expression because it's
 	# hard to think of an expression that correctly handles slashes in
 	# the secret key ID (which is possible).
-	AWS::ensureKeys($Tools::hadoop, $Tools::hadoop_arg);
+	AWS::ensureKeys($Tools::hadoop, $Tools::hadoop_arg, $env);
 	my $ec2key = $AWS::accessKey.":".$AWS::secretKey;
 	my $idx = index($path, $ec2key);
 	if($idx != -1) {
@@ -67,9 +67,9 @@ sub s3cmdify($) {
 	return $path;
 }
 
-sub do_s3cmd($) {
-	my ($args) = @_;
-	my $s3cmd = Tools::s3cmd();
+sub do_s3cmd($$) {
+	my ($args, $env) = @_;
+	my $s3cmd = Tools::s3cmd($env);
 	my $cmd = "$s3cmd $args";
 	print STDERR "Get.pm:do_s3cmd: $cmd\n";
 	my $out = Util::backtickAndWait($cmd, "s3cmd");
@@ -77,9 +77,9 @@ sub do_s3cmd($) {
 	return ($?, $out);
 }
 
-sub do_s3_get($$$$$) {
-	my ($file, $base, $dest_dir, $counters, $retries) = @_;
-	$file = s3cmdify($file);
+sub do_s3_get($$$$$$) {
+	my ($file, $base, $dest_dir, $counters, $retries, $env) = @_;
+	$file = s3cmdify($file, $env);
 	my $file_arg = $file;
 	mkpath($dest_dir);
 	my $cmd = "rm -f $dest_dir/$base >&2";
@@ -88,7 +88,7 @@ sub do_s3_get($$$$$) {
 	my $ret;
 	while($retries >= 0) {
 		my $out;
-		($ret, $out) = do_s3cmd("get --force $file_arg $dest_dir/$base >&2");
+		($ret, $out) = do_s3cmd("get --force $file_arg $dest_dir/$base >&2", $env);
 		(-f "$dest_dir/$base") || croak("Did not create $dest_dir/$base - wrong URL?\n");
 		push @{$counters}, "Fetcher,s3cmd return $ret,1";
 		push @{$counters}, "Fetcher,Bytes obtained with s3cmd get,".(-s "$dest_dir/$base");
@@ -100,12 +100,12 @@ sub do_s3_get($$$$$) {
 	return $ret;
 }
 
-sub do_s3_put($$$) {
-	my ($file, $dest, $counters) = @_;
-	$dest = s3cmdify($dest);
+sub do_s3_put($$$$) {
+	my ($file, $dest, $counters, $env) = @_;
+	$dest = s3cmdify($dest, $env);
 	$dest .= "/" unless $dest =~ /\/$/;
 	my $base = fileparse($file);
-	my ($ret, $out) = do_s3cmd("put $file $dest$base >&2");
+	my ($ret, $out) = do_s3cmd("put $file $dest$base >&2", $env);
 	push @{$counters}, "Fetcher,Bytes uploaded with s3cmd put,".(-s "$file");
 	push @{$counters}, "Fetcher,Files uploaded with s3cmd put,1";
 }
@@ -195,16 +195,16 @@ sub do_wget($$$$) {
 	return $ret;
 }
 
-sub lsDir($) {
-	my ($dir) = @_;
+sub lsDir($$) {
+	my ($dir, $env) = @_;
 	print STDERR "Get.pm:lsDir: About to parse URL $dir\n";
 	my ($proto, $type) = parse_url($dir);
 	my @fs = ();
 	if($type eq "s3") {
 		print STDERR "Get.pm:lsDir: About to handle S3\n";
-		$dir = s3cmdify($dir);
+		$dir = s3cmdify($dir, $env);
 		$dir .= "/" if $dir !~ /\/$/;
-		my ($ret, $out) = do_s3cmd("ls $dir");
+		my ($ret, $out) = do_s3cmd("ls $dir", $env);
 		my @fls = split(/[\r\n]+/, $out);
 		for (@fls) {
 			next if /^Bucket/;
@@ -238,8 +238,8 @@ sub lsDir($) {
 # Ensure all of the files in the source directory have been copied into
 # dest_dir.
 #
-sub ensureDirFetched($$$) {
-	my ($dir, $dest_dir, $counters) = @_;
+sub ensureDirFetched($$$$) {
+	my ($dir, $dest_dir, $counters, $env) = @_;
 	$dir =~ s/^S3N/s3n/;
 	$dir =~ s/^S3/s3/;
 	$dir =~ s/^HDFS/hdfs/;
@@ -249,13 +249,13 @@ sub ensureDirFetched($$$) {
 	$dirDoneFile = "$dest_dir/.dir.$dirDoneFile";
 	unless(-f $dirDoneFile) {
 		$dir .= "/" unless $dir =~ /\/$/;
-		my @files = lsDir($dir);
+		my @files = lsDir($dir, $env);
 		for(@files) {
 			print STDERR "Get.pm:ensureDirFetched: About to be fetched: $_\n";
 		}
 		for(@files) {
 			print STDERR "ensureDirFetched: Fetching directory file $_\n";
-			ensureFetched($_, $dest_dir, $counters);
+			ensureFetched($_, $dest_dir, $counters, undef, undef, $env);
 		}
 		Util::run("touch $dirDoneFile");
 	}
@@ -268,7 +268,7 @@ sub ensureDirFetched($$$) {
 # If the thing being decompressed is an R installation, we do a little
 # ad-hoc fixup to ensure it likes the new directory it's in.
 #
-sub ensureFetched {
+sub ensureFetched($$$$$$) {
 	my (
 		$file,          # Path/URL of file to get
 		$dest_dir,      # Directory to copy it to and/or extract it in
@@ -276,8 +276,9 @@ sub ensureFetched {
 		$doRfixup,      # If it's R that's being extracted and this is
 		                # true, we set RHOME and modify Rscript
 		                # accordingly
-		$lockSub) = @_; # A parameterless subroutine to call if and
+		$lockSub,       # A parameterless subroutine to call if and
 		                # when we get the lock
+		$env) = @_;     # environment
 	
 	print STDERR "Get.pm:ensureFetched: called on \"$file\"\n";
 	$file =~ s/^S3N/s3n/;
@@ -311,7 +312,7 @@ sub ensureFetched {
 			my $ret;
 			print STDERR "Pid $$:   downloading file...\n";
 			if($type eq "s3") {
-				$ret = do_s3_get($file, $base, $dest_dir, $counters, 3);
+				$ret = do_s3_get($file, $base, $dest_dir, $counters, 3, $env);
 			} elsif($type eq "hdfs") {
 				$ret = do_hdfs_get($file, $base, $dest_dir, $counters);
 			} elsif($type =~ /https?/ || $proto eq "ftp") {

@@ -60,20 +60,6 @@ my $straightThrough = 0;
 my $test = 0;
 my $cntfn = "";
 
-my $bowtie = "";
-my $bowtie_arg = "";
-
-if(defined($ENV{BOWTIE_HOME})) {
-	$bowtie = "$ENV{BOWTIE_HOME}/bowtie";
-	unless(-x $bowtie) { $bowtie = "" };
-}
-if($bowtie eq "") {
-	$bowtie = `which bowtie 2>/dev/null`;
-	chomp($bowtie);
-	unless(-x $bowtie) { $bowtie = "" };
-}
-$bowtie = "./bowtie" if ($bowtie eq "" && -x "./bowtie");
-
 sub dieusage {
 	my $msg = shift;
 	my $exitlevel = shift;
@@ -90,9 +76,10 @@ sub msg($) {
 }
 
 Tools::initTools();
+my %env = %ENV;
 
 GetOptions (
-	"bowtie:s"        => \$bowtie_arg,
+	"bowtie:s"        => \$Tools::bowtie_arg,
 	"s3cmd:s"         => \$Tools::s3cmd_arg,
 	"s3cfg:s"         => \$Tools::s3cfg,
 	"jar:s"           => \$Tools::jar_arg,
@@ -114,12 +101,14 @@ GetOptions (
 	"destdir:s"       => \$dest_dir,
 	"test"            => \$test) || dieusage("Bad option", 1);
 
+Tools::purgeEnv();
+
 msg("s3cmd: found: $Tools::s3cmd, given: $Tools::s3cmd_arg");
 msg("jar: found: $Tools::jar, given: $Tools::jar_arg");
 msg("hadoop: found: $Tools::hadoop, given: $Tools::hadoop_arg");
 msg("wget: found: $Tools::wget, given: $Tools::wget_arg");
 msg("s3cfg: $Tools::s3cfg");
-msg("bowtie: found: $bowtie, given: $bowtie_arg");
+msg("bowtie: found: $Tools::bowtie, given: $Tools::bowtie_arg");
 msg("partition len: $partlen");
 msg("ref: $ref");
 msg("quality: $qual");
@@ -134,29 +123,6 @@ msg("dest dir: $dest_dir");
 msg("bowtie args: @ARGV");
 msg("ls -al");
 msg(`ls -al`);
-
-#BEGIN James
-#remove counters 
-#my %counters = ();
-#Counters::getCounters($cntfn, \%counters, \&msg, 1);
-#msg("Retrived ".scalar(keys %counters)." counters from previous stages\n");
-
-
-#remove entire environment
-foreach my $k (keys %ENV)
-{
-  next if $k =~ /^PATH$/;
-  next if $k =~ /^PWD$/;
-  next if $k =~ /^HOME$/;
-  next if $k =~ /^USER$/;
-  next if $k =~ /^TERM$/;
-
-  delete $ENV{$k};
-}
-
-$ENV{SHELL}="/bin/sh";
-#end James
-
 
 if($sam_passthru) {
 	my $alsUnpaired = 0;
@@ -237,23 +203,14 @@ $dest_dir = "." if $dest_dir eq "";
 mkpath($dest_dir);
 (-d $dest_dir) || die "-destdir $dest_dir does not exist or isn't a directory, and could not be created\n";
 
-$bowtie = $bowtie_arg if $bowtie_arg ne "";
-unless(-x $bowtie) {
-	# No bowtie? die
-	if($bowtie_arg ne "") {
-		die "Specified -bowtie, \"$bowtie\" doesn't exist or isn't executable\n";
-	} else {
-		die "bowtie couldn't be found in BOWTIE_HOME, PATH, or current directory; please specify -bowtie\n";
-	}
-}
-chmod 0777, $bowtie;
+my $bowtie = Tools::bowtie();
 
 ##
 # Run bowtie, ensuring that index exists first.
 #
 my $jarEnsured = 0;
-sub runBowtie($$) {
-	my ($fn, $efn) = @_;
+sub runBowtie($$$) {
+	my ($fn, $efn, $env) = @_;
 	my $args = join(" ", @ARGV);
 	msg("  ...ensuring reference jar is installed first");
 	my $index_base;
@@ -261,7 +218,7 @@ sub runBowtie($$) {
 		$index_base = $indexLocal;
 	} else {
 		if($ref ne "" && !$jarEnsured) {
-			Get::ensureFetched($ref, $dest_dir, \@counterUpdates);
+			Get::ensureFetched($ref, $dest_dir, \@counterUpdates, undef, undef, $env);
 			flushCounters();
 			$jarEnsured = 1;
 		}
@@ -274,12 +231,16 @@ sub runBowtie($$) {
 		if(scalar(@indexes) > 1) {
 			# There was more than one index; pick the first one
 			msg("Warning: More than one index base: @indexes");
+			msg("ls -al $dest_dir");
+			msg(`ls -al $dest_dir\n`);
 			msg("ls -al $dest_dir/index");
 			msg(`ls -al $dest_dir/index\n`);
 			msg("Using $indexes[0]");
 		} elsif(scalar(@indexes) == 0) {
 			# There were no indexes; abort
 			msg("Could not find any files ending in .rev.1.ebwt in $dest_dir/index:");
+			msg("ls -al $dest_dir");
+			msg(`ls -al $dest_dir\n`);
 			msg("ls -al $dest_dir/index");
 			msg(`ls -al $dest_dir/index\n`);
 			die;
@@ -304,7 +265,7 @@ sub runBowtie($$) {
 my $sthruCmd = ""; # command for bowtie in straight-through mode
 my $efn = ".tmp.Align.pl.$$.err"; # bowtie stderr dump
 if($straightThrough) {
-	$sthruCmd = runBowtie("-", $efn);
+	$sthruCmd = runBowtie("-", $efn, \%env);
 	open OUT, "| $sthruCmd" || die "Could not open '| $sthruCmd' for writing";
 } else {
 	open OUT, ">.tmp.$$" || die "Could not open .tmp.$$ for writing";
@@ -485,7 +446,7 @@ if($records > 0 && !$straightThrough) {
 	msg(`head -4 $fn`);
 	msg("tail -4 $fn:");
 	msg(`tail -4 $fn`);
-	my $cmd = runBowtie($fn, $efn);
+	my $cmd = runBowtie($fn, $efn, \%env);
 	my $ret = Util::run($cmd);
 	if($ret != 0) {
 		msg("Fatal error: Bowtie exited with level $?:");

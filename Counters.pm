@@ -73,6 +73,9 @@ sub dumpLocalCounters($$$) {
 # Use the 'hadoop' script to (a) determine what jobs have completed,
 # and (b) populate a hash with all the counter values.
 #
+# If we had information about job ids of previous jobs in this same job
+# flow, we wouldn't have to scan this whole list.
+#
 # Note: the caller has to know the job id of the .
 #
 sub getHadoopCounters($$$$) {
@@ -80,6 +83,7 @@ sub getHadoopCounters($$$$) {
 	$msg->("In getHadoopCounters:");
 	my $counters = 0; # overall
 	my $hadoop = Tools::hadoop();
+	# Get all finished jobs
 	my $jstr = `$hadoop job -list all | awk '\$1 ~ /^job/ && \$2 == 2 {print \$1}'`;
 	my @jobs = split(/[\n\r]+/, $jstr);
 	my $jobfound = 0;

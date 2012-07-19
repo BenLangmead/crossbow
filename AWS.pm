@@ -18,9 +18,9 @@ our $secretKey = "";
 # If either $accessKey or $secretKey are not already set, look some
 # more places for them.
 #
-sub ensureKeys($$) {
-	my ($hadoop, $hadoop_arg) = @_;
-	my $hadoopHome = $ENV{HADOOP_HOME};
+sub ensureKeys($$$) {
+	my ($hadoop, $hadoop_arg, $env) = @_;
+	my $hadoopHome = $env->{HADOOP_HOME};
 	if(!defined($hadoopHome)) {
 		$hadoop = $hadoop_arg if $hadoop_arg ne "";
 		if(-x $hadoop) {
@@ -30,8 +30,8 @@ sub ensureKeys($$) {
 		}
 	}
 	if($accessKey eq "") {
-		if(defined($ENV{AWS_ACCESS_KEY_ID})) {
-			$accessKey = $ENV{AWS_ACCESS_KEY_ID};
+		if(defined($env->{AWS_ACCESS_KEY_ID})) {
+			$accessKey = $env->{AWS_ACCESS_KEY_ID};
 		} elsif(defined($hadoopHome)) {
 			$accessKey = `grep fs.s3n.awsAccessKeyId $hadoopHome/conf/*.xml | sed 's/.*<value>//' | sed 's/<\\/value>.*//'`;
 			$accessKey =~ s/\s.*$//; # In case we got multiple lines back
@@ -46,8 +46,8 @@ sub ensureKeys($$) {
 		}
 	}
 	if($secretKey eq "") {
-		if(defined($ENV{AWS_SECRET_ACCESS_KEY})) {
-			$secretKey = $ENV{AWS_SECRET_ACCESS_KEY};
+		if(defined($env->{AWS_SECRET_ACCESS_KEY})) {
+			$secretKey = $env->{AWS_SECRET_ACCESS_KEY};
 		} elsif(defined($hadoopHome)) {
 			$secretKey = `grep fs.s3n.awsSecretAccessKey $hadoopHome/conf/*.xml | sed 's/.*<value>//' | sed 's/<\\/value>.*//'`;
 			$secretKey =~ s/\s.*$//; # In case we got multiple lines back

@@ -60,6 +60,7 @@ sub dieusage {
 }
 
 Tools::initTools();
+my %env = %ENV;
 
 GetOptions (
 	"s3cmd:s"         => \$Tools::s3cmd_arg,
@@ -71,6 +72,8 @@ GetOptions (
 	"wget:s"          => \$Tools::wget_arg,
 	"destdir:s"       => \$dest_dir,
 	"output:s"        => \$output) || dieusage("Bad option", 1);
+
+Tools::purgeEnv();
 
 $output ne "" || die "Must specify non-empty -output\n";
 print STDERR "s3cmd: found: $Tools::s3cmd, given: $Tools::s3cmd_arg\n";
@@ -88,7 +91,7 @@ sub pushResult($) {
 	print STDERR "Pushing $fn\n";
 	$output .= "/" unless $output =~ /\/$/;
 	if($output =~ /^s3/i) {
-		Get::do_s3_put($fn, $output, \@counterUpdates);
+		Get::do_s3_put($fn, $output, \@counterUpdates, \%env);
 	} elsif($output =~ /^hdfs/i) {
 		Get::do_hdfs_put($fn, $output, \@counterUpdates);
 	} else {

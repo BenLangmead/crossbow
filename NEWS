@@ -9,7 +9,7 @@ to be released, and it was released under the OSI Artistic License (see
 LICENSE_ARTISTIC file) and freely available to the public for download.
 Portions of the Crossbow package are borrowed from other sources, and
 those portions are subject to other licenses (see LICENSES file).  The
-current version is 1.1.2.
+current version is 1.2.0.
 
 Reporting Issues
 ================
@@ -20,6 +20,19 @@ Please report any issues using the Sourceforge bug tracker:
 
 Version Release History
 =======================
+
+Version 1.2.0 - Coming soon
+   * Added support for Hadoop version 0.20.205.
+   * Dropped support for Hadoop versions prior to 0.20.
+   * Updated default Hadoop version for EMR jobs to 0.20.205.
+   * Updated Bowtie version used to 0.12.8.
+   * Fixed issues with streaming jar version parsing
+   * Fixed documentation bugs regarding --sra-toolkit option, which is
+     superseded by the --fastq-dump option.
+   * Removed some diagnostic counters because Hadoop began to enforce
+     an upper limit on the number of counters allowed per job.  For
+     instance, per-label summary statistics are no longer printed in
+     the Normalize step.
 
 Version 1.1.2 - May 23, 2011
    * Added --just-align and --resume-align options.  --just-align

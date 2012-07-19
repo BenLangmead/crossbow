@@ -57,10 +57,6 @@ my $ref = "";
 my $type = "s3";
 my $file = "";
 my $dest_dir = "";
-
-my $soapsnp = "";
-my $soapsnp_arg = "";
-
 my $plen = 2000000;
 my $args = "";
 my $refdir = "";
@@ -75,7 +71,7 @@ my $discardRefBins = 0;
 my $cntfn = "";
 
 Tools::initTools();
-$soapsnp = Tools::lookFor("soapsnp", "SOAPSNP_HOME", "soapsnp");
+my %env = %ENV;
 
 sub dieusage {
 	my $msg = shift;
@@ -86,7 +82,7 @@ sub dieusage {
 }
 
 GetOptions (
-	"soapsnp:s"          => \$soapsnp_arg,
+	"soapsnp:s"          => \$Tools::soapsnp_arg,
 	"s3cmd:s"            => \$Tools::s3cmd_arg,
 	"s3cfg:s"            => \$Tools::s3cfg,
 	"jar:s"              => \$Tools::jar_arg,
@@ -109,6 +105,8 @@ GetOptions (
 	"basequal=s"         => \$baseQual,
 	"discard-ref-bins=f" => \$discardRefBins) || dieusage("Bad option", 1);
 
+Tools::purgeEnv();
+
 if($replaceUnderscores) {
 	$args =~ s/_/ /g;
 	$diploid_args =~ s/_/ /g;
@@ -119,7 +117,7 @@ $diploid_args = "-r 0.00005 -e 0.0001" if $diploid_args eq "";
 $haploid_args = "-r 0.0001" if $haploid_args eq "";
 $haploid_args .= " -m";
 
-msg("soapsnp: found: $soapsnp, given: $soapsnp_arg");
+msg("soapsnp: found: $Tools::soapsnp, given: $Tools::soapsnp_arg");
 msg("s3cmd: found: $Tools::s3cmd, given: $Tools::s3cmd_arg");
 msg("jar: found: $Tools::jar, given: $Tools::jar_arg");
 msg("hadoop: found: $Tools::hadoop, given: $Tools::hadoop_arg");
@@ -138,35 +136,6 @@ msg("dryrun: $dryRun");
 msg("ls -al");
 print STDERR `ls -al`;
 
-
-#BEGIN James
-#my %counters = ();
-#Counters::getCounters($cntfn, \%counters, \&msg, 1);
-#msg("Retrived ".scalar(keys %counters)." counters from previous stages\n");
-
-#msg("Checking that 1 or more reads aligned in Align stage...");
-#my $alreps = defined($counters{"Bowtie"}{"Reads with at least 1 reported alignment"});
-#if(defined($alreps) && $alreps > 0) {
-#	msg("Yes, $alreps alignments reported in Align stage");
-#} else {
-#	msg("Warning: no alignments reported in Align stage; SOAPsnp will not be run");
-#}
-
-#remove entire environment (James)
-foreach my $k (keys %ENV)
-{
-    next if $k =~ /^PATH$/;
-    next if $k =~ /^PWD$/;
-    next if $k =~ /^HOME$/;
-    next if $k =~ /^USER$/;
-    next if $k =~ /^TERM$/;
-
-    delete $ENV{$k};
-}
-
-$ENV{SHELL}="/bin/sh";
-#end James
-
 $refdir ne "" || $ref ne "" || die "Must specify either -refdir <path> or -ref <url> and -destdir\n";
 $refdir ne "" || $dest_dir ne "" || die "Must specify either -refdir <path> or -ref <url> and -destdir\n";
 $snpdir ne "" || $ref ne "" || die "Must specify either -snpdir <path> or -ref <url> and -destdir\n";
@@ -176,15 +145,7 @@ $snpdir = "$dest_dir/snps" if $snpdir eq "";
 $dest_dir eq "" || (-d $dest_dir) || mkpath($dest_dir);
 $dest_dir eq "" || (-d $dest_dir) || die "-destdir $dest_dir does not exist or isn't a directory, and could not be created\n";
 
-$soapsnp = $soapsnp_arg if $soapsnp_arg ne "";
-if(! -x $soapsnp) {
-	if($soapsnp_arg ne "") {
-		die "Specified -soapsnp, \"$soapsnp\" doesn't exist or isn't executable\n";
-	} else {
-		die "soapsnp couldn't be found in SOAPSNP_HOME, PATH, or current directory; please specify -soapsnp\n";
-	}
-}
-chmod 0777, $soapsnp;
+my $soapsnp = Tools::soapsnp();
 
 my $lchr = -1;
 my $lpart = -1;
@@ -300,7 +261,7 @@ while(1) {
 				msg("tail -4 .tmp.$plen.$lpart:");
 				print STDERR `tail -4 .tmp.$plen.$lpart`;
 				if($ref ne "" && !$jarEnsured) {
-					Get::ensureFetched($ref, $dest_dir, \@counterUpdates);
+					Get::ensureFetched($ref, $dest_dir, \@counterUpdates, undef, undef, \%env);
 					flushCounters();
 					$jarEnsured = 1;
 					unless(-d "$dest_dir/sequences") {
