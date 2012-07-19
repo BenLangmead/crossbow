@@ -1,7 +1,7 @@
 <!DOCTYPE html PUBLIC "-//W3C//DTD XHTML 1.0 Transitional//EN" "http://www.w3.org/TR/xhtml1/DTD/xhtml1-transitional.dtd">
 <html xmlns="http://www.w3.org/1999/xhtml">
 <head>
-  <title>Crossbow 1.1.2 Manual - Crossbow: Parallel short read genotyping in the cloud</title>
+  <title>Crossbow 1.2.0 Manual - Crossbow: Parallel short read genotyping in the cloud</title>
   <meta http-equiv="Content-Type" content="text/html; charset=utf-8" />
   <meta name="generator" content="pandoc" />
   <meta name="author" content="Ben Langmead and Michael C. Schatz" />
@@ -341,11 +341,13 @@
   >Hadoop</a
   > cluster, as are supporting tools: <a href="http://bowtie-bio.sf.net"
   >Bowtie</a
-  > and <a href="http://soap.genomics.org.cn/soapsnp.html"
+  >, <a href="http://soap.genomics.org.cn/soapsnp.html"
   >SOAPsnp</a
-  >. Supporting tools must be installed on all cluster nodes, but the Crossbow scripts need only be installed on the master. Crossbow has been tested with <a href="http://hadoop.apache.org/"
+  >, and possibly [<code
+  >fastq-dump</code
+  >]. Supporting tools must be installed on all cluster nodes, but the Crossbow scripts need only be installed on the master. Crossbow was tested with <a href="http://hadoop.apache.org/"
   >Hadoop</a
-  > version 0.18.3, but should also be compatible with more recent versions. Crossbow scripts require <a href="http://www.perl.org/get.html"
+  > versions 0.20 and 0.20.205, and might also be compatible with other versions newer than 0.20. Crossbow scripts require <a href="http://www.perl.org/get.html"
   >Perl</a
   > 5.6 or later.</p
 ><ol start="4" style="list-style-type: decimal;"
@@ -357,9 +359,11 @@
 ><p
 >In this case, the Crossbow code and all supporting tools (<a href="http://bowtie-bio.sf.net"
   >Bowtie</a
-  > and <a href="http://soap.genomics.org.cn/soapsnp.html"
+  >, <a href="http://soap.genomics.org.cn/soapsnp.html"
   >SOAPsnp</a
-  >) must be installed on the computer running Crossbow. Crossbow scripts require <a href="http://www.perl.org/get.html"
+  >, and possibly [<code
+  >fastq-dump</code
+  >]) must be installed on the computer running Crossbow. Crossbow scripts require <a href="http://www.perl.org/get.html"
   >Perl</a
   > 5.6 or later. The user specifies the maximum number of CPUs that Crossbow should use at a time. This mode does <em
   >not</em
@@ -503,7 +507,7 @@
 ><p
 >We strongly recommend using a version of the <code
   >elastic-mapreduce</code
-  > Ruby script released on or after June 2, 2010. This is when the script switched to using Hadoop 0.20 by default, which is the preferred way of running Crossbow.</p
+  > Ruby script released on or after December 8, 2011. This is when the script switched to using Hadoop v0.20.205 by default, which is the preferred way of running Myrna.</p
 ><p
 >We also recommend that you add the directory containing the <code
   >elastic-mapreduce</code
@@ -561,7 +565,7 @@
   >Firefox</a
   > extension. Other tools include <a href="http://cyberduck.ch/"
   >Cyberduck</a
-  > (for Mac OS 10.5 or later) and <a href="http://www.bucketexplorer.com/"
+  > (for Mac OS 10.6 or later) and <a href="http://www.bucketexplorer.com/"
   >Bucket Explorer</a
   > (for Mac, Windows or Linux, but commercial software).</p
 ><h1 id="installing-crossbow"
@@ -607,7 +611,7 @@
 	> cluster</em
       >:</p
     ><p
-    >If using Linux or Mac OS 10.5 or later, you likely don't have to install <a href="http://bowtie-bio.sf.net"
+    >If using Linux or Mac OS 10.6 or later, you likely don't have to install <a href="http://bowtie-bio.sf.net"
       >Bowtie</a
       > or <a href="http://soap.genomics.org.cn/soapsnp.html"
       >SOAPsnp</a
@@ -624,7 +628,7 @@
       >Bowtie</a
       > is not installed, obtain or build a <code
       >bowtie</code
-      > binary v0.12.5 or higher and install it by setting the <code
+      > binary v0.12.8 or higher and install it by setting the <code
       >CROSSBOW_BOWTIE_HOME</code
       > environment variable to <code
       >bowtie</code
@@ -681,12 +685,16 @@
       >bowtie</code
       > and <code
       >soapsnp</code
-      > files to the same path on each of your <a href="http://hadoop.apache.org/"
+      > executables, and possibly also the <code
+      >fastq-dump</code
+      > executable, to the same path on each of your <a href="http://hadoop.apache.org/"
       >Hadoop</a
       > cluster nodes. You can avoid this step by installing <code
       >bowtie</code
-      > and <code
+      >, <code
       >soapsnp</code
+      > and <code
+      >fastq-dump</code
       > on a filesystem shared by all <a href="http://hadoop.apache.org/"
       >Hadoop</a
       > nodes (e.g. an <a href="http://en.wikipedia.org/wiki/Network_File_System_(protocol)"
@@ -736,9 +744,9 @@
   > tool at runtime, Crossbow searches the following places in order:</p
 ><ol style="list-style-type: decimal;"
 ><li
-  >The directory specified in the <a href="#cb-local-sra-toolkit"
+  >The path specified in the <a href="#cb-local-fastq-dump"
     ><code
-      >--sra-toolkit</code
+      >--fastq-dump</code
       ></a
     > option</li
   ><li
@@ -1404,13 +1412,13 @@
   ><p
     >Working installation of <a href="http://hadoop.apache.org/"
       >Hadoop</a
-      > v0.18.3. Versions more recent than v0.18.3 may also work, but haven't been tested.</p
+      > v0.20.2 or v0.20.205. Other versions newer than 0.20 might also work, but haven't been tested.</p
     ></li
   ><li
   ><p
     >A <code
       >bowtie</code
-      > v0.12.5 executable must exist at the same path on all cluster nodes (including the master). That path must be specified via the <a href="#cb-hadoop-bowtie"
+      > v0.12.8 executable must exist at the same path on all cluster nodes (including the master). That path must be specified via the <a href="#cb-hadoop-bowtie"
       ><code
 	>--bowtie</code
 	></a
@@ -1446,13 +1454,37 @@
       >PATH</code
       > (Crossbow searches in that order). <code
       >$CROSSBOW_HOME/bin</code
-      > comes with pre-built SOAPsnp binaries for Linux and Mac OS X 10.5 or later. An executable from that directory is used automatically unless the platform is not Mac or Linux or unless overridden by <a href="#cb-hadoop-soapsnp"
+      > comes with pre-built SOAPsnp binaries for Linux and Mac OS X 10.6 or later. An executable from that directory is used automatically unless the platform is not Mac or Linux or unless overridden by <a href="#cb-hadoop-soapsnp"
       ><code
 	>--soapsnp</code
 	></a
       > or by defining <code
       >CROSSBOW_SOAPSNP_HOME</code
       >.</p
+    ></li
+  ><li
+  ><p
+    >If any of your inputs are in <a href="http://www.ncbi.nlm.nih.gov/books/NBK47533/"
+      >Sequence Read Archive</a
+      > format (i.e. end in <code
+      >.sra</code
+      >), then the <code
+      >fastq-dump</code
+      > tool from the [SRA Toolkit] must be installed at the same path on all cluster nodes. The path to the <code
+      >fastq-dump</code
+      > tool must be specified via the (<a href="#myrna-fastq-dump"
+      ><code
+	>--fastq-dump</code
+	></a
+      >) option OR <code
+      >fastq-dump</code
+      > must be located in the directory specified in the <code
+      >CROSSBOW_FASTQ_DUMP_HOME</code
+      > environment variable, OR <code
+      >fastq-dump</code
+      > must be found in the <code
+      >PATH</code
+      > (Myrna searches in that order).</p
     ></li
   ><li
   ><p
@@ -1599,21 +1631,19 @@
   > and in the directory pointed to by the <code
   >CROSSBOW_HOME</code
   > environment variable.</p
-></td></tr><tr><td id="cb-hadoop-sra-toolkit">
+></td></tr><tr><td id="cb-hadoop-fastq-dump">
 
 
 <pre
 ><code
-  >--sra-toolkit &lt;path&gt;
+  >--fastq-dump &lt;path&gt;
 </code
   ></pre
 ></td><td>
 <p
->Path to the directory containing the programs in the <a href="http://trace.ncbi.nlm.nih.gov/Traces/sra/sra.cgi?cmd=show&amp;f=software&amp;m=software&amp;s=software"
-  >SRA toolkit</a
-  >, including <code
+>Path to the directory containing <code
   >fastq-dump</code
-  >. This overrides all other ways that Crossbow searches for <code
+  >, which is part of the [SRA Toolkit]. This overrides all other ways that Crossbow searches for <code
   >fastq-dump</code
   >, including the <code
   >CROSSBOW_SRATOOLKIT_HOME</code
@@ -1660,7 +1690,7 @@
   ><p
     >A <code
       >bowtie</code
-      > v0.12.5 executable must exist on the local computer. The path to <code
+      > v0.12.8 executable must exist on the local computer. The path to <code
       >bowtie</code
       > must be specified via the <a href="#cb-local-bowtie"
       ><code
@@ -1674,7 +1704,7 @@
       >PATH</code
       > (search proceeds in that order). <code
       >$CROSSBOW_HOME/bin</code
-      > comes with pre-built Bowtie binaries for Linux and Mac OS X 10.5 or later, so most Mac and Linux users do not need to install either tool.</p
+      > comes with pre-built Bowtie binaries for Linux and Mac OS X 10.6 or later, so most Mac and Linux users do not need to install either tool.</p
     ></li
   ><li
   ><p
@@ -1694,13 +1724,37 @@
       >PATH</code
       > (Crossbow searches in that order). <code
       >$CROSSBOW_HOME/bin</code
-      > comes with pre-built SOAPsnp binaries for Linux and Mac OS X 10.5 or later. An executable from that directory is used automatically unless the platform is not Mac or Linux or unless overridden by <a href="#cb-local-soapsnp"
+      > comes with pre-built SOAPsnp binaries for Linux and Mac OS X 10.6 or later. An executable from that directory is used automatically unless the platform is not Mac or Linux or unless overridden by <a href="#cb-local-soapsnp"
       ><code
 	>--soapsnp</code
 	></a
       > or <code
       >$CROSSBOW_SOAPSNP_HOME</code
       >.</p
+    ></li
+  ><li
+  ><p
+    >If any of your inputs are in <a href="http://www.ncbi.nlm.nih.gov/books/NBK47533/"
+      >Sequence Read Archive</a
+      > format (i.e. end in <code
+      >.sra</code
+      >), then the <code
+      >fastq-dump</code
+      > tool from the [SRA Toolkit] must be installed on the local computer. The path to the <code
+      >fastq-dump</code
+      > tool must be specified via the (<a href="#myrna-fastq-dump"
+      ><code
+	>--fastq-dump</code
+	></a
+      >) option OR <code
+      >fastq-dump</code
+      > must be located in the directory specified in the <code
+      >MYRNA_FASTQ_DUMP_HOME</code
+      > environment variable, OR <code
+      >fastq-dump</code
+      > must be found in the <code
+      >PATH</code
+      > (Myrna searches in that order).</p
     ></li
   ><li
   ><p
@@ -1910,12 +1964,12 @@
   > directory, and the <code
   >PATH</code
   >.</p
-></td></tr><tr><td id="cb-local-sra-toolkit">
+></td></tr><tr><td id="cb-local-fastq-dump">
 
 
 <pre
 ><code
-  >--sra-toolkit &lt;path&gt;
+  >--fastq-dump &lt;path&gt;
 </code
   ></pre
 ></td><td>
@@ -3285,11 +3339,11 @@ $CROSSBOW_HOME/cb_local \
   >Hadoop</a
   > modes, then the <code
   >fastq-dump</code
-  > tool must be installed and Myrna must be able to locate it. See the <a href="#cb-local-sra-toolkit"
+  > tool must be installed and Myrna must be able to locate it. See the <a href="#cb-local-fastq-dump"
   ><code
-    >--sra-toolkit</code
+    >--fastq-dump</code
     ></a
-  > option and the <a href="#the-sra-toolkit"
+  > option and the <a href="#the-fastq-dump"
   >SRA Toolkit section of the manual</a
   >.</p
 ><p
@@ -3429,10 +3483,6 @@ index.rev.2.ebwt
   >bowtie-build chr0.fa,chr1.fa,...,chr23.fa index
 </code
   ></pre
-><p
->Be sure to use <code
-  >bowtie-build</code
-  > version 0.9.8 or newer.</p
 ><p
 >The SNP description files in the <code
   >snps</code
