@@ -23,8 +23,8 @@
 
 SUFFIX=$1
 shift
-ENSEMBL_VER=59
-ENSEMBL_SNP_VER=37d
+ENSEMBL_VER=67
+ENSEMBL_SNP_VER=37
 ENSEMBL_PREFIX=Homo_sapiens.GRCh37.$ENSEMBL_VER
 ENSEMBL_ORGANISM=hsapiens
 ENSEMBL_FTP=ftp://ftp.ensembl.org/pub/release-$ENSEMBL_VER/fasta/homo_sapiens/dna
@@ -51,8 +51,8 @@ source $CROSSBOW_HOME/reftools/shared.sh
 
 check_prereqs
 find_bowtie_build
-do_index $*
 do_snps
+do_index $*
 do_jar
 
 cd ..
