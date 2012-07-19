@@ -16,7 +16,7 @@ use File::Path qw(mkpath);
 my $user = "anonymous";
 my $host = "ensembldb.ensembl.org";
 my $port = 5306;
-my $database = "homo_sapiens_variation_47_36i";
+my $database = "homo_sapiens_variation_67_37";
 my $crossbowOut = ""; # output dir for Crossbow-style output
 my $crossbowCmap = ""; # Crossbow-style chromosome name map
 my $limit = 0;
