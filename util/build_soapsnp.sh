@@ -79,24 +79,24 @@ if [ $DO_BOWTIE -ne 0 ] ; then
 		rm -f *.zip
 		mv bowtie* bowtie
 	fi
-	if ! make -C bowtie BITS=32 bowtie bowtie-debug ; then
-		echo "Error bulding bowtie 32"
-		exit 1
-	fi
+	#if ! make -C bowtie BITS=32 bowtie bowtie-debug ; then
+	#	echo "Error bulding bowtie 32"
+	#	exit 1
+	#fi
 fi
 
-if ! make -C soapsnp BITS=32 soapsnp soapsnp-debug ; then
-	echo "Error bulding soapsnp 32"
-	exit 1
-fi
+#if ! make -C soapsnp BITS=32 soapsnp soapsnp-debug ; then
+#		echo "Error bulding soapsnp 32"
+#	exit 1
+#fi
 
-mkdir -p ../.bin/mac32
-if [ $DO_BOWTIE -ne 0 ] ; then
-	cp bowtie/bowtie ../.bin/mac32
-	cp bowtie/bowtie-debug ../.bin/mac32
-fi
-cp soapsnp/soapsnp ../.bin/mac32
-cp soapsnp/soapsnp-debug ../.bin/mac32
+#mkdir -p ../.bin/mac32
+#if [ $DO_BOWTIE -ne 0 ] ; then
+#	cp bowtie/bowtie ../.bin/mac32
+#	cp bowtie/bowtie-debug ../.bin/mac32
+#fi
+#cp soapsnp/soapsnp ../.bin/mac32
+#cp soapsnp/soapsnp-debug ../.bin/mac32
 
 if [ $DO_BOWTIE -ne 0 ] ; then
 	make -C bowtie clean
@@ -127,54 +127,40 @@ cd ..
 
 # Prepare
 ssh ${user}@${linux_host} \
-	"rm -rf /tmp/.build_crossbow_tmp && " \
-	"mkdir -p /tmp/.build_crossbow_tmp"
+	"rm -rf /tmp/.build_crossbow_tmp && mkdir -p /tmp/.build_crossbow_tmp"
 
 if [ $DO_BOWTIE -ne 0 ] ; then
 	# Get Bowtie source
 	if [ -z "$SRC_URL" ] ; then
 		ssh ${user}@${linux_host} \
-			"cd /tmp/.build_crossbow_tmp && " \
-			"cvs -d /fs/szdevel/src/cvsroot co bowtie"
+			"cd /tmp/.build_crossbow_tmp && cvs -d /fs/szdevel/src/cvsroot co bowtie"
 	else
 		ssh ${user}@${linux_host} \
-			"cd /tmp/.build_crossbow_tmp && " \
-			"wget --no-check-certificate $SRC_URL && " \
-			"unzip *.zip && " \
-			"rm -f *.zip && " \
-			"mv bowtie* bowtie"
+			"cd /tmp/.build_crossbow_tmp && wget --no-check-certificate $SRC_URL && unzip *.zip && rm -f *.zip && mv bowtie* bowtie"
 	fi
 	# Build Bowtie source; Get and build SOAPsnp source
-	ssh ${user}@${linux_host} \
-		"cd /tmp/.build_crossbow_tmp/bowtie && " \
-		"make -j2 BITS=32 bowtie bowtie-debug"
+	#ssh ${user}@${linux_host} \
+	#	"cd /tmp/.build_crossbow_tmp/bowtie && " \
+	#	"make -j2 BITS=32 bowtie bowtie-debug"
 fi
 
 # Get and build SOAPsnp source
-ssh ${user}@${linux_host} \
-	"cd /tmp/.build_crossbow_tmp && " \
-	"svn co https://bowtie-bio.svn.sourceforge.net/svnroot/bowtie-bio/crossbow && " \
-	"cd crossbow/soapsnp && " \
-	"make -j2 BITS=32 soapsnp soapsnp-debug"
+ssh ${user}@${linux_host} "cd /tmp/.build_crossbow_tmp && svn co https://bowtie-bio.svn.sourceforge.net/svnroot/bowtie-bio/crossbow"
 
-mkdir -p .bin/linux32
-if [ $DO_BOWTIE -ne 0 ] ; then
-	scp ${user}@${linux_host}:/tmp/.build_crossbow_tmp/bowtie/bowtie \
-	    ${user}@${linux_host}:/tmp/.build_crossbow_tmp/bowtie/bowtie-debug .bin/linux32
-fi
-scp ${user}@${linux_host}:/tmp/.build_crossbow_tmp/crossbow/soapsnp/soapsnp* .bin/linux32
+#mkdir -p .bin/linux32
+#if [ $DO_BOWTIE -ne 0 ] ; then
+#	scp ${user}@${linux_host}:/tmp/.build_crossbow_tmp/bowtie/bowtie \
+#	    ${user}@${linux_host}:/tmp/.build_crossbow_tmp/bowtie/bowtie-debug .bin/linux32
+#fi
+#scp ${user}@${linux_host}:/tmp/.build_crossbow_tmp/crossbow/soapsnp/soapsnp* .bin/linux32
 
 if [ $DO_BOWTIE -ne 0 ] ; then
 	ssh ${user}@${linux_host} \
-		"cd /tmp/.build_crossbow_tmp/bowtie && " \
-		"rm -f bowtie bowtie-debug && " \
-		"make -j2 BITS=64 bowtie bowtie-debug"
+		"cd /tmp/.build_crossbow_tmp/bowtie && rm -f bowtie bowtie-debug && make -j2 BITS=64 bowtie bowtie-debug"
 fi
 
 ssh ${user}@${linux_host} \
-	"cd /tmp/.build_crossbow_tmp/crossbow/soapsnp && " \
-	"rm -f soapsnp soapsnp-debug && " \
-	"make -j2 BITS=64 soapsnp soapsnp-debug"
+	"cd /tmp/.build_crossbow_tmp/crossbow/soapsnp && rm -f soapsnp soapsnp-debug && make -j2 BITS=64 soapsnp soapsnp-debug"
 
 mkdir -p .bin/linux64
 if [ $DO_BOWTIE -ne 0 ] ; then

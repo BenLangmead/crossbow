@@ -21,7 +21,7 @@ Please report any issues using the Sourceforge bug tracker:
 Version Release History
 =======================
 
-Version 1.2.0 - Coming soon
+Version 1.2.0 - July 20, 2012
    * Added support for Hadoop version 0.20.205.
    * Dropped support for Hadoop versions prior to 0.20.
    * Updated default Hadoop version for EMR jobs to 0.20.205.

@@ -19,55 +19,60 @@ doc/manual.html: MANUAL.markdown
 MANUAL: MANUAL.markdown
 	perl doc/strip_markdown.pl < $^ > $@
 
+.PHONY: bin32
+bin32: bin/linux32/bowtie \
+       bin/linux32/bowtie-build \
+       bin/linux32/bowtie-debug \
+       bin/linux32/bowtie-build-debug \
+       bin/linux32/soapsnp \
+       bin/linux32/soapsnp-debug \
+       bin/mac32/bowtie \
+       bin/mac32/bowtie-build \
+       bin/mac32/bowtie-debug \
+       bin/mac32/bowtie-build-debug \
+       bin/mac32/soapsnp \
+       bin/mac32/soapsnp-debug
+
+.PHONY: bin64
+bin64: bin/linux64/bowtie \
+       bin/linux64/bowtie-build \
+       bin/linux64/bowtie-debug \
+       bin/linux64/bowtie-build-debug \
+       bin/linux64/soapsnp \
+       bin/linux64/soapsnp-debug \
+       bin/mac64/bowtie \
+       bin/mac64/bowtie-build \
+       bin/mac64/bowtie-debug \
+       bin/mac64/bowtie-build-debug \
+       bin/mac64/soapsnp \
+       bin/mac64/soapsnp-debug
+
 .PHONY: bin
-bin: bin/linux32/bowtie \
-     bin/linux32/bowtie-build \
-     bin/linux32/bowtie-debug \
-     bin/linux32/bowtie-build-debug \
-     bin/linux32/soapsnp \
-     bin/linux32/soapsnp-debug \
-     bin/linux64/bowtie \
-     bin/linux64/bowtie-build \
-     bin/linux64/bowtie-debug \
-     bin/linux64/bowtie-build-debug \
-     bin/linux64/soapsnp \
-     bin/linux64/soapsnp-debug \
-     bin/mac32/bowtie \
-     bin/mac32/bowtie-build \
-     bin/mac32/bowtie-debug \
-     bin/mac32/bowtie-build-debug \
-     bin/mac32/soapsnp \
-     bin/mac32/soapsnp-debug \
-     bin/mac64/bowtie \
-     bin/mac64/bowtie-build \
-     bin/mac64/bowtie-debug \
-     bin/mac64/bowtie-build-debug \
-     bin/mac64/soapsnp \
-     bin/mac64/soapsnp-debug
+bin: bin64
 
-bin/linux32/bowtie: bowtie-$(BOWTIE_VERSION)-linux-i386.zip
-	mkdir -p bin/linux32
-	unzip $^ bowtie-$(BOWTIE_VERSION)/bowtie
-	mv bowtie-$(BOWTIE_VERSION)/bowtie $@
-	rm -rf bowtie-$(BOWTIE_VERSION)
+#bin/linux32/bowtie: bowtie-$(BOWTIE_VERSION)-linux-i386.zip
+#	mkdir -p bin/linux32
+#	unzip $^ bowtie-$(BOWTIE_VERSION)/bowtie
+#	mv bowtie-$(BOWTIE_VERSION)/bowtie $@
+#	rm -rf bowtie-$(BOWTIE_VERSION)
 
-bin/linux32/bowtie-build: bowtie-$(BOWTIE_VERSION)-linux-i386.zip
-	mkdir -p bin/linux32
-	unzip $^ bowtie-$(BOWTIE_VERSION)/bowtie-build
-	mv bowtie-$(BOWTIE_VERSION)/bowtie-build $@
-	rm -rf bowtie-$(BOWTIE_VERSION)
+#bin/linux32/bowtie-build: bowtie-$(BOWTIE_VERSION)-linux-i386.zip
+#	mkdir -p bin/linux32
+#	unzip $^ bowtie-$(BOWTIE_VERSION)/bowtie-build
+#	mv bowtie-$(BOWTIE_VERSION)/bowtie-build $@
+#	rm -rf bowtie-$(BOWTIE_VERSION)
 
-bin/linux32/bowtie-debug: bowtie-$(BOWTIE_VERSION)-linux-i386.zip
-	mkdir -p bin/linux32
-	unzip $^ bowtie-$(BOWTIE_VERSION)/bowtie-debug
-	mv bowtie-$(BOWTIE_VERSION)/bowtie-debug $@
-	rm -rf bowtie-$(BOWTIE_VERSION)
+#bin/linux32/bowtie-debug: bowtie-$(BOWTIE_VERSION)-linux-i386.zip
+#	mkdir -p bin/linux32
+#	unzip $^ bowtie-$(BOWTIE_VERSION)/bowtie-debug
+#	mv bowtie-$(BOWTIE_VERSION)/bowtie-debug $@
+#	rm -rf bowtie-$(BOWTIE_VERSION)
 
-bin/linux32/bowtie-build-debug: bowtie-$(BOWTIE_VERSION)-linux-i386.zip
-	mkdir -p bin/linux32
-	unzip $^ bowtie-$(BOWTIE_VERSION)/bowtie-build-debug
-	mv bowtie-$(BOWTIE_VERSION)/bowtie-build-debug $@
-	rm -rf bowtie-$(BOWTIE_VERSION)
+#bin/linux32/bowtie-build-debug: bowtie-$(BOWTIE_VERSION)-linux-i386.zip
+#	mkdir -p bin/linux32
+#	unzip $^ bowtie-$(BOWTIE_VERSION)/bowtie-build-debug
+#	mv bowtie-$(BOWTIE_VERSION)/bowtie-build-debug $@
+#	rm -rf bowtie-$(BOWTIE_VERSION)
 
 
 bin/linux64/bowtie: bowtie-$(BOWTIE_VERSION)-linux-x86_64.zip
@@ -95,29 +100,29 @@ bin/linux64/bowtie-build-debug: bowtie-$(BOWTIE_VERSION)-linux-x86_64.zip
 	rm -rf bowtie-$(BOWTIE_VERSION)
 
 
-bin/mac32/bowtie: bowtie-$(BOWTIE_VERSION)-macos-$(MACOS_VERSION)-i386.zip
-	mkdir -p bin/mac32
-	unzip $^ bowtie-$(BOWTIE_VERSION)/bowtie
-	mv bowtie-$(BOWTIE_VERSION)/bowtie $@
-	rm -rf bowtie-$(BOWTIE_VERSION)
+#bin/mac32/bowtie: bowtie-$(BOWTIE_VERSION)-macos-$(MACOS_VERSION)-i386.zip
+#	mkdir -p bin/mac32
+#	unzip $^ bowtie-$(BOWTIE_VERSION)/bowtie
+#	mv bowtie-$(BOWTIE_VERSION)/bowtie $@
+#	rm -rf bowtie-$(BOWTIE_VERSION)
 
-bin/mac32/bowtie-build: bowtie-$(BOWTIE_VERSION)-macos-$(MACOS_VERSION)-i386.zip
-	mkdir -p bin/mac32
-	unzip $^ bowtie-$(BOWTIE_VERSION)/bowtie-build
-	mv bowtie-$(BOWTIE_VERSION)/bowtie-build $@
-	rm -rf bowtie-$(BOWTIE_VERSION)
+#bin/mac32/bowtie-build: bowtie-$(BOWTIE_VERSION)-macos-$(MACOS_VERSION)-i386.zip
+#	mkdir -p bin/mac32
+#	unzip $^ bowtie-$(BOWTIE_VERSION)/bowtie-build
+#	mv bowtie-$(BOWTIE_VERSION)/bowtie-build $@
+#	rm -rf bowtie-$(BOWTIE_VERSION)
 
-bin/mac32/bowtie-debug: bowtie-$(BOWTIE_VERSION)-macos-$(MACOS_VERSION)-i386.zip
-	mkdir -p bin/mac32
-	unzip $^ bowtie-$(BOWTIE_VERSION)/bowtie-debug
-	mv bowtie-$(BOWTIE_VERSION)/bowtie-debug $@
-	rm -rf bowtie-$(BOWTIE_VERSION)
+#bin/mac32/bowtie-debug: bowtie-$(BOWTIE_VERSION)-macos-$(MACOS_VERSION)-i386.zip
+#	mkdir -p bin/mac32
+#	unzip $^ bowtie-$(BOWTIE_VERSION)/bowtie-debug
+#	mv bowtie-$(BOWTIE_VERSION)/bowtie-debug $@
+#	rm -rf bowtie-$(BOWTIE_VERSION)
 
-bin/mac32/bowtie-build-debug: bowtie-$(BOWTIE_VERSION)-macos-$(MACOS_VERSION)-i386.zip
-	mkdir -p bin/mac32
-	unzip $^ bowtie-$(BOWTIE_VERSION)/bowtie-build-debug
-	mv bowtie-$(BOWTIE_VERSION)/bowtie-build-debug $@
-	rm -rf bowtie-$(BOWTIE_VERSION)
+#bin/mac32/bowtie-build-debug: bowtie-$(BOWTIE_VERSION)-macos-$(MACOS_VERSION)-i386.zip
+#	mkdir -p bin/mac32
+#	unzip $^ bowtie-$(BOWTIE_VERSION)/bowtie-build-debug
+#	mv bowtie-$(BOWTIE_VERSION)/bowtie-build-debug $@
+#	rm -rf bowtie-$(BOWTIE_VERSION)
 
 
 bin/mac64/bowtie: bowtie-$(BOWTIE_VERSION)-macos-$(MACOS_VERSION)-x86_64.zip

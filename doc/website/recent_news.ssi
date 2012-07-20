@@ -1,4 +1,4 @@
-<h2>Version 1.2.0 - Coming soon</h2>
+<h2>Version 1.2.0 - July 20, 2012</h2>
 <ul>
   <li>Added support for Hadoop version 0.20.205.</li>
   <li>Dropped support for Hadoop versions prior to 0.20.</li>
@@ -6,7 +6,9 @@
   <li>Updated Bowtie version used to 0.12.8.</li>
   <li>Fixed issues with streaming jar version parsing.</li>
   <li>Fixed documentation bugs regarding --sra-toolkit option, which is
-     superseded by the --fastq-dump option.</li>
+     superseded by the
+     <a href="manual.shtml#cb-local-fastq-dump"><tt>--fastq-dump</tt></a>
+     option.</li>
   <li>Removed some diagnostic counters because Hadoop began to enforce
      an upper limit on the number of counters allowed per job.  For
      instance, per-label summary statistics are no longer printed in
@@ -136,30 +138,4 @@
      Fixed a lingering quality bug whereby qualities were converted
      immediately to phred33 but phred64 or solexa64 flags would be
      spuriously passed to Bowtie.
-</ul>
-
-<h2>Version 1.0.6 - August 26, 2010</h2>
-<ul>
- <li>
-     Single-computer mode now copies the output that it writes to the
-     console to a file <tt>cb.local.(pid).out</tt>.  Please include the
-     contents of this file when reporting issues.
- <li>
-     Sorting in single-computer mode is now more portable; switched
-     from command-line sort to pure-Perl <a href="http://search.cpan.org/~cnandor/File-Sort-1.01/Sort.pm">File::Sort</a>.
- <li>
-     Fixed bug whereby the quality setting would be propagated to
-     Bowtie but not to SOAPsnp, causing SOAPsnp to operate with
-     incorrect (over-optimistic) quality values when Phred+64 or
-     Solexa+64 modes were used.
- <li>
-     More helpful output from <tt>MapWrap.pl</tt> and <tt>ReduceWrap.pl</tt> to make it
-     easier to debug issues in single-computer-mode runs.
- <li>
-     Fixed issue where web form would incorrectly convert + signs in
-     AWS secret key to spaces, causing some good credentials to fail
-     verification.
- <li>
-     Fixed issue in preprocessor that mishandles copies when user's AWS
-     secret key contains slash characters.
 </ul>
