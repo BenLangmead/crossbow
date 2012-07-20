@@ -29,10 +29,6 @@ Version 1.2.0 - July 20, 2012
    * Fixed issues with streaming jar version parsing
    * Fixed documentation bugs regarding --sra-toolkit option, which is
      superseded by the --fastq-dump option.
-   * Removed some diagnostic counters because Hadoop began to enforce
-     an upper limit on the number of counters allowed per job.  For
-     instance, per-label summary statistics are no longer printed in
-     the Normalize step.
 
 Version 1.1.2 - May 23, 2011
    * Added --just-align and --resume-align options.  --just-align

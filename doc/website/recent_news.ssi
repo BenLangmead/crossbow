@@ -9,10 +9,6 @@
      superseded by the
      <a href="manual.shtml#cb-local-fastq-dump"><tt>--fastq-dump</tt></a>
      option.</li>
-  <li>Removed some diagnostic counters because Hadoop began to enforce
-     an upper limit on the number of counters allowed per job.  For
-     instance, per-label summary statistics are no longer printed in
-     the Normalize step.</li>
   
 </ul>
 
