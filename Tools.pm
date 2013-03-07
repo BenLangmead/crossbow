@@ -44,7 +44,7 @@ my $hadoopEnsured = 0;
 sub ensureHadoop() {
 	return if $hadoopEnsured;
 	$hadoop = $hadoop_arg if $hadoop_arg ne "";
-	if(system("$hadoop -version >&2") != 0) {
+	if(system("$hadoop version >&2") != 0) {
 		if($hadoop_arg ne "") {
 			die "--hadoop argument \"$hadoop\" doesn't exist or isn't executable\n";
 		} else {
