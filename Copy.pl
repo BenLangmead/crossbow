@@ -22,6 +22,7 @@ use AWS;
 use Tools;
 use File::Basename;
 use File::Path qw(mkpath rmtree);
+use File::Spec;
 
 {
 	# Force stderr to flush immediately
@@ -269,7 +270,9 @@ sub fetch($$$$) {
 		my $fastq_dump = Tools::fastq_dump();
 		$newfname =~ s/\.sra$/.fastq/;
 		mkpath("./sra_tmp");
-		Util::runAndWait("$fastq_dump $fname -O ./sra_tmp > /dev/null", "fastq-dump") == 0 ||
+		# New SRA utils has some major changes. The easiest way to fix this functionality
+		# for now is to provide full path for the input file.
+		Util::runAndWait("$fastq_dump ".File::Spec->rel2abs($fname)." -O ./sra_tmp > /dev/null", "fastq-dump") == 0 ||
 			die "Error performing SRA-to-FASTQ $fname";
 		Util::runAndWait("cat ./sra_tmp/* > $newfname", "cat") == 0 ||
 			die "Error copying resuld of SRA-to-FASTQ $fname";

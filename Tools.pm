@@ -108,9 +108,9 @@ sub ensureFastqDump() {
 	$fastq_dump = $fastq_dump_arg if $fastq_dump_arg ne "";
 	my $ret = 0;
 	if($fastq_dump ne "") {
-		$ret = system("$fastq_dump -H >&2 >/dev/null") >> 8;
+		$ret = system("$fastq_dump -h >&2 >/dev/null") >> 8;
 	}
-	if($ret != 4) {
+	if($ret != 0) {
 		if($fastq_dump_arg ne "") {
 			die "--fastq-dump argument \"$fastq_dump\" doesn't exist or isn't executable\n";
 		} else {
