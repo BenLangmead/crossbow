@@ -18,6 +18,17 @@ mkdir -p .${INDEX}/sequences
 
 BUILD_INPUTS=
 
+BOWTIE_BUILD=bowtie-build
+
+if [[ -n "$CROSSBOW_BOWTIE_HOME" ]]; then
+    BOWTIE_BUILD=${CROSSBOW_BOWTIE_HOME}/bowtie-build
+    if ! [[ -f "$BOWTIE_BUILD" ]]; then
+        echo "Failed to find ${BOWTIE_BUILD}" >&2
+        exit 1
+    fi 
+fi
+
+
 j=0
 for i in 17 ; do
 	wget $BASE/chr$i.fa.gz -O .${INDEX}/sequences/zchr$j.fa.gz
@@ -34,7 +45,7 @@ for i in 17 ; do
 done
 
 mkdir -p .${INDEX}/index
-bowtie-build $* $BUILD_INPUTS .${INDEX}/index/index
+$BOWTIE_BUILD $* $BUILD_INPUTS .${INDEX}/index/index
 
 sh db2ssnp_${INDEX}
 mv ${INDEX}snps .${INDEX}/snps
