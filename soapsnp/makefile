@@ -9,7 +9,7 @@ endif
 DEFINE =
 CXX = g++
 CXXFLAGS = #-MMD -MP -MF #-g3 -Wall -maccumulate-outgoing-args
-CXXFLAGS_RELEASE = -fomit-frame-pointer -O3 -ffast-math -funroll-loops -mmmx -msse -msse2 -msse3 -fmessage-length=0 -DNDEBUG -DFAST_BOUNDS
+CXXFLAGS_RELEASE = -static -fomit-frame-pointer -O3 -ffast-math -funroll-loops -mmmx -msse -msse2 -msse3 -fmessage-length=0 -DNDEBUG -DFAST_BOUNDS
 CXXFLAGS_DEBUG = -g -g3 -O0
 LFLAGS =
 
