@@ -11,6 +11,17 @@ and please apply if you're interested in working with either or both of us.
 </li>
 </ul>
 
+
+<h2>Version 1.2.1 - May 30, 2013</h2>
+<ul>
+  <li>Fixed some failures caused by the new SRA's utilities interface changes.</li>
+  <li>Updated the examples to work with the new SRA interface.</li>
+  <li>Fixed mouse example to properly check crossbow predefined paths if they exists.</li>
+  <li>Changed soapsnp to static linkage to avoid confusion on multilib platforms where user might use alternate LD_LIBRARY_PATH.
+</li>
+
+</ul>
+
 <h2>Version 1.2.0 - July 20, 2012</h2>
 <ul>
   <li>Added support for Hadoop version 0.20.205.</li>

@@ -21,6 +21,13 @@ Please report any issues using the Sourceforge bug tracker:
 Version Release History
 =======================
 
+Version 1.2.1 - May 30, 2013
+   * Fixed some failures caused by the new SRA's utilities interface changes.
+   * Updated the examples to work with the new SRA interface.
+   * Fixed mouse example to properly check crossbow predefined paths if they exists.
+   * Changed soapsnp to static linkage to avoid confusion on multilib platforms 
+     where user might use alternate LD_LIBRARY_PATH.
+
 Version 1.2.0 - July 20, 2012
    * Added support for Hadoop version 0.20.205.
    * Dropped support for Hadoop versions prior to 0.20.
