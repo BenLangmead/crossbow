@@ -737,7 +737,7 @@ if(!$hadoopJob && !$localJob) {
 	}
 	my @vers = split(/[^0-9]+/, $hadoopVersion);
 	if($vers[0] < 1 && $vers[1] < 20) {
-		die "Error: Myrna not compatible with Hadoop versions before 0.20";
+		die "Error: $APP not compatible with Hadoop versions before 0.20";
 	}
 	scalar(@vers) >= 2 && scalar(@vers <= 5) || die "Could not parse Hadoop version: \"$hadoopVersion\"\n";
 	if     ($vers[0] == 0 && $vers[1] == 20 && scalar(@vers) > 2 && $vers[2] == 205) {
