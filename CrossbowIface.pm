@@ -461,7 +461,7 @@ our %instTypeBitsMap = (
 sub partitionConf($) {
 	my $binFields = shift;
 	my @vers = split(/[^0-9]+/, $hadoopVersion);
-	scalar(@vers) >= 2 && scalar(@vers <= 4) || die "Could not parse Hadoop version: \"$hadoopVersion\"\n";
+	scalar(@vers) >= 2 && scalar(@vers <= 5) || die "Could not parse Hadoop version: \"$hadoopVersion\"\n";
 	my ($hadoopMajorVer, $hadoopMinorVer) = ($vers[0], $vers[1]);
 	my $hadoop18Partition = "num.key.fields.for.partition=$binFields";
 	my $hadoop19Partition = "mapred.text.key.partitioner.options=-k1,$binFields";
@@ -477,7 +477,7 @@ sub partitionConf($) {
 #
 sub confParam() {
 	my @vers = split(/[^0-9]+/, $hadoopVersion);
-	scalar(@vers) >= 2 && scalar(@vers <= 4) || die "Could not parse Hadoop version: \"$hadoopVersion\"\n";
+	scalar(@vers) >= 2 && scalar(@vers <= 5) || die "Could not parse Hadoop version: \"$hadoopVersion\"\n";
 	my ($hadoopMajorVer, $hadoopMinorVer) = ($vers[0], $vers[1]);
 	if($hadoopMajorVer == 0 && $hadoopMinorVer < 19) {
 		return "-jobconf\", \"";
@@ -490,7 +490,7 @@ sub confParam() {
 #
 sub cacheFile() {
 	my @vers = split(/[^0-9]+/, $hadoopVersion);
-	scalar(@vers) >= 2 && scalar(@vers <= 4) || die "Could not parse Hadoop version: \"$hadoopVersion\"\n";
+	scalar(@vers) >= 2 && scalar(@vers <= 5) || die "Could not parse Hadoop version: \"$hadoopVersion\"\n";
 	my ($hadoopMajorVer, $hadoopMinorVer) = ($vers[0], $vers[1]);
 	#if($hadoopMajorVer == 0 && $hadoopMinorVer < 19) {
 		return "-cacheFile";
@@ -739,7 +739,7 @@ if(!$hadoopJob && !$localJob) {
 	if($vers[0] < 1 && $vers[1] < 20) {
 		die "Error: Myrna not compatible with Hadoop versions before 0.20";
 	}
-	scalar(@vers) >= 2 && scalar(@vers <= 4) || die "Could not parse Hadoop version: \"$hadoopVersion\"\n";
+	scalar(@vers) >= 2 && scalar(@vers <= 5) || die "Could not parse Hadoop version: \"$hadoopVersion\"\n";
 	if     ($vers[0] == 0 && $vers[1] == 20 && scalar(@vers) > 2 && $vers[2] == 205) {
 		$emrArgs .= " " if ($emrArgs ne "" && $emrArgs !~ /\s$/);
 		$emrArgs .= "--hadoop-version=0.20.205 --ami-version 2.0 ";
