@@ -136,13 +136,13 @@ Now you are ready to use hadoop tools:
 > hadoop fs -ls /
 
 Under your cluster subdirectory whirr creates a list of all the instances the cluster uses
-including their IPs. You can use any of the IPs to ssh connect like this:
+including their priate and public IPs. You can use any of the IPs to ssh connect like this:
 
- ssh -i ~/.ssh/id_rsa_whirr -o "UserKnownHostsFile /dev/null" -o StrictHostKeyChecking=no ${USER}@[node IP]
+> ssh -i ~/.ssh/id_rsa_whirr -o "UserKnownHostsFile /dev/null" -o StrictHostKeyChecking=no ${USER}@[node IP]
 
 
-Stoping the cluster
--------------------
+Destroying the cluster
+---------------------
 
 Use the same command you used to start it but with the "destroy-cluster" option.
 
