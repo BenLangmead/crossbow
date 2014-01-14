@@ -1,0 +1,191 @@
+A Quick Whirr start
+-------------------
+
+
+Intro
+-----
+
+Whirr, a way to easily start and manage a hadoop cluster into ECC.
+
+Whirr project already has some good documentation which can be found at
+http://whirr.apache.org/. This is another quick start which is intended
+to be more specific for our projects like crossbow/myrna.
+
+Worth noting is that our projects require an old version of Hadoop, and
+it has been tested with version 0.20. However at the moment the oldest 
+version I can find available is 0.23.
+
+
+Installation
+------------
+
+There are mainly 2 option for whirr installation: download or build. For
+building additional resources like git and maven are required. Also keep
+in mind maven does require quite some memory which may be a problem for 
+memory constrained virtual machines. Building mainly requires cloning
+the repository git://git.apache.org/whirr.git and then using maven to
+build, test, etc. 
+
+Downloading an already pre-built whirr is easier and leaves you only with 
+the deployment task to be accomplished. Installing this is as easier as
+just making sure you have a java JDK available and add the whirr to your 
+PATH. Then check to see if whirr is working:
+
+> whirr version
+
+You should see the version report if everything is ok.
+
+Install a hadoop on your machine. It is important to make sure you install
+the same version of hadoop you plan to use on the cluster. Currently we
+are using version 0.23.10 which can be found here:
+http://apache.osuosl.org/hadoop/common/hadoop-0.23.10/hadoop-0.23.10.tar.gz
+
+
+Configuration
+-------------
+
+Whirr accepts different parameters, and for many of them some default values
+are set up if they are not provided. Usually it behaves like expected. That 
+is if the parameter is not provided in the command line then it will fall
+back to the configuration file and only if it fails to read the value from 
+here as well it will compute a default value. For our development I found
+easier to keep the configuration file.
+
+Set up a whir credential file in your home dir:
+
+> mkdir -p ~/.whirr
+> cp conf/credentials.sample ~/.whirr/credentials
+
+Open the config and fill the next sections:
+
+> vi ~/.whirr/credentials
+
+#
+# VARIABLES:
+#
+# PROVIDER - The cloud provider to use in Whirr, in our case aws-ec2.
+# You can override this by either setting up the environment variable
+# WHIRR_PROVIDER, or simply using the command line parameter --provider
+PROVIDER=aws-ec2
+
+# IDENTITY - The EC2 access key ID for crossbow/myrna acounts.
+# You can also use WHIRR_IDENTITY environemnt variable or the --identity
+# command line parameter.
+IDENTITY=[ACCES-KEY-ID]
+
+# CREDENTIAL - The EC2 secret key to use for Whirr credential.
+# You can also use WHIRR_CREDENTIAL environment variable or the --credential
+# command line parameter.
+CREDENTIAL=[EC2-SECRET-KEY]
+
+
+In order to use ssh to connect to any of the hadoop cluster nodes whirr will copy the 
+ssh keys to all the nodes, including the private key. So it is always a good practice 
+to use another pair of ssh keys for this purpose.
+Create a set of ssh keys:
+
+> ssh-keygen -t rsa -P '' -f ~/.ssh/id_rsa_whirr
+
+
+Some whirr cluster configuration files are in $CROSSBOW_HOME/whirr. For
+example hadoop-yarn-ec2.properties is starting by default 1 hadoop-namenode,
+1 yarn-resourcemanager, 1 mapreduce-historyserver, 1 hadoop-datanode and
+1 yarn-nodemanager. It will submit a spot instance request for 0.002 cents
+price and use the credentials and ssh keys previously created. More probably
+you will need to start more nodes for your experiment. You will need to open
+$CROSSBOW_HOME/whirr/hadoop-yarn-ec2.properties and look for the line:
+
+whirr.instance-templates= ...
+
+Change it to match your requirements.
+
+Instead of requesting spot instances you may want to get a specific hardware
+like m1.small, m3.xlarge, etc. In this case you will have to comment out
+the spot request line and fill in a specific hardware request like this:
+
+#whirr.aws-ec2-spot-price=0.02
+whirr.hardware-id=m1.large
+
+
+Starting a cluster
+------------------
+
+To start the cluster:
+
+> whirr  launch-cluster --config $CROSSBOW_HOME/whirr/hadoop-yarn-ec2.properties
+
+Pay attention to whirr messages. At the end whirr provides some good example of how to
+ssh connect to existing cluster nodes and such.
+
+The cluster name is being set by the whirr.cluster-name property in the configuration
+file. For hadoop-yarn-ec2.properties is set to "hadoop-yarn". Once the cluster is up 
+and running whirr will create a subdirectory with the same name under ~/.whirr directory.
+You need to tell hadoop where the hadoop conf is and you also need to assure the 
+communication between hadoop local tools and the EC2 cluster. First just export
+HADOOP_CONF_DIR like this
+
+> export HADOOP_CONF_DIR=~/.whirr/hadoop-yarn
+
+Second whirr creates a proxy script under your cluster subdirectory. Open a new terminal 
+and start the proxy:
+
+> ~/.whirr/hadoop-yarn/hadoop-proxy.sh
+
+Now you are ready to use hadoop tools:
+
+> hadoop fs -ls /
+
+Under your cluster subdirectory whirr creates a list of all the instances the cluster uses
+including their IPs. You can use any of the IPs to ssh connect like this:
+
+ ssh -i ~/.ssh/id_rsa_whirr -o "UserKnownHostsFile /dev/null" -o StrictHostKeyChecking=no ${USER}@[node IP]
+
+
+Stoping the cluster
+-------------------
+
+Use the same command you used to start it but with the "destroy-cluster" option.
+
+> whirr  destroy-cluster --config $CROSSBOW_HOME/whirr/hadoop-yarn-ec2.properties
+
+
+There are other configuration options commented out in the hadoop-yarn-ec2.properties 
+that might be useful.
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
